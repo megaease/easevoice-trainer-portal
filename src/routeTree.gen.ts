@@ -13,25 +13,75 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as appRouteImport } from './routes/(app)/route'
+import { Route as appIndexImport } from './routes/(app)/index'
 
 // Create Virtual Routes
 
-const AboutLazyImport = createFileRoute('/about')()
-const IndexLazyImport = createFileRoute('/')()
+const Import = createFileRoute('/')()
+const appVoiceCloneIndexLazyImport = createFileRoute('/(app)/voice-clone/')()
+const appTaskListIndexLazyImport = createFileRoute('/(app)/task-list/')()
+const appModelTrainingIndexLazyImport = createFileRoute(
+  '/(app)/model-training/',
+)()
+const appAboutIndexLazyImport = createFileRoute('/(app)/about/')()
 
 // Create/Update Routes
 
-const AboutLazyRoute = AboutLazyImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/about.lazy').then((d) => d.Route))
+const appRouteRoute = appRouteImport.update({
+  id: '/(app)',
+  getParentRoute: () => Route,
+} as any)
 
-const IndexLazyRoute = IndexLazyImport.update({
+const Route = Import.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+} as any)
+
+const appIndexRoute = appIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => appRouteRoute,
+} as any)
+
+const appVoiceCloneIndexLazyRoute = appVoiceCloneIndexLazyImport
+  .update({
+    id: '/voice-clone/',
+    path: '/voice-clone/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(app)/voice-clone/index.lazy').then((d) => d.Route),
+  )
+
+const appTaskListIndexLazyRoute = appTaskListIndexLazyImport
+  .update({
+    id: '/task-list/',
+    path: '/task-list/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(app)/task-list/index.lazy').then((d) => d.Route),
+  )
+
+const appModelTrainingIndexLazyRoute = appModelTrainingIndexLazyImport
+  .update({
+    id: '/model-training/',
+    path: '/model-training/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(app)/model-training/index.lazy').then((d) => d.Route),
+  )
+
+const appAboutIndexLazyRoute = appAboutIndexLazyImport
+  .update({
+    id: '/about/',
+    path: '/about/',
+    getParentRoute: () => appRouteRoute,
+  } as any)
+  .lazy(() => import('./routes/(app)/about/index.lazy').then((d) => d.Route))
 
 // Populate the FileRoutesByPath interface
 
@@ -41,54 +91,136 @@ declare module '@tanstack/react-router' {
       id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexLazyImport
+      preLoaderRoute: typeof Import
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      id: '/about'
+    '/(app)': {
+      id: '/(app)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof appRouteImport
+      parentRoute: typeof Route
+    }
+    '/(app)/': {
+      id: '/(app)/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof appIndexImport
+      parentRoute: typeof appRouteImport
+    }
+    '/(app)/about/': {
+      id: '/(app)/about/'
       path: '/about'
       fullPath: '/about'
-      preLoaderRoute: typeof AboutLazyImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof appAboutIndexLazyImport
+      parentRoute: typeof appRouteImport
+    }
+    '/(app)/model-training/': {
+      id: '/(app)/model-training/'
+      path: '/model-training'
+      fullPath: '/model-training'
+      preLoaderRoute: typeof appModelTrainingIndexLazyImport
+      parentRoute: typeof appRouteImport
+    }
+    '/(app)/task-list/': {
+      id: '/(app)/task-list/'
+      path: '/task-list'
+      fullPath: '/task-list'
+      preLoaderRoute: typeof appTaskListIndexLazyImport
+      parentRoute: typeof appRouteImport
+    }
+    '/(app)/voice-clone/': {
+      id: '/(app)/voice-clone/'
+      path: '/voice-clone'
+      fullPath: '/voice-clone'
+      preLoaderRoute: typeof appVoiceCloneIndexLazyImport
+      parentRoute: typeof appRouteImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface appRouteRouteChildren {
+  appIndexRoute: typeof appIndexRoute
+  appAboutIndexLazyRoute: typeof appAboutIndexLazyRoute
+  appModelTrainingIndexLazyRoute: typeof appModelTrainingIndexLazyRoute
+  appTaskListIndexLazyRoute: typeof appTaskListIndexLazyRoute
+  appVoiceCloneIndexLazyRoute: typeof appVoiceCloneIndexLazyRoute
+}
+
+const appRouteRouteChildren: appRouteRouteChildren = {
+  appIndexRoute: appIndexRoute,
+  appAboutIndexLazyRoute: appAboutIndexLazyRoute,
+  appModelTrainingIndexLazyRoute: appModelTrainingIndexLazyRoute,
+  appTaskListIndexLazyRoute: appTaskListIndexLazyRoute,
+  appVoiceCloneIndexLazyRoute: appVoiceCloneIndexLazyRoute,
+}
+
+const appRouteRouteWithChildren = appRouteRoute._addFileChildren(
+  appRouteRouteChildren,
+)
+
+interface RouteChildren {
+  appRouteRoute: typeof appRouteRouteWithChildren
+}
+
+const RouteChildren: RouteChildren = {
+  appRouteRoute: appRouteRouteWithChildren,
+}
+
+const RouteWithChildren = Route._addFileChildren(RouteChildren)
+
 export interface FileRoutesByFullPath {
-  '/': typeof IndexLazyRoute
-  '/about': typeof AboutLazyRoute
+  '/': typeof appIndexRoute
+  '/about': typeof appAboutIndexLazyRoute
+  '/model-training': typeof appModelTrainingIndexLazyRoute
+  '/task-list': typeof appTaskListIndexLazyRoute
+  '/voice-clone': typeof appVoiceCloneIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexLazyRoute
-  '/about': typeof AboutLazyRoute
+  '/': typeof appIndexRoute
+  '/about': typeof appAboutIndexLazyRoute
+  '/model-training': typeof appModelTrainingIndexLazyRoute
+  '/task-list': typeof appTaskListIndexLazyRoute
+  '/voice-clone': typeof appVoiceCloneIndexLazyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexLazyRoute
-  '/about': typeof AboutLazyRoute
+  '/': typeof RouteWithChildren
+  '/(app)': typeof appRouteRouteWithChildren
+  '/(app)/': typeof appIndexRoute
+  '/(app)/about/': typeof appAboutIndexLazyRoute
+  '/(app)/model-training/': typeof appModelTrainingIndexLazyRoute
+  '/(app)/task-list/': typeof appTaskListIndexLazyRoute
+  '/(app)/voice-clone/': typeof appVoiceCloneIndexLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths: '/' | '/about' | '/model-training' | '/task-list' | '/voice-clone'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/' | '/about'
+  to: '/' | '/about' | '/model-training' | '/task-list' | '/voice-clone'
+  id:
+    | '__root__'
+    | '/'
+    | '/(app)'
+    | '/(app)/'
+    | '/(app)/about/'
+    | '/(app)/model-training/'
+    | '/(app)/task-list/'
+    | '/(app)/voice-clone/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexLazyRoute: typeof IndexLazyRoute
-  AboutLazyRoute: typeof AboutLazyRoute
+  Route: typeof RouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexLazyRoute: IndexLazyRoute,
-  AboutLazyRoute: AboutLazyRoute,
+  Route: RouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -101,15 +233,45 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
-        "/about"
+        "/"
       ]
     },
     "/": {
-      "filePath": "index.lazy.tsx"
+      "filePath": "(app)",
+      "children": [
+        "/(app)"
+      ]
     },
-    "/about": {
-      "filePath": "about.lazy.tsx"
+    "/(app)": {
+      "filePath": "(app)/route.tsx",
+      "parent": "/",
+      "children": [
+        "/(app)/",
+        "/(app)/about/",
+        "/(app)/model-training/",
+        "/(app)/task-list/",
+        "/(app)/voice-clone/"
+      ]
+    },
+    "/(app)/": {
+      "filePath": "(app)/index.tsx",
+      "parent": "/(app)"
+    },
+    "/(app)/about/": {
+      "filePath": "(app)/about/index.lazy.tsx",
+      "parent": "/(app)"
+    },
+    "/(app)/model-training/": {
+      "filePath": "(app)/model-training/index.lazy.tsx",
+      "parent": "/(app)"
+    },
+    "/(app)/task-list/": {
+      "filePath": "(app)/task-list/index.lazy.tsx",
+      "parent": "/(app)"
+    },
+    "/(app)/voice-clone/": {
+      "filePath": "(app)/voice-clone/index.lazy.tsx",
+      "parent": "/(app)"
     }
   }
 }
