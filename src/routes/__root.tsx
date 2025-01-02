@@ -3,7 +3,8 @@ import { QueryClient } from '@tanstack/react-query'
 import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/ui/toaster'
+import { ModeToggle } from '@/components/mode-toggle'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -16,6 +17,7 @@ function RootComponent() {
     <React.Fragment>
       <Outlet />
       <Toaster />
+      <ModeToggle />
       {import.meta.env.MODE === 'development' && (
         <>
           <ReactQueryDevtools buttonPosition='bottom-left' />
