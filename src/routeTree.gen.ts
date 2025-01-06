@@ -13,214 +13,192 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as appRouteImport } from './routes/(app)/route'
-import { Route as appIndexImport } from './routes/(app)/index'
+import { Route as LayoutRouteImport } from './routes/_layout/route'
+import { Route as LayoutIndexImport } from './routes/_layout/index'
 
 // Create Virtual Routes
 
-const Import = createFileRoute('/')()
-const appVoiceCloneIndexLazyImport = createFileRoute('/(app)/voice-clone/')()
-const appTaskListIndexLazyImport = createFileRoute('/(app)/task-list/')()
-const appModelTrainingIndexLazyImport = createFileRoute(
-  '/(app)/model-training/',
+const LayoutVoiceCloneIndexLazyImport = createFileRoute(
+  '/_layout/voice-clone/',
 )()
-const appAboutIndexLazyImport = createFileRoute('/(app)/about/')()
+const LayoutTaskListIndexLazyImport = createFileRoute('/_layout/task-list/')()
+const LayoutModelTrainingIndexLazyImport = createFileRoute(
+  '/_layout/model-training/',
+)()
+const LayoutAboutIndexLazyImport = createFileRoute('/_layout/about/')()
 
 // Create/Update Routes
 
-const appRouteRoute = appRouteImport.update({
-  id: '/(app)',
-  getParentRoute: () => Route,
-} as any)
-
-const Route = Import.update({
-  id: '/',
-  path: '/',
+const LayoutRouteRoute = LayoutRouteImport.update({
+  id: '/_layout',
   getParentRoute: () => rootRoute,
 } as any)
 
-const appIndexRoute = appIndexImport.update({
+const LayoutIndexRoute = LayoutIndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => appRouteRoute,
+  getParentRoute: () => LayoutRouteRoute,
 } as any)
 
-const appVoiceCloneIndexLazyRoute = appVoiceCloneIndexLazyImport
-  .update({
-    id: '/voice-clone/',
-    path: '/voice-clone/',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-  .lazy(() =>
-    import('./routes/(app)/voice-clone/index.lazy').then((d) => d.Route),
-  )
+const LayoutVoiceCloneIndexLazyRoute = LayoutVoiceCloneIndexLazyImport.update({
+  id: '/voice-clone/',
+  path: '/voice-clone/',
+  getParentRoute: () => LayoutRouteRoute,
+} as any).lazy(() =>
+  import('./routes/_layout/voice-clone/index.lazy').then((d) => d.Route),
+)
 
-const appTaskListIndexLazyRoute = appTaskListIndexLazyImport
-  .update({
-    id: '/task-list/',
-    path: '/task-list/',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-  .lazy(() =>
-    import('./routes/(app)/task-list/index.lazy').then((d) => d.Route),
-  )
+const LayoutTaskListIndexLazyRoute = LayoutTaskListIndexLazyImport.update({
+  id: '/task-list/',
+  path: '/task-list/',
+  getParentRoute: () => LayoutRouteRoute,
+} as any).lazy(() =>
+  import('./routes/_layout/task-list/index.lazy').then((d) => d.Route),
+)
 
-const appModelTrainingIndexLazyRoute = appModelTrainingIndexLazyImport
-  .update({
+const LayoutModelTrainingIndexLazyRoute =
+  LayoutModelTrainingIndexLazyImport.update({
     id: '/model-training/',
     path: '/model-training/',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-  .lazy(() =>
-    import('./routes/(app)/model-training/index.lazy').then((d) => d.Route),
+    getParentRoute: () => LayoutRouteRoute,
+  } as any).lazy(() =>
+    import('./routes/_layout/model-training/index.lazy').then((d) => d.Route),
   )
 
-const appAboutIndexLazyRoute = appAboutIndexLazyImport
-  .update({
-    id: '/about/',
-    path: '/about/',
-    getParentRoute: () => appRouteRoute,
-  } as any)
-  .lazy(() => import('./routes/(app)/about/index.lazy').then((d) => d.Route))
+const LayoutAboutIndexLazyRoute = LayoutAboutIndexLazyImport.update({
+  id: '/about/',
+  path: '/about/',
+  getParentRoute: () => LayoutRouteRoute,
+} as any).lazy(() =>
+  import('./routes/_layout/about/index.lazy').then((d) => d.Route),
+)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof Import
+    '/_layout': {
+      id: '/_layout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof LayoutRouteImport
       parentRoute: typeof rootRoute
     }
-    '/(app)': {
-      id: '/(app)'
+    '/_layout/': {
+      id: '/_layout/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof appRouteImport
-      parentRoute: typeof Route
+      preLoaderRoute: typeof LayoutIndexImport
+      parentRoute: typeof LayoutRouteImport
     }
-    '/(app)/': {
-      id: '/(app)/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof appIndexImport
-      parentRoute: typeof appRouteImport
-    }
-    '/(app)/about/': {
-      id: '/(app)/about/'
+    '/_layout/about/': {
+      id: '/_layout/about/'
       path: '/about'
       fullPath: '/about'
-      preLoaderRoute: typeof appAboutIndexLazyImport
-      parentRoute: typeof appRouteImport
+      preLoaderRoute: typeof LayoutAboutIndexLazyImport
+      parentRoute: typeof LayoutRouteImport
     }
-    '/(app)/model-training/': {
-      id: '/(app)/model-training/'
+    '/_layout/model-training/': {
+      id: '/_layout/model-training/'
       path: '/model-training'
       fullPath: '/model-training'
-      preLoaderRoute: typeof appModelTrainingIndexLazyImport
-      parentRoute: typeof appRouteImport
+      preLoaderRoute: typeof LayoutModelTrainingIndexLazyImport
+      parentRoute: typeof LayoutRouteImport
     }
-    '/(app)/task-list/': {
-      id: '/(app)/task-list/'
+    '/_layout/task-list/': {
+      id: '/_layout/task-list/'
       path: '/task-list'
       fullPath: '/task-list'
-      preLoaderRoute: typeof appTaskListIndexLazyImport
-      parentRoute: typeof appRouteImport
+      preLoaderRoute: typeof LayoutTaskListIndexLazyImport
+      parentRoute: typeof LayoutRouteImport
     }
-    '/(app)/voice-clone/': {
-      id: '/(app)/voice-clone/'
+    '/_layout/voice-clone/': {
+      id: '/_layout/voice-clone/'
       path: '/voice-clone'
       fullPath: '/voice-clone'
-      preLoaderRoute: typeof appVoiceCloneIndexLazyImport
-      parentRoute: typeof appRouteImport
+      preLoaderRoute: typeof LayoutVoiceCloneIndexLazyImport
+      parentRoute: typeof LayoutRouteImport
     }
   }
 }
 
 // Create and export the route tree
 
-interface appRouteRouteChildren {
-  appIndexRoute: typeof appIndexRoute
-  appAboutIndexLazyRoute: typeof appAboutIndexLazyRoute
-  appModelTrainingIndexLazyRoute: typeof appModelTrainingIndexLazyRoute
-  appTaskListIndexLazyRoute: typeof appTaskListIndexLazyRoute
-  appVoiceCloneIndexLazyRoute: typeof appVoiceCloneIndexLazyRoute
+interface LayoutRouteRouteChildren {
+  LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutAboutIndexLazyRoute: typeof LayoutAboutIndexLazyRoute
+  LayoutModelTrainingIndexLazyRoute: typeof LayoutModelTrainingIndexLazyRoute
+  LayoutTaskListIndexLazyRoute: typeof LayoutTaskListIndexLazyRoute
+  LayoutVoiceCloneIndexLazyRoute: typeof LayoutVoiceCloneIndexLazyRoute
 }
 
-const appRouteRouteChildren: appRouteRouteChildren = {
-  appIndexRoute: appIndexRoute,
-  appAboutIndexLazyRoute: appAboutIndexLazyRoute,
-  appModelTrainingIndexLazyRoute: appModelTrainingIndexLazyRoute,
-  appTaskListIndexLazyRoute: appTaskListIndexLazyRoute,
-  appVoiceCloneIndexLazyRoute: appVoiceCloneIndexLazyRoute,
+const LayoutRouteRouteChildren: LayoutRouteRouteChildren = {
+  LayoutIndexRoute: LayoutIndexRoute,
+  LayoutAboutIndexLazyRoute: LayoutAboutIndexLazyRoute,
+  LayoutModelTrainingIndexLazyRoute: LayoutModelTrainingIndexLazyRoute,
+  LayoutTaskListIndexLazyRoute: LayoutTaskListIndexLazyRoute,
+  LayoutVoiceCloneIndexLazyRoute: LayoutVoiceCloneIndexLazyRoute,
 }
 
-const appRouteRouteWithChildren = appRouteRoute._addFileChildren(
-  appRouteRouteChildren,
+const LayoutRouteRouteWithChildren = LayoutRouteRoute._addFileChildren(
+  LayoutRouteRouteChildren,
 )
 
-interface RouteChildren {
-  appRouteRoute: typeof appRouteRouteWithChildren
-}
-
-const RouteChildren: RouteChildren = {
-  appRouteRoute: appRouteRouteWithChildren,
-}
-
-const RouteWithChildren = Route._addFileChildren(RouteChildren)
-
 export interface FileRoutesByFullPath {
-  '/': typeof appIndexRoute
-  '/about': typeof appAboutIndexLazyRoute
-  '/model-training': typeof appModelTrainingIndexLazyRoute
-  '/task-list': typeof appTaskListIndexLazyRoute
-  '/voice-clone': typeof appVoiceCloneIndexLazyRoute
+  '': typeof LayoutRouteRouteWithChildren
+  '/': typeof LayoutIndexRoute
+  '/about': typeof LayoutAboutIndexLazyRoute
+  '/model-training': typeof LayoutModelTrainingIndexLazyRoute
+  '/task-list': typeof LayoutTaskListIndexLazyRoute
+  '/voice-clone': typeof LayoutVoiceCloneIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof appIndexRoute
-  '/about': typeof appAboutIndexLazyRoute
-  '/model-training': typeof appModelTrainingIndexLazyRoute
-  '/task-list': typeof appTaskListIndexLazyRoute
-  '/voice-clone': typeof appVoiceCloneIndexLazyRoute
+  '/': typeof LayoutIndexRoute
+  '/about': typeof LayoutAboutIndexLazyRoute
+  '/model-training': typeof LayoutModelTrainingIndexLazyRoute
+  '/task-list': typeof LayoutTaskListIndexLazyRoute
+  '/voice-clone': typeof LayoutVoiceCloneIndexLazyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof RouteWithChildren
-  '/(app)': typeof appRouteRouteWithChildren
-  '/(app)/': typeof appIndexRoute
-  '/(app)/about/': typeof appAboutIndexLazyRoute
-  '/(app)/model-training/': typeof appModelTrainingIndexLazyRoute
-  '/(app)/task-list/': typeof appTaskListIndexLazyRoute
-  '/(app)/voice-clone/': typeof appVoiceCloneIndexLazyRoute
+  '/_layout': typeof LayoutRouteRouteWithChildren
+  '/_layout/': typeof LayoutIndexRoute
+  '/_layout/about/': typeof LayoutAboutIndexLazyRoute
+  '/_layout/model-training/': typeof LayoutModelTrainingIndexLazyRoute
+  '/_layout/task-list/': typeof LayoutTaskListIndexLazyRoute
+  '/_layout/voice-clone/': typeof LayoutVoiceCloneIndexLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/model-training' | '/task-list' | '/voice-clone'
+  fullPaths:
+    | ''
+    | '/'
+    | '/about'
+    | '/model-training'
+    | '/task-list'
+    | '/voice-clone'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/about' | '/model-training' | '/task-list' | '/voice-clone'
   id:
     | '__root__'
-    | '/'
-    | '/(app)'
-    | '/(app)/'
-    | '/(app)/about/'
-    | '/(app)/model-training/'
-    | '/(app)/task-list/'
-    | '/(app)/voice-clone/'
+    | '/_layout'
+    | '/_layout/'
+    | '/_layout/about/'
+    | '/_layout/model-training/'
+    | '/_layout/task-list/'
+    | '/_layout/voice-clone/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  Route: typeof RouteWithChildren
+  LayoutRouteRoute: typeof LayoutRouteRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  Route: RouteWithChildren,
+  LayoutRouteRoute: LayoutRouteRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -233,45 +211,38 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/_layout"
       ]
     },
-    "/": {
-      "filePath": "(app)",
+    "/_layout": {
+      "filePath": "_layout/route.tsx",
       "children": [
-        "/(app)"
+        "/_layout/",
+        "/_layout/about/",
+        "/_layout/model-training/",
+        "/_layout/task-list/",
+        "/_layout/voice-clone/"
       ]
     },
-    "/(app)": {
-      "filePath": "(app)/route.tsx",
-      "parent": "/",
-      "children": [
-        "/(app)/",
-        "/(app)/about/",
-        "/(app)/model-training/",
-        "/(app)/task-list/",
-        "/(app)/voice-clone/"
-      ]
+    "/_layout/": {
+      "filePath": "_layout/index.tsx",
+      "parent": "/_layout"
     },
-    "/(app)/": {
-      "filePath": "(app)/index.tsx",
-      "parent": "/(app)"
+    "/_layout/about/": {
+      "filePath": "_layout/about/index.lazy.tsx",
+      "parent": "/_layout"
     },
-    "/(app)/about/": {
-      "filePath": "(app)/about/index.lazy.tsx",
-      "parent": "/(app)"
+    "/_layout/model-training/": {
+      "filePath": "_layout/model-training/index.lazy.tsx",
+      "parent": "/_layout"
     },
-    "/(app)/model-training/": {
-      "filePath": "(app)/model-training/index.lazy.tsx",
-      "parent": "/(app)"
+    "/_layout/task-list/": {
+      "filePath": "_layout/task-list/index.lazy.tsx",
+      "parent": "/_layout"
     },
-    "/(app)/task-list/": {
-      "filePath": "(app)/task-list/index.lazy.tsx",
-      "parent": "/(app)"
-    },
-    "/(app)/voice-clone/": {
-      "filePath": "(app)/voice-clone/index.lazy.tsx",
-      "parent": "/(app)"
+    "/_layout/voice-clone/": {
+      "filePath": "_layout/voice-clone/index.lazy.tsx",
+      "parent": "/_layout"
     }
   }
 }

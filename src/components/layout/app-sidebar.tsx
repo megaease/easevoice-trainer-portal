@@ -1,4 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
+import { NavLink, NavItem } from '@/types'
 import {
   AudioLines,
   Home,
@@ -71,11 +72,15 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible='icon' variant='floating'>
       <SidebarHeader>
-        <div>MegaCloud</div>
+        <div>
+          {state === 'expanded' && (
+            <h1 className='text-md font-bold'>MegaCloud GPT SoVITS</h1>
+          )}
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          {/* <SidebarGroupLabel>Application</SidebarGroupLabel> */}
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
