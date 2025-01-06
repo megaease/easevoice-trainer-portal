@@ -17,7 +17,7 @@ function RootComponent() {
     <React.Fragment>
       <Outlet />
       <Toaster />
-      <ModeToggle />
+
       {import.meta.env.MODE === 'development' && (
         <>
           <ReactQueryDevtools buttonPosition='bottom-left' />

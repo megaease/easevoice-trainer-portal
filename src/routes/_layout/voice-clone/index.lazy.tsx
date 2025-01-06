@@ -1,9 +1,6 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
+import VoiceClone from '@/features/voice-clone'
 
 export const Route = createLazyFileRoute('/_layout/voice-clone/')({
-  component: RouteComponent,
+  component: VoiceClone,
 })
-
-function RouteComponent() {
-  return <div>Hello "/_app/voice-clone。lazy"!</div>
-}

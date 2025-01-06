@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { Header } from '@/components/layout/header'
+import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
 
 export const Route = createFileRoute('/_layout')({
@@ -31,7 +32,9 @@ export default function RouteComponent() {
             <ModeToggle />
           </div>
         </Header>
-        <Outlet />
+        <Main fixed>
+          <Outlet />
+        </Main>
       </div>
     </SidebarProvider>
   )

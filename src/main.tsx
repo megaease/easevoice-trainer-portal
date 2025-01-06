@@ -13,6 +13,28 @@ import './index.css'
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
+export function handleServerError(error: unknown) {
+  // eslint-disable-next-line no-console
+  console.log(error)
+
+  let errMsg = 'Something went wrong!'
+
+  if (
+    error &&
+    typeof error === 'object' &&
+    'status' in error &&
+    Number(error.status) === 204
+  ) {
+    errMsg = 'Content not found.'
+  }
+
+  if (error instanceof AxiosError) {
+    errMsg = error.response?.data.title
+  }
+
+  toast({ variant: 'destructive', title: errMsg })
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
