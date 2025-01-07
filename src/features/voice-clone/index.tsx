@@ -4,14 +4,15 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import FileManager from './file-manager'
 import SelectModelForm from './select-model-form'
 
 export default function VoiceClone() {
   return (
-    <div className='h-full border rounded-sm'>
+    <div className='h-full rounded-sm'>
       <ResizablePanelGroup
         direction='horizontal'
-        className='h-full items-stretch'
+        className='h-full items-stretch border rounded'
       >
         <ResizablePanel minSize={20} maxSize={80} defaultSize={50}>
           <ScrollArea className='h-full'>
@@ -20,7 +21,9 @@ export default function VoiceClone() {
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel>
-          <div className='p-4'>One</div>
+          <ScrollArea className='h-full'>
+            <FileManager />
+          </ScrollArea>
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

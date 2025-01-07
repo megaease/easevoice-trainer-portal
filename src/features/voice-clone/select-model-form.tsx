@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
-import { Separator } from '@radix-ui/react-dropdown-menu'
-import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CloudUpload, Paperclip } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
@@ -29,7 +27,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
+import { SectionTitle } from '@/components/section-title'
 
 const dropZoneConfig = {
   maxFiles: 1,
@@ -69,11 +69,7 @@ export default function SelectModelForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className='space-y-8 max-w-3xl mx-auto h-full p-4'
       >
-        <div className='flex-none'>
-          <h3 className='text-lg font-medium'>第一步：选择SoVITS和GPT模型</h3>
-          {/* <p className='text-sm text-muted-foreground'>{desc}</p> */}
-        </div>
-        <Separator className='my-4 flex-none' />
+        <SectionTitle title='第一步：选择模型' desc='' />
 
         <FormField
           control={form.control}
@@ -122,11 +118,7 @@ export default function SelectModelForm() {
             </FormItem>
           )}
         />
-        <div className='flex-none'>
-          <h3 className='text-lg font-medium'>第二步：声音克隆</h3>
-          {/* <p className='text-sm text-muted-foreground'>{desc}</p> */}
-        </div>
-        <Separator className='my-4 flex-none' />
+        <SectionTitle title='第二步：声音克隆' desc='' />
 
         <FormField
           control={form.control}
