@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CustomBreadcrumb } from './Breadcrumb'
+import { Breadcrumb } from './Breadcrumb'
 import { FileList } from './FileList'
 import { FilePreview } from './FilePreview'
 import { Toolbar } from './Toolbar'
@@ -150,10 +150,8 @@ function FileManager() {
           onViewModeChange={handleViewModeChange}
           hasSelection={state.selectedItems.length > 0}
         />
-        <CustomBreadcrumb
-          path={state.currentPath}
-          onNavigate={handleNavigate}
-        />
+
+        <Breadcrumb path={state.currentPath} onNavigate={handleNavigate} />
         <FileList
           files={state.files.filter((file) => {
             if (state.currentPath === '/') {

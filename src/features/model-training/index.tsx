@@ -5,9 +5,8 @@ import {
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import FileManager from '../../components/file-manager'
-import SelectModelForm from './components/select-model-form'
 
-export default function VoiceClone() {
+export default function ModelTraining() {
   return (
     <div className='h-full rounded-sm'>
       <ResizablePanelGroup
@@ -15,9 +14,7 @@ export default function VoiceClone() {
         className='h-full items-stretch border rounded'
       >
         <ResizablePanel minSize={20} maxSize={70} defaultSize={50}>
-          <ScrollArea className='h-full'>
-            <SelectModelForm />
-          </ScrollArea>
+          <ScrollArea className='h-full'>1</ScrollArea>
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel>
