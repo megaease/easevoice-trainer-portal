@@ -68,20 +68,38 @@ export const FileList: React.FC<FileListProps> = ({
       <ContextMenu>
         <ContextMenuTrigger>
           <div
-            className={cn('cursor-pointer hover:bg-gray-50 border rounded-lg', {
-              'bg-blue-50 border-blue-500': selectedItems.includes(file.id),
-              'border-gray-200': !selectedItems.includes(file.id),
-              'p-4': viewMode === 'grid',
-              'p-2': viewMode === 'list',
-            })}
+            className={cn(
+              'cursor-pointer hover:bg-gray-50 border rounded-lg',
+              {
+                'bg-blue-50 border-blue-500': selectedItems.includes(file.id),
+                'border-gray-200': !selectedItems.includes(file.id),
+                'p-4': viewMode === 'grid',
+                'p-2': viewMode !== 'grid',
+              },
+              'dark:bg-gray-800 dark:border-gray-700',
+              'dark:hover:bg-gray-700 dark:hover:border-gray-200',
+              {
+                'dark:border-gray-200': selectedItems.includes(file.id),
+              },
+              'transition-colors duration-200 ease-in-out'
+            )}
             onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
               if (e.ctrlKey || e.metaKey) {
                 onSelect(file.id)
               } else {
                 onSelect(file.id)
               }
             }}
-            onDoubleClick={() => onOpen(file)}
+            onDoubleClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              if (file.type === 'folder') {
+                onOpen(file)
+                console.log('Open folder:', file)
+              }
+            }}
           >
             {viewMode === 'grid' ? (
               commonContent
@@ -104,7 +122,7 @@ export const FileList: React.FC<FileListProps> = ({
         <ContextMenuContent>
           <ContextMenuItem onClick={() => onOpen(file)}>
             <Eye className='mr-2 h-4 w-4' />
-            Preview
+            Open
           </ContextMenuItem>
           <ContextMenuItem onClick={() => handleCopyPath(file)}>
             <Copy className='mr-2 h-4 w-4' />

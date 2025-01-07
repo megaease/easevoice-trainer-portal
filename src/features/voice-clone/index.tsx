@@ -4,8 +4,8 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import FileManager from './file-manager'
-import SelectModelForm from './select-model-form'
+import FileManager from './components/file-manager'
+import SelectModelForm from './components/select-model-form'
 
 export default function VoiceClone() {
   return (

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Breadcrumb } from './Breadcrumb'
+import { CustomBreadcrumb } from './Breadcrumb'
 import { FileList } from './FileList'
 import { FilePreview } from './FilePreview'
 import { Toolbar } from './Toolbar'
@@ -24,6 +24,15 @@ function FileManager() {
         type: 'folder',
         lastModified: new Date(),
         path: '/Images',
+      },
+      {
+        id: '3',
+        name: 'report.pdf',
+        type: 'file',
+        size: 1024 * 1024,
+        lastModified: new Date(),
+        path: '/report.pdf',
+        content: '', // Base64 content would go here
       },
     ],
   })
@@ -114,8 +123,8 @@ function FileManager() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-100'>
-      <div className='max-w-7xl mx-auto bg-white shadow-sm'>
+    <div className='min-h-screen'>
+      <div className='max-w-7xl mx-auto shadow-sm'>
         <Toolbar
           onNewFolder={() => {
             const name = prompt('Enter folder name:')
@@ -141,7 +150,10 @@ function FileManager() {
           onViewModeChange={handleViewModeChange}
           hasSelection={state.selectedItems.length > 0}
         />
-        <Breadcrumb path={state.currentPath} onNavigate={handleNavigate} />
+        <CustomBreadcrumb
+          path={state.currentPath}
+          onNavigate={handleNavigate}
+        />
         <FileList
           files={state.files.filter((file) => {
             if (state.currentPath === '/') {
