@@ -3,6 +3,7 @@ import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CloudUpload, Paperclip } from 'lucide-react'
+import { text } from 'stream/consumers'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { SectionTitle } from '@/components/section-title'
 
@@ -42,6 +42,7 @@ const formSchema = z.object({
   audio: z.array(z.string()),
   text: z.string(),
   language: z.string(),
+  text2: z.string(),
 })
 
 export default function SelectModelForm() {
@@ -119,7 +120,27 @@ export default function SelectModelForm() {
           )}
         />
         <SectionTitle title='第二步：声音克隆' desc='' />
-
+        <FormField
+          control={form.control}
+          name='text'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>要合成的音频文本</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder='请输入要合成的音频文本'
+                  {...field}
+                  className=''
+                  rows={5}
+                />
+              </FormControl>
+              <FormDescription>
+                You can @mention other users and organizations.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name='audio'
@@ -181,7 +202,7 @@ export default function SelectModelForm() {
           <div className='col-span-8 h-full'>
             <FormField
               control={form.control}
-              name='text'
+              name='text2'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>参考音频的文本</FormLabel>

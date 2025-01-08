@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import {
   FolderIcon,
   DocumentIcon,
@@ -55,12 +55,8 @@ export const FileList: React.FC<FileListProps> = ({
           console.log('onDoubleClick')
           onOpen(file)
         }}
-        // onClick={(e) => {
-        //   if (e.ctrlKey || e.metaKey) {
-        //     onSelect(file.id)
-        //   } else {
-        //     onSelect(file.id)
-        //   }
+        // onClick={() => {
+        //   onSelect(file.id)
         // }}
       >
         <ContextMenu>
@@ -83,7 +79,7 @@ export const FileList: React.FC<FileListProps> = ({
               )}
             >
               {viewMode === 'grid' ? (
-                <div className='flex flex-col items-center space-y-2 select-none'>
+                <div className='flex flex-col items-center space-y-2 select-none min-w-[120px] justify-center'>
                   {getFileIcon(file)}
                   <span className='truncate text-center w-full'>
                     {file.name}
@@ -132,7 +128,7 @@ export const FileList: React.FC<FileListProps> = ({
     <div
       className={cn(
         viewMode === 'grid'
-          ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'
+          ? 'flex flex-wrap flex-row gap-4'
           : 'flex flex-col space-y-2',
         'p-4 h-full'
       )}

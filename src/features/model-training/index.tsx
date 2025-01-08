@@ -48,22 +48,29 @@ export default function ModelTraining() {
               </ResizablePanel>
               <ResizableHandle withHandle />
               <ResizablePanel>
-                <div className='h-full flex flex-col '>
-                  <div className='flex-1'>
-                    <FileManager />
-                  </div>
-
-                  <TrainingStatus
-                    steps={[
-                      { label: '1. 前置数据处理', status: 'completed' },
-                      { label: '2. 训练模型', status: 'in-progress' },
-                      { label: '3. 训练完成', status: 'pending' },
-                    ]}
-                    currentStep={1}
-                    progress={45}
-                    status='in-progress'
-                  />
-                </div>
+                <ResizablePanelGroup
+                  direction='vertical'
+                  className='h-full items-stretch'
+                >
+                  <ResizablePanel minSize={40} maxSize={80} defaultSize={80}>
+                    <div className='h-full'>
+                      <FileManager />
+                    </div>
+                  </ResizablePanel>
+                  <ResizableHandle withHandle />
+                  <ResizablePanel>
+                    <TrainingStatus
+                      steps={[
+                        { label: '1. 前置数据处理', status: 'completed' },
+                        { label: '2. 训练模型', status: 'in-progress' },
+                        { label: '3. 训练完成', status: 'pending' },
+                      ]}
+                      currentStep={1}
+                      progress={45}
+                      status='in-progress'
+                    />
+                  </ResizablePanel>
+                </ResizablePanelGroup>
               </ResizablePanel>
             </ResizablePanelGroup>
           </div>

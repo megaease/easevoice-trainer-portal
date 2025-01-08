@@ -4,6 +4,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
@@ -33,24 +34,31 @@ export default function VoiceClone() {
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel>
-              <div className='h-full flex flex-col '>
-                <div className='flex-1'>
-                  <FileManager />
-                </div>
-
-                <TrainingStatus
-                  steps={
-                    [
-                      // { label: '选择模型', status: 'completed' },
-                      // { label: '声音克隆', status: 'in-progress' },
-                      // { label: '训练完成', status: 'pending' },
-                    ]
-                  }
-                  currentStep={1}
-                  progress={45}
-                  status='in-progress'
-                />
-              </div>
+              <ResizablePanelGroup
+                direction='vertical'
+                className='h-full items-stretch'
+              >
+                <ResizablePanel minSize={40} maxSize={80} defaultSize={80}>
+                  <div className='h-full'>
+                    <FileManager />
+                  </div>
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+                <ResizablePanel>
+                  <TrainingStatus
+                    steps={
+                      [
+                        // { label: '选择模型', status: 'completed' },
+                        // { label: '声音克隆', status: 'in-progress' },
+                        // { label: '训练完成', status: 'pending' },
+                      ]
+                    }
+                    currentStep={1}
+                    progress={45}
+                    status='in-progress'
+                  />
+                </ResizablePanel>
+              </ResizablePanelGroup>
             </ResizablePanel>
           </ResizablePanelGroup>
         </div>
