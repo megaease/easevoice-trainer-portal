@@ -1,9 +1,6 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
+import Tasks from '@/features/tasks'
 
 export const Route = createLazyFileRoute('/_layout/task-list/')({
-  component: RouteComponent,
+  component: Tasks,
 })
-
-function RouteComponent() {
-  return <div>Hello "/(app)/task-list"!</div>
-}
