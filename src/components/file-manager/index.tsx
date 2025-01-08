@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ScrollArea } from '../ui/scroll-area'
 import { Breadcrumb } from './Breadcrumb'
 import { FileList } from './FileList'
 import { FilePreview } from './FilePreview'
@@ -123,8 +124,8 @@ function FileManager() {
   }
 
   return (
-    <div className='min-h-screen'>
-      <div className='max-w-7xl mx-auto shadow-sm'>
+    <div className='h-full'>
+      <div className='max-w-7xl mx-auto shadow-sm flex flex-col h-full'>
         <Toolbar
           onNewFolder={() => {
             const name = prompt('Enter folder name:')
@@ -152,19 +153,24 @@ function FileManager() {
         />
 
         <Breadcrumb path={state.currentPath} onNavigate={handleNavigate} />
-        <FileList
-          files={state.files.filter((file) => {
-            if (state.currentPath === '/') {
-              return file.path.split('/').length === 2
-            }
-            return file.path.startsWith(state.currentPath)
-          })}
-          selectedItems={state.selectedItems}
-          viewMode={state.viewMode}
-          onSelect={handleSelect}
-          onOpen={handleOpen}
-          onDelete={handleDelete}
-        />
+        <div className='flex-1'>
+          <ScrollArea className='h-full'>
+            <FileList
+              files={state.files.filter((file) => {
+                if (state.currentPath === '/') {
+                  return file.path.split('/').length === 2
+                }
+                return file.path.startsWith(state.currentPath)
+              })}
+              selectedItems={state.selectedItems}
+              viewMode={state.viewMode}
+              onSelect={handleSelect}
+              onOpen={handleOpen}
+              onDelete={handleDelete}
+            />
+          </ScrollArea>
+        </div>
+
         <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
       </div>
     </div>

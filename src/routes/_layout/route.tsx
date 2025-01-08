@@ -2,9 +2,6 @@ import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
-import { Header } from '@/components/layout/header'
-import { Main } from '@/components/layout/main'
-import { ModeToggle } from '@/components/mode-toggle'
 
 export const Route = createFileRoute('/_layout')({
   component: RouteComponent,
@@ -26,15 +23,7 @@ export default function RouteComponent() {
           'group-data-[scroll-locked=1]/body:has-[main.fixed-main]:h-svh'
         )}
       >
-        <Header>
-          <div className='flex items-center gap-3 sm:gap-4 w-full'>
-            <div className='flex-1'></div>
-            <ModeToggle />
-          </div>
-        </Header>
-        <Main fixed>
-          <Outlet />
-        </Main>
+        <Outlet />
       </div>
     </SidebarProvider>
   )

@@ -1,5 +1,4 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { NavLink, NavItem } from '@/types'
 import {
   AudioLines,
   Home,
@@ -7,6 +6,7 @@ import {
   CircleHelp,
   Brain,
 } from 'lucide-react'
+import logoSvg from '@/assets/logo.svg'
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { NavLink, NavItem } from './types'
 
 // Menu items.
 const items = [
@@ -72,9 +73,18 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible='icon' variant='floating'>
       <SidebarHeader>
-        <div>
+        <div className='flex gap-1 items-center'>
+          <div
+            className='flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground
+                dark:bg-sidebar-primary-dark dark:text-sidebar-primary-dark-foreground
+                '
+          >
+            <img src={logoSvg} alt='EaseVoice Trainer' />
+          </div>
           {state === 'expanded' && (
-            <h1 className='text-md font-bold'>MegaCloud GPT SoVITS</h1>
+            <h1 className='text-md font-bold text-center truncate'>
+              EaseVoice Trainer
+            </h1>
           )}
         </div>
       </SidebarHeader>
