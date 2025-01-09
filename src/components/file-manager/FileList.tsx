@@ -49,21 +49,26 @@ export const FileList: React.FC<FileListProps> = ({
   }
 
   const FileItem = ({ file }: { file: FileItem }) => {
+    const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const handleClick = (file: FileItem) => {
+      if (clickTimer.current) {
+        clearTimeout(clickTimer.current)
+        clickTimer.current = null
+        onOpen(file)
+      } else {
+        clickTimer.current = setTimeout(() => {
+          onSelect(file.id)
+          clickTimer.current = null
+        }, 200) // 200ms 延迟
+      }
+    }
     return (
-      <div
-        onDoubleClick={() => {
-          console.log('onDoubleClick')
-          onOpen(file)
-        }}
-        // onClick={() => {
-        //   onSelect(file.id)
-        // }}
-      >
+      <div onClick={() => handleClick(file)}>
         <ContextMenu>
           <ContextMenuTrigger>
             <div
               className={cn(
-                'cursor-pointer hover:bg-gray-50 border rounded-lg',
+                'cursor-pointer  border rounded-lg hover:bg-gray-50',
                 {
                   'bg-blue-50 border-blue-500': selectedItems.includes(file.id),
                   'border-gray-200': !selectedItems.includes(file.id),

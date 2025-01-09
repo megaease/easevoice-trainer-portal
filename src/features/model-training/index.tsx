@@ -34,11 +34,9 @@ export default function ModelTraining() {
               direction='horizontal'
               className='h-full items-stretch border rounded'
             >
-              <ResizablePanel minSize={20} maxSize={70} defaultSize={50}>
-                <TabsContent value='dataProcess'>
-                  <ScrollArea className='h-full'>
-                    <DataProcess />
-                  </ScrollArea>
+              <ResizablePanel minSize={20} maxSize={85} defaultSize={50}>
+                <TabsContent value='dataProcess' className='h-full'>
+                  <DataProcess />
                 </TabsContent>
                 <TabsContent value='training'>
                   <ScrollArea className='h-full'>

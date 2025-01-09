@@ -1,7 +1,8 @@
 import React from 'react'
-import { Link } from 'lucide-react'
+import { Link, Tag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import BasicTrainingForm from './basic-training-form'
 
 type Item = {
   title: string
@@ -41,10 +42,10 @@ export default function Training({ className, ...props }: Props) {
             </TabsList>
           </nav>
         </div>
-        <TabsContent value='account'>
-          Make changes to your account here.
+        <TabsContent value='basic'>
+          <BasicTrainingForm />
         </TabsContent>
-        <TabsContent value='password'>Change your password here.</TabsContent>
+        <TabsContent value='advanced'>TODO</TabsContent>
       </Tabs>
     </div>
   )
