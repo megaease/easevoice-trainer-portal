@@ -9,20 +9,20 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
 import FileManager from '../../components/file-manager'
-import DataProcess from './components/data-process'
-import Training from './components/training'
+import AdvancedTraining from './advanced-training'
+import BasicTraining from './basic-training'
 import TrainingStatus from './components/training-status'
 
 export default function ModelTraining() {
   return (
     <>
-      <Tabs defaultValue='dataProcess' className='h-full flex flex-col'>
+      <Tabs defaultValue='basicMode' className='h-full flex flex-col'>
         <Header>
           <div className='flex items-center gap-3 sm:gap-4 w-full'>
             <div className='flex-1'>
               <TabsList>
-                <TabsTrigger value='dataProcess'>前置数据处理</TabsTrigger>
-                <TabsTrigger value='training'>训练模型</TabsTrigger>
+                <TabsTrigger value='basicMode'>基础模式</TabsTrigger>
+                <TabsTrigger value='advancedMode'>高级模式</TabsTrigger>
               </TabsList>
             </div>
             <ModeToggle />
@@ -35,12 +35,12 @@ export default function ModelTraining() {
               className='h-full items-stretch border rounded'
             >
               <ResizablePanel minSize={20} maxSize={85} defaultSize={50}>
-                <TabsContent value='dataProcess' className='h-full'>
-                  <DataProcess />
+                <TabsContent value='basicMode' className='h-full'>
+                  <BasicTraining />
                 </TabsContent>
-                <TabsContent value='training'>
+                <TabsContent value='advancedMode' className='h-full'>
                   <ScrollArea className='h-full'>
-                    <Training />
+                    <AdvancedTraining />
                   </ScrollArea>
                 </TabsContent>
               </ResizablePanel>

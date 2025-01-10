@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,8 +19,6 @@ import {
 import { Input } from '@/components/ui/input'
 
 const formSchema = z.object({
-  name: z.string(),
-  textPath: z.string(),
   audioPath: z.string(),
 })
 
@@ -44,65 +45,28 @@ export default function BasicTrainingForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className='space-y-8 max-w-3xl mx-auto py-10'
+        className='space-y-8 max-w-3xl mx-auto py-10 p-4'
       >
-        <FormField
-          control={form.control}
-          name='name'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>模型名称</FormLabel>
-              <FormControl>
-                <Input placeholder='请输入模型名称' type='' {...field} />
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='textPath'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>文本标注文件目录</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder='请输入文本标注文件所在的路径'
-                  type=''
-                  {...field}
-                />
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <FormField
           control={form.control}
           name='audioPath'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>训练集音频文件目录</FormLabel>
+              <FormLabel>音频文件路径</FormLabel>
               <FormControl>
                 <Input
-                  placeholder='请输入训练集音频文件目录'
+                  placeholder='请输入音频文件路径所在的路径'
                   type=''
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+
               <FormMessage />
             </FormItem>
           )}
         />
-
         <Button type='submit' className='w-full'>
-          开始训练
+          开始处理
         </Button>
       </form>
     </Form>
