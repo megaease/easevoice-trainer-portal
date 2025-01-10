@@ -122,6 +122,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
+      wavesurfer.js:
+        specifier: ^7.8.15
+        version: 7.8.15
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -2498,6 +2501,9 @@ packages:
       yaml:
         optional: true
 
+  wavesurfer.js@7.8.15:
+    resolution: {integrity: sha512-fWNnQt5BEGzuoJ7HRxfvpT1rOEI1AmCGPZ/+7QDkDVN/m2vIBeLVQ+5vENRMz1YwvZ/u1No0UV492/o8G++KXQ==}
+
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
 
@@ -4675,6 +4681,8 @@ snapshots:
       jiti: 1.21.7
       tsx: 4.19.2
       yaml: 2.7.0
+
+  wavesurfer.js@7.8.15: {}
 
   webpack-virtual-modules@0.6.2: {}
 

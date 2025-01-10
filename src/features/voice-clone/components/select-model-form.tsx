@@ -29,7 +29,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import AudioPlayer from '@/components/audio-player'
 import { SectionTitle } from '@/components/section-title'
+import Test from './test'
 
 const dropZoneConfig = {
   maxFiles: 1,
@@ -120,7 +122,40 @@ export default function SelectModelForm() {
           )}
         />
         <SectionTitle title='第二步：声音克隆' desc='' />
-        <FormField
+
+        <AudioPlayer
+          fileUploader={(handleFileUpload) => {
+            return (
+              <FileUploader
+                value={files}
+                onValueChange={(files) => {
+                  setFiles(files)
+                  handleFileUpload(files)
+                }}
+                dropzoneOptions={dropZoneConfig}
+                className='relative bg-background rounded-lg p-2'
+              >
+                <FileInput
+                  id='fileInput'
+                  className='outline-dashed outline-1 outline-slate-500'
+                >
+                  <div className='flex items-center justify-center flex-col p-8 w-full '>
+                    <CloudUpload className='text-gray-500 w-10 h-10' />
+                    <p className='mb-1 text-sm text-gray-500 dark:text-gray-400'>
+                      <span className='font-semibold'>Click to upload</span>
+                      &nbsp; or drag and drop
+                    </p>
+                    <p className='text-xs text-gray-500 dark:text-gray-400'>
+                      SVG, PNG, JPG or GIF
+                    </p>
+                  </div>
+                </FileInput>
+              </FileUploader>
+            )
+          }}
+        ></AudioPlayer>
+
+        {/* <FormField
           control={form.control}
           name='text'
           render={({ field }) => (
@@ -196,7 +231,7 @@ export default function SelectModelForm() {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <div className='grid grid-cols-12 gap-4'>
           <div className='col-span-8 h-full'>
