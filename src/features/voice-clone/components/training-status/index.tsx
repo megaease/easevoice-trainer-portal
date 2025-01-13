@@ -1,4 +1,5 @@
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
+import { Spinner } from '@/components/ui/Spinner'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -46,6 +47,7 @@ export default function TrainingStatus({
                 : status === 'error'
                   ? '错误'
                   : '进行中'}
+              <Spinner className='h-4 w-4 ml-2' />
             </Badge>
           </div>
 

@@ -172,13 +172,7 @@ function AudioPlayer({ onAudioStateChange }: props) {
               </div>
             ) : (
               <UploadTips>
-                <Button
-                  asChild
-                  type='button'
-                  className='bg-indigo-500 
-                hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700 cursor-pointer
-              '
-                >
+                <Button asChild type='button' className='cursor-pointer'>
                   <label>
                     <Upload className='mr-2 h-4 w-4' />
                     上传音频文件

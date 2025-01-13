@@ -26,7 +26,7 @@ export default function VoiceClone() {
             direction='horizontal'
             className='h-full items-stretch border rounded'
           >
-            <ResizablePanel minSize={20} maxSize={70} defaultSize={50}>
+            <ResizablePanel minSize={20} maxSize={70} defaultSize={70}>
               <ScrollArea className='h-full'>
                 <VoiceCloneForm />
               </ScrollArea>
