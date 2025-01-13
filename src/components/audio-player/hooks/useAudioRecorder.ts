@@ -1,11 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import { useRecordingTimer } from '@/hooks/useRecordingTimer'
-
-export interface AudioState {
-  url: string | null
-  duration: string
-  name: string
-}
+import { AudioState } from '../type'
 
 export function useAudioRecorder(tab: string) {
   const [isRecording, setIsRecording] = useState(false)

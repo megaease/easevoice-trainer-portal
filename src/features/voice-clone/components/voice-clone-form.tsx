@@ -1,17 +1,9 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CloudUpload, Paperclip } from 'lucide-react'
-import { text } from 'stream/consumers'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
-import {
-  FileInput,
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-} from '@/components/ui/file-upload'
 import {
   Form,
   FormControl,
@@ -30,14 +22,9 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import AudioPlayer from '@/components/audio-player'
+import { AudioState } from '@/components/audio-player/type'
 import { SectionTitle } from '@/components/section-title'
-import Test from './test'
 
-const dropZoneConfig = {
-  maxFiles: 1,
-  maxSize: 1024 * 1024 * 4,
-  multiple: true,
-}
 const formSchema = z.object({
   SoVITS: z.string(),
   gpt: z.string(),
@@ -47,8 +34,16 @@ const formSchema = z.object({
   text2: z.string(),
 })
 
-export default function SelectModelForm() {
-  const [files, setFiles] = useState<File[] | null>(null)
+export default function VoiceCloneForm() {
+  const [audioState, setAudioState] = useState<AudioState>({
+    url: null,
+    duration: '0s',
+    name: 'recording.wav',
+  })
+  const handleAudioStateChange = useCallback((audioState: AudioState) => {
+    setAudioState(audioState)
+  }, [])
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
@@ -65,15 +60,17 @@ export default function SelectModelForm() {
       console.error('Form submission error', error)
     }
   }
-
+  console.log('audioState', audioState)
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className='space-y-8 max-w-3xl mx-auto h-full p-4'
       >
-        <SectionTitle title='第一步：选择模型' desc='' />
+        <SectionTitle title='第一步：声音和文本' desc='' />
+        <AudioPlayer onAudioStateChange={handleAudioStateChange}></AudioPlayer>
 
+        <SectionTitle title='第二步：模型和参数' desc='' />
         <FormField
           control={form.control}
           name='SoVITS'
@@ -97,7 +94,6 @@ export default function SelectModelForm() {
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name='gpt'
@@ -121,87 +117,6 @@ export default function SelectModelForm() {
             </FormItem>
           )}
         />
-        <SectionTitle title='第二步：声音克隆' desc='' />
-
-        <AudioPlayer></AudioPlayer>
-
-        {/* <FormField
-          control={form.control}
-          name='text'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>要合成的音频文本</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder='请输入要合成的音频文本'
-                  {...field}
-                  className=''
-                  rows={5}
-                />
-              </FormControl>
-              <FormDescription>
-                You can @mention other users and organizations.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='audio'
-          render={() => (
-            <FormItem>
-              <FormLabel>上传参考音频</FormLabel>
-              <FormControl>
-                <FileUploader
-                  value={files}
-                  onValueChange={setFiles}
-                  dropzoneOptions={dropZoneConfig}
-                  className='relative bg-background rounded-lg p-2'
-                >
-                  <FileInput
-                    id='fileInput'
-                    className='outline-dashed outline-1 outline-slate-500'
-                  >
-                    <div className='flex items-center justify-center flex-col p-8 w-full '>
-                      <CloudUpload className='text-gray-500 w-10 h-10' />
-                      <p className='mb-1 text-sm text-gray-500 dark:text-gray-400'>
-                        <span className='font-semibold'>Click to upload</span>
-                        &nbsp; or drag and drop
-                      </p>
-                      <p className='text-xs text-gray-500 dark:text-gray-400'>
-                        SVG, PNG, JPG or GIF
-                      </p>
-                    </div>
-                  </FileInput>
-                  <FileUploaderContent>
-                    {files &&
-                      files.length > 0 &&
-                      files.map((file, i) => (
-                        <FileUploaderItem
-                          key={i}
-                          index={i}
-                          className='h-auto border flex items-center justify-between rounded-lg
-                            hover:bg-white px-4
-                          '
-                        >
-                          <Paperclip className='h-4 w-4 stroke-current' />
-                          <span>{file.name}</span>
-                          <audio
-                            controls
-                            src={URL.createObjectURL(file)}
-                            className='bg-white p-0'
-                          />
-                        </FileUploaderItem>
-                      ))}
-                  </FileUploaderContent>
-                </FileUploader>
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
 
         <div className='grid grid-cols-12 gap-4'>
           <div className='col-span-8 h-full'>

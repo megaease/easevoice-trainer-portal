@@ -8,8 +8,8 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
 import FileManager from '../../components/file-manager'
-import SelectModelForm from './components/select-model-form'
 import TrainingStatus from './components/training-status'
+import VoiceCloneForm from './components/voice-clone-form'
 
 export default function VoiceClone() {
   return (
@@ -28,7 +28,7 @@ export default function VoiceClone() {
           >
             <ResizablePanel minSize={20} maxSize={70} defaultSize={50}>
               <ScrollArea className='h-full'>
-                <SelectModelForm />
+                <VoiceCloneForm />
               </ScrollArea>
             </ResizablePanel>
             <ResizableHandle withHandle />

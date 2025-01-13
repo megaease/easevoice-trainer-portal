@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { Mic, Play, Square, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
@@ -10,8 +10,12 @@ import { RecorderTips } from './RecorderTips'
 import { UploadTips } from './UploadTips'
 import { Waveform } from './Waveform'
 import { useAudioRecorder } from './hooks/useAudioRecorder'
+import { AudioState } from './type'
 
-function AudioPlayer() {
+type props = {
+  onAudioStateChange: (audioState: AudioState) => void
+}
+function AudioPlayer({ onAudioStateChange }: props) {
   const [activeTab, setActiveTab] = useState('record')
 
   const {
@@ -29,6 +33,10 @@ function AudioPlayer() {
     pause: () => {},
     toggle: () => {},
   })
+
+  useEffect(() => {
+    onAudioStateChange(audioState[activeTab])
+  }, [audioState, onAudioStateChange, activeTab])
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
