@@ -75,6 +75,28 @@ export default function VoiceCloneForm() {
             <CardContent>
               <AudioPlayer
                 onAudioStateChange={handleAudioStateChange}
+                text={
+                  <FormField
+                    control={form.control}
+                    name='text'
+                    render={({ field }) => (
+                      <FormItem>
+                        {/* <FormLabel>Bio</FormLabel> */}
+                        <FormControl>
+                          <Textarea
+                            placeholder='请输入要合成的文本'
+                            rows={5}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          You can @mention other users and organizations.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                }
               ></AudioPlayer>
             </CardContent>
           </Card>
@@ -84,7 +106,7 @@ export default function VoiceCloneForm() {
             <CardHeader>
               <CardTitle>第二步：模型和参数</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className='space-y-4'>
               <FormField
                 control={form.control}
                 name='SoVITS'

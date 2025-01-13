@@ -65,7 +65,10 @@ export default function BasicTrainingForm() {
             </FormItem>
           )}
         />
-        <Button type='submit' className='w-full'>
+        <Button
+          type='submit'
+          className='w-full hover:shadow-lg hover:shadow-blue-300 transition-shadow'
+        >
           开始处理
         </Button>
       </form>

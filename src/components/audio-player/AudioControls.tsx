@@ -49,7 +49,7 @@ export function AudioControls({
           onClick={onDelete}
           aria-label='删除音频'
         >
-          <X className='h-4 w-4' />
+          <X className='h-6 w-6' color='red' />
         </Button>
       </div>
     </div>

@@ -14,8 +14,9 @@ import { AudioState } from './type'
 
 type props = {
   onAudioStateChange: (audioState: AudioState) => void
+  text: React.ReactNode
 }
-function AudioPlayer({ onAudioStateChange }: props) {
+function AudioPlayer({ onAudioStateChange, text }: props) {
   const [activeTab, setActiveTab] = useState('record')
 
   const {
@@ -42,11 +43,14 @@ function AudioPlayer({ onAudioStateChange }: props) {
     const file = event.target.files?.[0]
     if (file) {
       const url = URL.createObjectURL(file)
-      const duration = `${(file.size / 32000).toFixed(1)}s`
-      setAudioState((prev) => ({
-        ...prev,
-        upload: { url, duration, name: file.name },
-      }))
+      const audio = new Audio(url)
+      audio.addEventListener('loadedmetadata', () => {
+        const duration = audio.duration + 's'
+        setAudioState((prev) => ({
+          ...prev,
+          upload: { url, duration, name: file.name },
+        }))
+      })
     }
   }
 
@@ -107,12 +111,7 @@ function AudioPlayer({ onAudioStateChange }: props) {
                   audioUrl={recorderAudioState.url}
                   onPlayAudioReady={handlePlayAudioReady}
                 />
-                <div className='mt-6'>
-                  <Textarea
-                    placeholder='请先输入要转换的文字'
-                    className='min-h-[120px] mb-4'
-                  />
-                </div>
+                <div className='mt-6'>{text}</div>
               </div>
             ) : (
               <RecorderTips>

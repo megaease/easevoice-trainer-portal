@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link, Tag } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import DataProcess from './data-process'
 import BasicTrainingForm from './fine-tuning-training'
@@ -44,6 +45,7 @@ export default function AdvancedTraining({ className, ...props }: Props) {
             </TabsList>
           </nav>
         </div>
+        <Separator className='mt-4' />
         <TabsContent value='dataProcess'>
           <DataProcess />
         </TabsContent>
