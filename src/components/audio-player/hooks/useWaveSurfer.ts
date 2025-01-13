@@ -1,8 +1,10 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
+import { set } from 'zod'
 import WaveSurfer from 'wavesurfer.js'
 
 export function useWaveSurfer(containerRef: React.RefObject<HTMLDivElement>) {
   const wavesurferRef = useRef<WaveSurfer | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
 
   const createWaveSurfer = useCallback(() => {
     if (containerRef.current && !wavesurferRef.current) {
@@ -38,8 +40,23 @@ export function useWaveSurfer(containerRef: React.RefObject<HTMLDivElement>) {
   const playAudio = useCallback(() => {
     if (wavesurferRef.current) {
       wavesurferRef.current.play()
+      setIsPlaying(true)
     }
   }, [])
 
-  return { loadAudio, playAudio }
+  const pauseAudio = useCallback(() => {
+    if (wavesurferRef.current) {
+      wavesurferRef.current.pause()
+      setIsPlaying(false)
+    }
+  }, [])
+  const togglePlay = useCallback(() => {
+    if (isPlaying) {
+      pauseAudio()
+    } else {
+      playAudio()
+    }
+  }, [isPlaying, playAudio, pauseAudio])
+
+  return { loadAudio, playAudio, pauseAudio, togglePlay, isPlaying }
 }

@@ -1,13 +1,30 @@
 import { useState, useRef, useCallback } from 'react'
-import { AudioState } from '../types/audio'
+import { useRecordingTimer } from '@/hooks/useRecordingTimer'
 
-export function useAudioRecorder() {
+export interface AudioState {
+  url: string | null
+  duration: string
+  name: string
+}
+
+export function useAudioRecorder(tab: string) {
   const [isRecording, setIsRecording] = useState(false)
-  const [audioState, setAudioState] = useState<AudioState>({
-    url: null,
-    duration: '0s',
-    name: 'recording.wav',
+  const [audioState, setAudioState] = useState<Record<string, AudioState>>({
+    record: {
+      url: null,
+      duration: '0s',
+      name: 'recording.wav',
+    },
+    upload: {
+      url: null,
+      duration: '0s',
+      name: 'recording.wav',
+    },
   })
+
+  const { startTimer, stopTimer, formattedDuration, duration } =
+    useRecordingTimer()
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const startTimeRef = useRef<number>(0)
@@ -19,6 +36,7 @@ export function useAudioRecorder() {
       mediaRecorderRef.current = mediaRecorder
       audioChunksRef.current = []
       startTimeRef.current = Date.now()
+      startTimer()
 
       mediaRecorder.ondataavailable = (event) => {
         audioChunksRef.current.push(event.data)
@@ -30,12 +48,16 @@ export function useAudioRecorder() {
         })
         const url = URL.createObjectURL(audioBlob)
         const duration = ((Date.now() - startTimeRef.current) / 1000).toFixed(1)
-        setAudioState({ url, duration: `${duration}s`, name: 'recording.wav' })
+        setAudioState((prev) => ({
+          ...prev,
+          [tab]: { url, duration: `${duration}s`, name: 'recording.wav' },
+        }))
       }
 
       mediaRecorder.start()
       setIsRecording(true)
     } catch (error) {
+      stopTimer()
       console.error('Error accessing microphone:', error)
       throw new Error(
         'Failed to start recording. Please check your microphone permissions.'
@@ -45,10 +67,11 @@ export function useAudioRecorder() {
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
+      stopTimer()
       mediaRecorderRef.current.stop()
       setIsRecording(false)
     }
-  }, [isRecording])
+  }, [isRecording, stopTimer])
 
   return {
     isRecording,
@@ -56,5 +79,7 @@ export function useAudioRecorder() {
     startRecording,
     stopRecording,
     setAudioState,
+    formattedDuration,
+    duration,
   }
 }

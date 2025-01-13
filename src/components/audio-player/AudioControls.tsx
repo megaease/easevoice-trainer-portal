@@ -1,4 +1,4 @@
-import { Play, Share2, Download, X } from 'lucide-react'
+import { Play, Download, X, Pause } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export interface AudioState {
@@ -10,25 +10,29 @@ interface AudioControlsProps {
   audioState: AudioState
   onPlay: () => void
   onDelete: () => void
+  isPlaying: boolean
 }
 
 export function AudioControls({
   audioState,
   onPlay,
   onDelete,
+  isPlaying,
 }: AudioControlsProps) {
   return (
     <div className='flex items-center justify-between mb-4'>
       <div className='flex items-center'>
         <Button
           type='button'
-          size='icon'
-          variant='ghost'
           onClick={onPlay}
-          className='text-indigo-600'
           aria-label='播放音频'
+          className='flex items-center justify-center 
+           rounded-full
+           bg-blue-600 text-white
+           hover:bg-blue-700 transition duration-300 shadow-lg'
+          size={'lg'}
         >
-          <Play className='h-6 w-6' />
+          {isPlaying ? <Pause /> : <Play />}
         </Button>
         <span className='ml-2 text-gray-500'>
           {audioState.name} • {audioState.duration}
