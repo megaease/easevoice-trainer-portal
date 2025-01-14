@@ -5,15 +5,16 @@ interface WaveSurferHook {
   isPlaying: boolean
   togglePlay: () => void
   loadAudio: (url: string) => void
+  isReady: boolean
 }
 
 export function useWaveSurfer(
   containerRef: React.RefObject<HTMLDivElement>,
   options?: Partial<WaveSurferOptions>
 ): WaveSurferHook {
-  console.log('render')
   const wavesurfer = useRef<WaveSurfer | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -34,6 +35,7 @@ export function useWaveSurfer(
     const handlePause = () => setIsPlaying(false)
     const handleFinish = () => setIsPlaying(false)
 
+    wavesurfer.current.on('init', () => setIsReady(true))
     wavesurfer.current.on('play', handlePlay)
     wavesurfer.current.on('pause', handlePause)
     wavesurfer.current.on('finish', handleFinish)
@@ -48,7 +50,7 @@ export function useWaveSurfer(
         }
       }
     }
-  }, [])
+  }, [containerRef, options])
 
   const togglePlay = useCallback(() => {
     if (wavesurfer.current) {
@@ -67,7 +69,8 @@ export function useWaveSurfer(
       isPlaying,
       togglePlay,
       loadAudio,
+      isReady,
     }),
-    [isPlaying, togglePlay, loadAudio]
+    [isPlaying, togglePlay, loadAudio, isReady]
   )
 }

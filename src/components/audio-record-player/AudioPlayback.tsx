@@ -14,14 +14,15 @@ export default function AudioPlayback({
   handleDeleteAudio,
 }: AudioPlaybackProps): JSX.Element {
   const waveformRef = useRef<HTMLDivElement | null>(null)
-  const { isPlaying, togglePlay, loadAudio } = useWaveSurfer(waveformRef)
+  const { isPlaying, togglePlay, loadAudio, isReady } =
+    useWaveSurfer(waveformRef)
   const { url: audioUrl } = audioState
   useEffect(() => {
-    if (audioUrl) {
+    if (audioUrl && isReady) {
       loadAudio(audioUrl)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audioUrl])
+  }, [audioUrl, isReady])
 
   return (
     <div>
