@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface AudioRecorderState {
   isRecording: boolean
@@ -16,7 +16,22 @@ export function useAudioRecorder(): AudioRecorderHook {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [isRecording, setIsRecording] = useState<boolean>(false)
   const [duration, setDuration] = useState<number>(0)
-
+  const clearRecordingTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+  }, [])
+  useEffect(() => {
+    return () => {
+      clearRecordingTimer()
+      if (mediaRecorder.current?.stream) {
+        mediaRecorder.current.stream
+          .getTracks()
+          .forEach((track) => track.stop())
+      }
+    }
+  }, [clearRecordingTimer])
   const startRecording = async (): Promise<void> => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })

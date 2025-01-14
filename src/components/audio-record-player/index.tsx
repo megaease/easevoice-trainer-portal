@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { on } from 'events'
 import { Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
@@ -22,41 +23,42 @@ function AudioRecordPlayer({
     upload: { url: null, duration: '0s', name: 'upload.wav' },
   })
 
-  const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    try {
-      const file = event.target.files?.[0]
-      if (!file) return
+  const handleFileChange = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      try {
+        const file = event.target.files?.[0]
+        if (!file) return
 
-      if (!file.type.startsWith('audio/')) {
-        throw new Error('Please select an audio file')
+        if (!file.type.startsWith('audio/')) {
+          throw new Error('Please select an audio file')
+        }
+
+        const url = URL.createObjectURL(file)
+
+        const duration = await new Promise<string>((resolve, reject) => {
+          const audio = new Audio(url)
+
+          audio.addEventListener('loadedmetadata', () => {
+            resolve(`${Math.round(audio.duration)}s`)
+          })
+
+          audio.addEventListener('error', () => {
+            reject(new Error('Failed to load audio file'))
+          })
+        })
+        console.log('duration', duration)
+        setAudioState((prev) => ({
+          ...prev,
+          upload: { url, duration, name: file.name },
+        }))
+
+        onAudioStateChange({ url, duration, name: file.name })
+      } catch (error) {
+        console.error('Error loading audio:', error)
       }
-
-      const url = URL.createObjectURL(file)
-
-      const duration = await new Promise<string>((resolve, reject) => {
-        const audio = new Audio(url)
-
-        audio.addEventListener('loadedmetadata', () => {
-          resolve(`${Math.round(audio.duration)}s`)
-        })
-
-        audio.addEventListener('error', () => {
-          reject(new Error('Failed to load audio file'))
-        })
-      })
-      console.log('duration', duration)
-      setAudioState((prev) => ({
-        ...prev,
-        upload: { url, duration, name: file.name },
-      }))
-
-      onAudioStateChange({ url, duration, name: file.name })
-    } catch (error) {
-      console.error('Error loading audio:', error)
-    }
-  }
+    },
+    [onAudioStateChange]
+  )
 
   const handleDeleteAudio = () => {
     setAudioState((prev) => ({
@@ -93,6 +95,7 @@ function AudioRecordPlayer({
             ) : (
               <AudioRecorder
                 onRecordingComplete={(audioState) => {
+                  onAudioStateChange(audioState)
                   setAudioState((prev) => ({
                     ...prev,
                     record: audioState,

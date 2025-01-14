@@ -2,7 +2,6 @@ import { useRef, useState, useEffect, useCallback, useMemo } from 'react'
 import WaveSurfer from 'wavesurfer.js'
 
 interface WaveSurferHook {
-  wavesurfer: WaveSurfer | null
   isPlaying: boolean
   togglePlay: () => void
   loadAudio: (url: string) => void
@@ -11,6 +10,7 @@ interface WaveSurferHook {
 export function useWaveSurfer(
   containerRef: React.RefObject<HTMLDivElement>
 ): WaveSurferHook {
+  console.log('render')
   const wavesurfer = useRef<WaveSurfer | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
 
@@ -38,7 +38,13 @@ export function useWaveSurfer(
 
     return () => {
       if (wavesurfer.current) {
-        wavesurfer.current.destroy()
+        console.log('destroying WaveSurfer')
+        try {
+          wavesurfer.current.unAll()
+          wavesurfer.current.destroy()
+        } catch (error) {
+          console.error('Error destroying WaveSurfer:', error)
+        }
       }
     }
   }, [])
@@ -57,7 +63,6 @@ export function useWaveSurfer(
 
   return useMemo(
     () => ({
-      wavesurfer: wavesurfer.current,
       isPlaying,
       togglePlay,
       loadAudio,

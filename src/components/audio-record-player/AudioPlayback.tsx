@@ -62,7 +62,7 @@ export default function AudioPlayback({
           </Button>
         </div>
       </div>
-      <div ref={waveformRef} className='bg-gray-50 rounded-lg p-4 mb-4' />
+      <div ref={waveformRef} className='rounded-lg p-4 mb-4' />
     </div>
   )
 }
