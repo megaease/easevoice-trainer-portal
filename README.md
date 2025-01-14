@@ -1,50 +1,43 @@
-# React + TypeScript + Vite
+# EaseVoice Trainer Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Status](https://img.shields.io/badge/Status-Work%20In%20Progress-yellow)](https://github.com/yourusername/easevoice-trainer-portal)
 
-Currently, two official plugins are available:
+AI voice training management platform is built based on React + TypeScript + Vite.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚧 Work In Progress
 
-## Expanding the ESLint configuration
+The project is currently under development and the following functions are being implemented:
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- [ ] Sound cloning
 
-- Configure the top-level `parserOptions` property like this:
+- [ ] Audio recording and uploading
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- [ ] Waveform visualization
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+- [ ] Model training
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+- [ ] Cloud File Management
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+- [ ] Data annotation
+
+## Tech Stack
+
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- Shadcn/ui
+
+## Getting Started
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start the development server
+pnpm dev
+
+# Build for production
+pnpm build
+
 ```
