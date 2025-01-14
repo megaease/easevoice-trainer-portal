@@ -1,20 +1,21 @@
 import { useRef, useEffect } from 'react'
-import { Pause, Play, Download, X } from 'lucide-react'
+import { Pause, Play, RotateCcw } from 'lucide-react'
 import { Button } from '../ui/button'
 import { useWaveSurfer } from './hooks/useWaveSurfer'
+import { AudioState } from './type'
 
 interface AudioPlaybackProps {
-  audioUrl: string | null
+  audioState: AudioState
   handleDeleteAudio: () => void
 }
 
 export default function AudioPlayback({
-  audioUrl,
+  audioState,
   handleDeleteAudio,
 }: AudioPlaybackProps): JSX.Element {
   const waveformRef = useRef<HTMLDivElement | null>(null)
   const { isPlaying, togglePlay, loadAudio } = useWaveSurfer(waveformRef)
-
+  const { url: audioUrl } = audioState
   useEffect(() => {
     if (audioUrl) {
       loadAudio(audioUrl)
@@ -30,35 +31,31 @@ export default function AudioPlayback({
             type='button'
             onClick={togglePlay}
             aria-label='播放音频'
-            className='flex items-center justify-center 
-           rounded-full
-           bg-blue-600 text-white
-           hover:bg-blue-700 transition duration-300 shadow-lg'
+            className='rounded-full
+           flex items-center justify-center 
+           bg-gradient-to-r from-purple-500 to-pink-500 
+           text-white shadow-lg hover:shadow-xl transition-shadow duration-300'
             size={'lg'}
           >
-            {isPlaying ? <Pause /> : <Play />}
+            {isPlaying ? <Pause size={64} /> : <Play size={64} />}
           </Button>
           <span className='ml-2 text-gray-500'>
-            {/* {audioState.name} • {audioState.duration} */}
+            {audioState.name} • {audioState.duration}
           </span>
         </div>
         <div className='flex items-center gap-2'>
           <Button
+            size={'sm'}
             type='button'
-            size='icon'
-            variant='ghost'
-            aria-label='下载音频'
-          >
-            <Download className='h-4 w-4' />
-          </Button>
-          <Button
-            type='button'
-            size='icon'
-            variant='ghost'
+            variant='outline'
             onClick={handleDeleteAudio}
             aria-label='删除音频'
+            className='flex items-center transition-all bg-red-100
+             text-red-600 hover:bg-red-200 hover:text-red-700 ring-2
+              ring-red-500 shadow-lg shadow-red-500/30 '
           >
-            <X className='h-6 w-6' color='red' />
+            <RotateCcw absoluteStrokeWidth />
+            重新开始
           </Button>
         </div>
       </div>

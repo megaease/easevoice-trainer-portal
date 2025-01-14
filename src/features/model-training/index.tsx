@@ -39,9 +39,7 @@ export default function ModelTraining() {
                   <BasicTraining />
                 </TabsContent>
                 <TabsContent value='advancedMode' className='h-full'>
-                  <ScrollArea className='h-full'>
-                    <AdvancedTraining />
-                  </ScrollArea>
+                  <AdvancedTraining />
                 </TabsContent>
               </ResizablePanel>
               <ResizableHandle withHandle />

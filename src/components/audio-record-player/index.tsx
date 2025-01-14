@@ -87,7 +87,7 @@ function AudioRecordPlayer({
             {recorderAudioState?.url ? (
               <div className='rounded-lg w-full border p-6'>
                 <AudioPlayback
-                  audioUrl={recorderAudioState.url}
+                  audioState={recorderAudioState}
                   handleDeleteAudio={handleDeleteAudio}
                 />
                 <div className='mt-6'>{text}</div>
@@ -111,7 +111,7 @@ function AudioRecordPlayer({
             {uploadAudioState.url ? (
               <div className='rounded-lg w-full border p-6'>
                 <AudioPlayback
-                  audioUrl={uploadAudioState.url}
+                  audioState={uploadAudioState}
                   handleDeleteAudio={handleDeleteAudio}
                 />
                 <div className='mt-6'>{text}</div>

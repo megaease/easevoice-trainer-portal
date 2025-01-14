@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react'
-import WaveSurfer from 'wavesurfer.js'
+import WaveSurfer, { WaveSurferOptions } from 'wavesurfer.js'
 
 interface WaveSurferHook {
   isPlaying: boolean
@@ -8,7 +8,8 @@ interface WaveSurferHook {
 }
 
 export function useWaveSurfer(
-  containerRef: React.RefObject<HTMLDivElement>
+  containerRef: React.RefObject<HTMLDivElement>,
+  options?: Partial<WaveSurferOptions>
 ): WaveSurferHook {
   console.log('render')
   const wavesurfer = useRef<WaveSurfer | null>(null)
@@ -26,6 +27,7 @@ export function useWaveSurfer(
       barGap: 3,
       height: 80,
       normalize: true,
+      ...options,
     })
 
     const handlePlay = () => setIsPlaying(true)
@@ -38,7 +40,6 @@ export function useWaveSurfer(
 
     return () => {
       if (wavesurfer.current) {
-        console.log('destroying WaveSurfer')
         try {
           wavesurfer.current.unAll()
           wavesurfer.current.destroy()

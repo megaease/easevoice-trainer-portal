@@ -28,31 +28,29 @@ const items: Item[] = [
 
 export default function AdvancedTraining({ className, ...props }: Props) {
   return (
-    <div className='p-4'>
-      <Tabs defaultValue='dataProcess'>
-        <div className='flex justify-between items-center gap-2'>
-          <h2 className='text-lg font-semibold'>高级模式</h2>
-          <nav
-            className={cn(
-              'flex py-1 space-x-2 lg:space-x-0 lg:space-y-1',
-              className
-            )}
-            {...props}
-          >
-            <TabsList>
-              <TabsTrigger value='dataProcess'>前置数据处理</TabsTrigger>
-              <TabsTrigger value='modelTraining'>训练模型</TabsTrigger>
-            </TabsList>
-          </nav>
-        </div>
-        <Separator className='mt-4' />
-        <TabsContent value='dataProcess'>
-          <DataProcess />
-        </TabsContent>
-        <TabsContent value='modelTraining'>
-          <FineTuningTraining />
-        </TabsContent>
-      </Tabs>
-    </div>
+    <Tabs defaultValue='dataProcess' className='h-full px-4 py-2'>
+      <div className='flex justify-between items-center gap-2'>
+        <h2 className='text-lg font-semibold'>高级模式</h2>
+        <nav
+          className={cn(
+            'flex py-1 space-x-2 lg:space-x-0 lg:space-y-1',
+            className
+          )}
+          {...props}
+        >
+          <TabsList>
+            <TabsTrigger value='dataProcess'>前置数据处理</TabsTrigger>
+            <TabsTrigger value='modelTraining'>训练模型</TabsTrigger>
+          </TabsList>
+        </nav>
+      </div>
+      <Separator className='mt-4' />
+      <TabsContent value='dataProcess' className='h-full'>
+        <DataProcess />
+      </TabsContent>
+      <TabsContent value='modelTraining'>
+        <FineTuningTraining />
+      </TabsContent>
+    </Tabs>
   )
 }
