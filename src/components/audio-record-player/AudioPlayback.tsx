@@ -12,7 +12,7 @@ interface AudioPlaybackProps {
 export default function AudioPlayback({
   audioState,
   handleDeleteAudio,
-}: AudioPlaybackProps): JSX.Element {
+}: AudioPlaybackProps) {
   const waveformRef = useRef<HTMLDivElement | null>(null)
   const { isPlaying, togglePlay, loadAudio, isReady } =
     useWaveSurfer(waveformRef)

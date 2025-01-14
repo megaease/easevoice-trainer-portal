@@ -6,7 +6,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import AudioPlayer from '@/components/audio-player'
-import AudioPlayback from '@/components/audio-record-player/AudioPlayback'
 import audioSrc from './test.mp3'
 
 // 模拟数据，实际使用时应该从API获取
@@ -104,7 +103,7 @@ export default function AudioTextEditingList() {
       <div className='flex flex-col gap-4'>
         {mockData.map((item) => (
           <Card key={item.id} className='w-full shadow-none'>
-            <CardContent className='flex items-center p-2 flex-wrap'>
+            <CardContent className=' p-2'>
               <Checkbox
                 checked={selectedItems[item.id] || false}
                 onCheckedChange={(checked) =>
@@ -121,6 +120,7 @@ export default function AudioTextEditingList() {
                   }}
                 />
               </div>
+
               <div className='w-full'>
                 <div className='text-gray-500 text-sm'>{item.name}</div>
                 <Textarea

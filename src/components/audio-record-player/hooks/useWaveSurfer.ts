@@ -8,6 +8,16 @@ interface WaveSurferHook {
   isReady: boolean
 }
 
+const defaultOptions: Partial<WaveSurferOptions> = {
+  height: 80,
+  waveColor: '#D1D5DB',
+  progressColor: '#6366F1',
+  cursorColor: 'transparent',
+  barWidth: 2,
+  barGap: 3,
+  normalize: true,
+}
+
 export function useWaveSurfer(
   containerRef: React.RefObject<HTMLDivElement>,
   options?: Partial<WaveSurferOptions>
@@ -15,21 +25,17 @@ export function useWaveSurfer(
   const wavesurfer = useRef<WaveSurfer | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isReady, setIsReady] = useState(false)
-
+  const mergedOptions = useMemo(() => ({ ...defaultOptions, ...options }), [])
   useEffect(() => {
     if (!containerRef.current) return
-
-    wavesurfer.current = WaveSurfer.create({
-      container: containerRef.current,
-      waveColor: '#D1D5DB',
-      progressColor: '#6366F1',
-      cursorColor: 'transparent',
-      barWidth: 2,
-      barGap: 3,
-      height: 80,
-      normalize: true,
-      ...options,
-    })
+    wavesurfer.current = WaveSurfer.create(
+      Object.assign(
+        {
+          container: containerRef.current,
+        },
+        mergedOptions
+      )
+    )
 
     const handlePlay = () => setIsPlaying(true)
     const handlePause = () => setIsPlaying(false)
@@ -50,27 +56,30 @@ export function useWaveSurfer(
         }
       }
     }
-  }, [containerRef, options])
 
-  const togglePlay = useCallback(() => {
-    if (wavesurfer.current) {
-      wavesurfer.current.playPause()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [containerRef])
+
+  const togglePlay = useCallback(async () => {
+    if (wavesurfer.current && isReady) {
+      await wavesurfer.current.playPause()
     }
-  }, [])
+  }, [isReady])
 
-  const loadAudio = useCallback((url: string) => {
-    if (wavesurfer.current) {
-      wavesurfer.current.load(url)
-    }
-  }, [])
-
-  return useMemo(
-    () => ({
-      isPlaying,
-      togglePlay,
-      loadAudio,
-      isReady,
-    }),
-    [isPlaying, togglePlay, loadAudio, isReady]
+  const loadAudio = useCallback(
+    (url: string) => {
+      if (wavesurfer.current && isReady) {
+        console.log('Loading audio:', url)
+        wavesurfer.current.load(url)
+      }
+    },
+    [isReady]
   )
+
+  return {
+    isPlaying,
+    togglePlay,
+    loadAudio,
+    isReady,
+  }
 }
