@@ -22,8 +22,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import AudioPlayer from '@/components/audio-player'
-import { AudioState } from '@/components/audio-player/type'
+import AudioRecordPlayer from '@/components/audio-record-player'
+import { AudioState } from '@/components/audio-record-player/type'
 
 const formSchema = z.object({
   SoVITS: z.string(),
@@ -73,7 +73,7 @@ export default function VoiceCloneForm() {
               <CardTitle>第一步：声音和文本</CardTitle>
             </CardHeader>
             <CardContent>
-              <AudioPlayer
+              <AudioRecordPlayer
                 onAudioStateChange={handleAudioStateChange}
                 text={
                   <FormField
@@ -97,7 +97,8 @@ export default function VoiceCloneForm() {
                     )}
                   />
                 }
-              ></AudioPlayer>
+                audioState={audioState}
+              ></AudioRecordPlayer>
             </CardContent>
           </Card>
         </section>
