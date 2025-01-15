@@ -7,10 +7,7 @@ import {
   Download,
   LayoutGrid,
   List,
-  Moon,
-  Sun,
 } from 'lucide-react'
-import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'

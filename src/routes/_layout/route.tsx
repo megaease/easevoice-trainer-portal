@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_layout')({
   component: RouteComponent,
 })
 
-export default function RouteComponent() {
+function RouteComponent() {
   return (
     <SidebarProvider>
       <AppSidebar />
