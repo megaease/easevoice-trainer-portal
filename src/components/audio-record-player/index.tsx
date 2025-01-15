@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { on } from 'events'
 import { Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
