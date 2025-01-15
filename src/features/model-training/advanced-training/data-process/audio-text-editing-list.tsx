@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Loader2, Save } from 'lucide-react'
+import audioSrc from '@/assets/test.mp3'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import AudioPlayer from '@/components/audio-player'
-import audioSrc from './test.mp3'
 
 // 模拟数据，实际使用时应该从API获取
 const mockData = [
@@ -64,8 +64,7 @@ export default function AudioTextEditingList() {
 
   const handleSaveAll = async () => {
     setIsSaving(true)
-    // 这里应该发送所有更新后的文本到后端
-    await new Promise((resolve) => setTimeout(resolve, 1500)) // 模拟API调用
+    await new Promise((resolve) => setTimeout(resolve, 1500))
 
     mockData.forEach((item) => {
       if (selectedItems[item.id]) {
