@@ -52,8 +52,10 @@ export default function AudioPlayback({
             onClick={handleDeleteAudio}
             aria-label='删除音频'
             className='flex items-center transition-all bg-red-100
-             text-red-600 hover:bg-red-200 hover:text-red-700 ring-2
-              ring-red-500 shadow-lg shadow-red-500/30 '
+              text-red-600 hover:bg-red-200 hover:text-red-700 ring-2
+              ring-red-500 shadow-lg shadow-red-500/30 
+              dark:bg-red-700 dark:text-red-200 dark:hover:bg-red-600
+              dark:hover:text-red-100 dark:ring-red-600 dark:shadow-red-600/30'
           >
             <RotateCcw absoluteStrokeWidth />
             重新开始

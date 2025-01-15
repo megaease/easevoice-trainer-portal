@@ -22,11 +22,13 @@ The project is currently under development and the following functions are being
 
 ## Tech Stack
 
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- Shadcn/ui
+- [React 18](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vite.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Shadcn/ui](https://ui.shadcn.com/)
+- [@tanStack/react-query](https://tanstack.com/query/latest)
+- [@tanstack/react-router](https://tanstack.com/router/latest)
 
 ## Getting Started
 
