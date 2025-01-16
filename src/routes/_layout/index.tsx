@@ -1,10 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Main } from '@/components/layout/main'
+import Dashboard from '@/features/dashboard'
 
 export const Route = createFileRoute('/_layout/')({
-  component: RouteComponent,
+  component: Dashboard,
 })
-
-function RouteComponent() {
-  return <Main>Home</Main>
-}
