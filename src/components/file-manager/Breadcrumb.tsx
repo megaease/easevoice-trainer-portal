@@ -10,7 +10,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ path, onNavigate }) => {
   const parts = path.split('/').filter(Boolean)
 
   return (
-    <div className='flex items-center space-x-2 p-4'>
+    <div className='flex items-center space-x-2 px-4 py-2'>
       <button
         onClick={() => onNavigate('/')}
         className='text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'

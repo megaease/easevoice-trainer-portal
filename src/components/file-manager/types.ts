@@ -5,7 +5,7 @@ export interface FileItem {
   size?: number
   lastModified: Date
   path: string
-  content?: string // Base64 encoded content for preview
+  content?: string
   mimeType?: string
 }
 
@@ -14,6 +14,7 @@ export interface FileManagerState {
   selectedItems: string[]
   files: FileItem[]
   viewMode: 'grid' | 'list'
+  isLoading: boolean
 }
 
 export type ViewMode = 'grid' | 'list'

@@ -28,6 +28,7 @@ interface ToolbarProps {
   viewMode: ViewMode
   onViewModeChange: (mode: ViewMode) => void
   hasSelection: boolean
+  isLoading: boolean
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -39,6 +40,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   viewMode,
   onViewModeChange,
   hasSelection,
+  isLoading,
 }) => {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files

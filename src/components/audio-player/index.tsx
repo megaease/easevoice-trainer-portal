@@ -25,7 +25,7 @@ export default function AudioPlayer({ audioState }: AudioPlayerProps) {
   }, [audioUrl, isReady])
 
   return (
-    <div className='flex  items-center justify-center '>
+    <div className='flex items-center justify-center w-full'>
       <Button
         type='button'
         onClick={togglePlay}

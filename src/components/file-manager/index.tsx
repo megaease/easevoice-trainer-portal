@@ -1,187 +1,129 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { fetchFolderContents, uploadFiles, deleteFiles } from '@/apis/files'
 import { ScrollArea } from '../ui/scroll-area'
+import { Separator } from '../ui/separator'
+import { Skeleton } from '../ui/skeleton'
 import { Breadcrumb } from './Breadcrumb'
 import { FileList } from './FileList'
 import { FilePreview } from './FilePreview'
 import { Toolbar } from './Toolbar'
-import { FileItem, FileManagerState } from './types'
+import { FileItem } from './types'
 
 function FileManager() {
-  const [state, setState] = useState<FileManagerState>({
-    currentPath: '/',
-    selectedItems: [],
-    viewMode: 'grid',
-    files: [
-      {
-        id: '1',
-        name: 'Documents',
-        type: 'folder',
-        lastModified: new Date(),
-        path: '/Documents',
-      },
-      {
-        id: '2',
-        name: 'Images',
-        type: 'folder',
-        lastModified: new Date(),
-        path: '/Images',
-      },
-      {
-        id: '3',
-        name: 'report.pdf',
-        type: 'file',
-        size: 1024 * 1024,
-        lastModified: new Date(),
-        path: '/report.pdf',
-        content: '',
-      },
-      {
-        id: '4',
-        name: 'radio.mp3',
-        type: 'file',
-        size: 1024 * 1024 * 3,
-        lastModified: new Date(),
-        path: '/radio.mp3',
-        content: '',
-      },
-    ],
-  })
-
+  const [currentPath, setCurrentPath] = useState('/')
+  const [selectedItems, setSelectedItems] = useState<string[]>([])
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null)
 
+  const queryClient = useQueryClient()
+
+  // 查询当前文件夹内容
+  const { data: files = [], isFetching } = useQuery({
+    queryKey: ['files', currentPath],
+    queryFn: () => fetchFolderContents(currentPath),
+    placeholderData: (previousData) => previousData,
+  })
+
+  // 上传文件的 mutation
+  const uploadMutation = useMutation({
+    mutationFn: (newFiles: File[]) => uploadFiles(currentPath, newFiles),
+    onSuccess: (newFiles) => {
+      queryClient.setQueryData(
+        ['files', currentPath],
+        (old: FileItem[] = []) => [...old, ...newFiles]
+      )
+    },
+  })
+
+  // 删除文件的 mutation
+  const deleteMutation = useMutation({
+    mutationFn: (ids: string[]) => deleteFiles(currentPath, ids),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['files', currentPath] })
+      setSelectedItems([])
+    },
+  })
+
   const handleSelect = (id: string) => {
-    setState((prev) => ({
-      ...prev,
-      selectedItems: prev.selectedItems.includes(id)
-        ? prev.selectedItems.filter((item) => item !== id)
-        : [...prev.selectedItems, id],
-    }))
+    setSelectedItems((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    )
   }
 
   const handleOpen = (item: FileItem) => {
     if (item.type === 'folder') {
-      setState((prev) => ({
-        ...prev,
-        currentPath: item.path,
-        selectedItems: [],
-      }))
+      setCurrentPath(item.path)
+      setSelectedItems([])
     } else {
       setPreviewFile(item)
     }
   }
 
-  const handleDelete = (ids: string[]) => {
+  const handleDelete = async (ids: string[]) => {
     if (confirm('Are you sure you want to delete selected items?')) {
-      setState((prev) => ({
-        ...prev,
-        files: prev.files.filter((file) => !ids.includes(file.id)),
-        selectedItems: prev.selectedItems.filter((id) => !ids.includes(id)),
-      }))
+      await deleteMutation.mutateAsync(ids)
     }
   }
 
   const handleNavigate = (path: string) => {
-    setState((prev) => ({
-      ...prev,
-      currentPath: path,
-      selectedItems: [],
-    }))
+    setCurrentPath(path)
+    setSelectedItems([])
   }
 
   const handleUpload = async (files: File[]) => {
-    const newFiles: FileItem[] = await Promise.all(
-      files.map(async (file) => {
-        const content = await readFileContent(file)
-        return {
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-          name: file.name,
-          type: 'file',
-          size: file.size,
-          lastModified: new Date(file.lastModified),
-          path: `${state.currentPath}/${file.name}`,
-          content,
-          mimeType: file.type,
-        }
-      })
-    )
-
-    setState((prev) => ({
-      ...prev,
-      files: [...prev.files, ...newFiles],
-    }))
-  }
-
-  const readFileContent = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => resolve(reader.result as string)
-      reader.onerror = reject
-
-      if (file.type.startsWith('text/')) {
-        reader.readAsText(file)
-      } else {
-        reader.readAsDataURL(file)
-      }
-    })
+    await uploadMutation.mutateAsync(files)
   }
 
   const handleViewModeChange = (mode: 'grid' | 'list') => {
-    setState((prev) => ({
-      ...prev,
-      viewMode: mode,
-    }))
+    setViewMode(mode)
   }
 
   return (
-    <div className='h-full'>
-      <div className='max-w-7xl mx-auto shadow-sm flex flex-col h-full'>
-        <Toolbar
-          onNewFolder={() => {
-            const name = prompt('Enter folder name:')
-            if (name) {
-              const newFolder: FileItem = {
-                id: Date.now().toString(),
-                name,
-                type: 'folder',
-                lastModified: new Date(),
-                path: `${state.currentPath}/${name}`,
-              }
-              setState((prev) => ({
-                ...prev,
-                files: [...prev.files, newFolder],
-              }))
+    <div className='h-full max-w-7xl mx-auto shadow-sm flex flex-col'>
+      <Toolbar
+        onNewFolder={() => {
+          const name = prompt('Enter folder name:')
+          if (name) {
+            const newFolder: FileItem = {
+              id: Date.now().toString(),
+              name,
+              type: 'folder',
+              lastModified: new Date(),
+              path: `${currentPath}/${name}`,
             }
-          }}
-          onNewFile={() => alert('New file')}
-          onDelete={() => handleDelete(state.selectedItems)}
-          onUpload={handleUpload}
-          onDownload={() => alert('Download')}
-          viewMode={state.viewMode}
-          onViewModeChange={handleViewModeChange}
-          hasSelection={state.selectedItems.length > 0}
+            queryClient.setQueryData(
+              ['files', currentPath],
+              (old: FileItem[] = []) => [...old, newFolder]
+            )
+          }
+        }}
+        onNewFile={() => alert('New file')}
+        onDelete={() => handleDelete(selectedItems)}
+        onUpload={handleUpload}
+        onDownload={() => alert('Download')}
+        viewMode={viewMode}
+        onViewModeChange={handleViewModeChange}
+        hasSelection={selectedItems.length > 0}
+        isLoading={uploadMutation.isPending || deleteMutation.isPending}
+      />
+      <Breadcrumb path={currentPath} onNavigate={handleNavigate} />
+      <Separator />
+      <ScrollArea className='flex-1'>
+        <FileList
+          files={files}
+          selectedItems={selectedItems}
+          viewMode={viewMode}
+          onSelect={handleSelect}
+          onOpen={handleOpen}
+          onDelete={handleDelete}
+          isLoading={
+            isFetching || uploadMutation.isPending || deleteMutation.isPending
+          }
         />
+      </ScrollArea>
 
-        <Breadcrumb path={state.currentPath} onNavigate={handleNavigate} />
-        <div className='flex-1'>
-          <ScrollArea className='h-full'>
-            <FileList
-              files={state.files.filter((file) => {
-                if (state.currentPath === '/') {
-                  return file.path.split('/').length === 2
-                }
-                return file.path.startsWith(state.currentPath)
-              })}
-              selectedItems={state.selectedItems}
-              viewMode={state.viewMode}
-              onSelect={handleSelect}
-              onOpen={handleOpen}
-              onDelete={handleDelete}
-            />
-          </ScrollArea>
-        </div>
-
-        <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
-      </div>
+      <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
     </div>
   )
 }
