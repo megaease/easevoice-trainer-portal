@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Upload } from 'lucide-react'
+import { CloudUpload, Paperclip, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import {
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+  FileInput,
+} from '../ui/file-uploader'
 import AudioPlayback from './AudioPlayback'
 import AudioRecorder from './AudioRecorder'
 import { UploadTips } from './UploadTips'
@@ -23,9 +29,9 @@ function AudioRecordPlayer({
   })
 
   const handleFileChange = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
+    async (files: File[] | null) => {
       try {
-        const file = event.target.files?.[0]
+        const file = files?.[0]
         if (!file) return
 
         if (!file.type.startsWith('audio/')) {
@@ -116,20 +122,27 @@ function AudioRecordPlayer({
                 <div className='mt-6'>{text}</div>
               </div>
             ) : (
-              <UploadTips>
-                <Button asChild type='button' className='cursor-pointer'>
-                  <label>
-                    <Upload className='mr-2 h-4 w-4' />
-                    上传音频文件
-                    <input
-                      type='file'
-                      hidden
-                      accept='audio/*'
-                      onChange={handleFileChange}
-                    />
-                  </label>
-                </Button>
-              </UploadTips>
+              <FileUploader
+                value={null}
+                onValueChange={handleFileChange}
+                dropzoneOptions={{
+                  maxFiles: 1,
+                  maxSize: 1024 * 1024 * 4,
+                  multiple: true,
+                }}
+                className='h-full bg-background rounded-lg p-2'
+              >
+                <FileInput id='fileInput' className='w-full'>
+                  <UploadTips>
+                    <Button type='button'>
+                      <>
+                        <Upload className='mr-2 h-4 w-4' />
+                        上传音频文件
+                      </>
+                    </Button>
+                  </UploadTips>
+                </FileInput>
+              </FileUploader>
             )}
           </div>
         </TabsContent>

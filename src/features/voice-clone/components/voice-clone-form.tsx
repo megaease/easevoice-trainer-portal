@@ -2,9 +2,16 @@ import { useCallback, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { CloudUpload, Paperclip } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+  FileInput,
+} from '@/components/ui/file-uploader'
 import {
   Form,
   FormControl,
@@ -28,7 +35,6 @@ import { AudioState } from '@/components/audio-record-player/type'
 const formSchema = z.object({
   SoVITS: z.string(),
   gpt: z.string(),
-  audio: z.array(z.string()),
   text: z.string(),
   language: z.string(),
   text2: z.string(),
@@ -49,18 +55,23 @@ export default function VoiceCloneForm() {
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values)
     try {
-      console.log(values)
-      toast(
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      )
+      toast({
+        title: 'Form submitted',
+        description: (
+          <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
+            <code className='text-white'>
+              {JSON.stringify(values, null, 2)}
+            </code>
+          </pre>
+        ),
+      })
     } catch (error) {
       console.error('Form submission error', error)
     }
   }
-  console.log('audioState', audioState)
+
   return (
     <Form {...form}>
       <form

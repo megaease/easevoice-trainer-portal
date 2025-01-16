@@ -16,7 +16,14 @@ function RootComponent() {
   return (
     <React.Fragment>
       <Outlet />
-      <Toaster />
+      <Toaster
+        position='top-right'
+        toastOptions={{
+          success: {
+            duration: 5000,
+          },
+        }}
+      />
 
       {import.meta.env.MODE === 'development' && (
         <>
