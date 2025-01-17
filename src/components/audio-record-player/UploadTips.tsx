@@ -1,15 +1,29 @@
 import React from 'react'
+import { error } from 'console'
+import { FileAudio, X, Upload } from 'lucide-react'
+import { Button } from '../ui/button'
 
 export function UploadTips({ children }: { children: React.ReactNode }) {
   return (
     <div className='border-dashed border-2 border-gray-300 rounded-lg p-6 w-full  flex flex-col items-center gap-4'>
-      <h2 className='mb-2'>请按照下面的提示上传</h2>
-      <ul className='text-sm text-gray-500 list-disc dark:text-gray-200 space-y-2'>
-        <li>点击或者拖拽音频文件到这里</li>
-        <li>支持的音频格式：mp3, wav, ogg, aac 等</li>
-        <li>音频文件大小不超过 20MB</li>
-      </ul>
-      {children}
+      <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400'>
+        文件上传
+      </h1>
+
+      <div className='flex flex-col items-center justify-center space-y-4 text-center mt-4'>
+        {children}
+        <div>
+          <p className='text-base font-medium text-gray-700 dark:text-gray-300'>
+            点击或者拖拽音频文件到这里
+          </p>
+          <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>
+            支持mp3, wav, ogg, aac 等音频格式
+          </p>
+          <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>
+            音频文件大小不超过 20MB
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

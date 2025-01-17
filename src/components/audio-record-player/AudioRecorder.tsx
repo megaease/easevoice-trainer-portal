@@ -37,26 +37,30 @@ export default function AudioRecorder({
   return (
     <RecorderTips>
       {!isRecording ? (
-        <PulsatingButton onClick={handleRecordingClick} type='button'>
-          <span className='flex items-center dark:text-white'>
-            <Mic className='mr-2 h-4 w-4' />
-            开始录制
-          </span>
-        </PulsatingButton>
+        <div className='flex flex-col justify-center items-center gap-8'>
+          <PulsatingButton
+            onClick={handleRecordingClick}
+            type='button'
+            className='rounded-full transition-all duration-500 p-6'
+            roundedFull
+          >
+            <Mic className='h-9 w-9' />
+          </PulsatingButton>
+          <div className='text-gray-500 dark:text-gray-400 font-medium'>
+            点击开始录制
+          </div>
+        </div>
       ) : (
         <div className='flex flex-col justify-center items-center '>
           <PulsatingButton
             onClick={handleRecordingClick}
             pulseColor='red'
             type='button'
-            className='bg-red-600 hover:bg-red-500 
-                          dark:bg-red-500 dark:hover:bg-red-400
-                          '
+            className='rounded-full transition-all duration-500 p-6
+             bg-red-600 hover:bg-red-500   dark:bg-red-500 dark:hover:bg-red-400'
+            roundedFull
           >
-            <span className='flex items-center dark:text-white'>
-              <Square className='mr-2 h-4 w-4' />
-              停止录制
-            </span>
+            <Square className='h-9 w-9' />
           </PulsatingButton>
           <div className='mt-4 font-medium text-center text-2xl'>
             {formatDuration(duration)}

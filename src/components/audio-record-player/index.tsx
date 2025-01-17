@@ -134,12 +134,9 @@ function AudioRecordPlayer({
               >
                 <FileInput id='fileInput' className='w-full'>
                   <UploadTips>
-                    <Button type='button'>
-                      <>
-                        <Upload className='mr-2 h-4 w-4' />
-                        上传音频文件
-                      </>
-                    </Button>
+                    <div className='p-4 rounded-full bg-blue-50 dark:bg-blue-900/30'>
+                      <Upload className='h-8 w-8 text-blue-500 dark:text-blue-400' />
+                    </div>
                   </UploadTips>
                 </FileInput>
               </FileUploader>
