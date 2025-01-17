@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { set } from 'zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchFolderContents, uploadFiles, deleteFiles } from '@/apis/files'
 import { ScrollArea } from '../ui/scroll-area'
@@ -50,8 +51,11 @@ function FileManager() {
   const deleteMutation = useMutation({
     mutationFn: (ids: string[]) => deleteFiles(currentPath, ids),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['files', currentPath] })
+      queryClient.setQueryData(['files', currentPath], (old: FileItem[] = []) =>
+        old.filter((file) => !deleteIds.includes(file.id))
+      )
       setSelectedItems([])
+      setOpenDeleteDialog(false)
     },
   })
 
