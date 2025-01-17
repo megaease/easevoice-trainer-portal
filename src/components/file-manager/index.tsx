@@ -9,6 +9,8 @@ import { FileList } from './FileList'
 import { FilePreview } from './FilePreview'
 import { Toolbar } from './Toolbar'
 import { DeleteDialog } from './delete-dialog'
+import { NewFileDialog } from './new-file-dialog'
+import { NewFolderDialog } from './new-folder-dialog'
 import { FileItem } from './types'
 
 function FileManager() {
@@ -19,6 +21,8 @@ function FileManager() {
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [deleteIds, setDeleteIds] = useState<string[]>([])
+  const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
+  const [newFileDialogOpen, setNewFileDialogOpen] = useState(false)
 
   const queryClient = useQueryClient()
 
@@ -83,22 +87,9 @@ function FileManager() {
     <div className='h-full max-w-7xl mx-auto shadow-sm flex flex-col'>
       <Toolbar
         onNewFolder={() => {
-          const name = prompt('Enter folder name:')
-          if (name) {
-            const newFolder: FileItem = {
-              id: Date.now().toString(),
-              name,
-              type: 'folder',
-              lastModified: new Date(),
-              path: `${currentPath}/${name}`,
-            }
-            queryClient.setQueryData(
-              ['files', currentPath],
-              (old: FileItem[] = []) => [...old, newFolder]
-            )
-          }
+          setNewFolderDialogOpen(true)
         }}
-        onNewFile={() => alert('New file')}
+        onNewFile={() => setNewFileDialogOpen(true)}
         onDelete={() => {
           setDeleteIds(selectedItems)
           setOpenDeleteDialog(true)
@@ -136,6 +127,20 @@ function FileManager() {
         isLoading={deleteMutation.isPending}
         onClose={() => setOpenDeleteDialog(false)}
         onConfirm={() => handleDelete(selectedItems)}
+      />
+      <NewFileDialog
+        isOpen={newFileDialogOpen}
+        onClose={() => {
+          setNewFileDialogOpen(false)
+        }}
+        onConfirm={(name) => {}}
+      />
+      <NewFolderDialog
+        isOpen={newFolderDialogOpen}
+        onClose={() => {
+          setNewFolderDialogOpen(false)
+        }}
+        onConfirm={(name) => {}}
       />
     </div>
   )
