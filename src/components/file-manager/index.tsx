@@ -8,6 +8,7 @@ import { Breadcrumb } from './Breadcrumb'
 import { FileList } from './FileList'
 import { FilePreview } from './FilePreview'
 import { Toolbar } from './Toolbar'
+import { DeleteDialog } from './delete-dialog'
 import { FileItem } from './types'
 
 function FileManager() {
@@ -15,6 +16,9 @@ function FileManager() {
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null)
+
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+  const [deleteIds, setDeleteIds] = useState<string[]>([])
 
   const queryClient = useQueryClient()
 
@@ -35,7 +39,9 @@ function FileManager() {
       )
     },
   })
-
+  const handleDelete = (ids: string[]) => {
+    deleteMutation.mutate(ids)
+  }
   // 删除文件的 mutation
   const deleteMutation = useMutation({
     mutationFn: (ids: string[]) => deleteFiles(currentPath, ids),
@@ -57,12 +63,6 @@ function FileManager() {
       setSelectedItems([])
     } else {
       setPreviewFile(item)
-    }
-  }
-
-  const handleDelete = async (ids: string[]) => {
-    if (confirm('Are you sure you want to delete selected items?')) {
-      await deleteMutation.mutateAsync(ids)
     }
   }
 
@@ -99,7 +99,10 @@ function FileManager() {
           }
         }}
         onNewFile={() => alert('New file')}
-        onDelete={() => handleDelete(selectedItems)}
+        onDelete={() => {
+          setDeleteIds(selectedItems)
+          setOpenDeleteDialog(true)
+        }}
         onUpload={handleUpload}
         onDownload={() => alert('Download')}
         viewMode={viewMode}
@@ -116,7 +119,10 @@ function FileManager() {
           viewMode={viewMode}
           onSelect={handleSelect}
           onOpen={handleOpen}
-          onDelete={handleDelete}
+          onDelete={(ids) => {
+            setDeleteIds(ids)
+            setOpenDeleteDialog(true)
+          }}
           isLoading={
             isFetching || uploadMutation.isPending || deleteMutation.isPending
           }
@@ -124,6 +130,13 @@ function FileManager() {
       </ScrollArea>
 
       <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
+      <DeleteDialog
+        selectedFiles={files.filter((file) => deleteIds.includes(file.id))}
+        isOpen={openDeleteDialog}
+        isLoading={deleteMutation.isPending}
+        onClose={() => setOpenDeleteDialog(false)}
+        onConfirm={() => handleDelete(selectedItems)}
+      />
     </div>
   )
 }

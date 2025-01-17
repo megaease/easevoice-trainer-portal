@@ -70,7 +70,7 @@ const fileSystem = new Map<string, FileItem[]>([
 ])
 
 export async function fetchFolderContents(path: string): Promise<FileItem[]> {
-  await delay(3000) // 模拟网络延迟
+  await delay(300) // 模拟网络延迟
 
   const files = fileSystem.get(path)
   if (!files) {
@@ -84,7 +84,7 @@ export async function uploadFiles(
   path: string,
   files: File[]
 ): Promise<FileItem[]> {
-  await delay(3000) // 模拟上传延迟
+  await delay(300) // 模拟上传延迟
 
   const newFiles: FileItem[] = await Promise.all(
     files.map(async (file) => {

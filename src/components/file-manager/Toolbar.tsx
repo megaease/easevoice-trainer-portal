@@ -17,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { Input } from '../ui/input'
 import { ViewMode } from './types'
 
 interface ToolbarProps {
@@ -77,7 +78,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               <Button variant='ghost' size='icon' asChild>
                 <label>
                   <Upload className='h-4 w-4' />
-                  <input
+                  <Input
                     type='file'
                     className='hidden'
                     multiple
