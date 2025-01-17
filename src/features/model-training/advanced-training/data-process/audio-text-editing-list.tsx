@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Loader2, Save } from 'lucide-react'
+import { toast } from 'sonner'
 import audioSrc from '@/assets/test.mp3'
-import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -75,9 +75,8 @@ export default function AudioTextEditingList() {
     })
 
     setIsSaving(false)
-    toast({
-      title: '保存成功',
-      description: '所有选中的音频文本已更新。',
+    toast('保存成功', {
+      description: '已成功保存所有更改',
     })
   }
 

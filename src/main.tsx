@@ -7,7 +7,7 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { toast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { ThemeProvider } from './context/theme-context'
 import './index.css'
 // Import the generated route tree
@@ -32,7 +32,9 @@ export function handleServerError(error: unknown) {
     errMsg = error.response?.data.title
   }
 
-  toast({ variant: 'destructive', title: errMsg })
+  toast('error', {
+    description: errMsg,
+  })
 }
 
 const queryClient = new QueryClient({
@@ -59,10 +61,7 @@ const queryClient = new QueryClient({
 
         if (error instanceof AxiosError) {
           if (error.response?.status === 304) {
-            toast({
-              variant: 'destructive',
-              title: 'Content not modified!',
-            })
+            toast('Content not modified!')
           }
         }
       },
@@ -75,10 +74,7 @@ const queryClient = new QueryClient({
           // router.navigate("/login", { replace: true });
         }
         if (error.response?.status === 500) {
-          toast({
-            variant: 'destructive',
-            title: 'Internal Server Error!',
-          })
+          toast('Internal Server Error!')
           router.navigate({ to: '/500' })
         }
         if (error.response?.status === 403) {

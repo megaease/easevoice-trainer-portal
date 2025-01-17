@@ -3,7 +3,7 @@ import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CloudUpload, Paperclip } from 'lucide-react'
-import { toast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -57,8 +57,7 @@ export default function VoiceCloneForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
     try {
-      toast({
-        title: 'Form submitted',
+      toast('Form submitted', {
         description: (
           <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
             <code className='text-white'>

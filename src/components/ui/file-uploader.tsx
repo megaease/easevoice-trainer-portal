@@ -16,8 +16,8 @@ import {
   FileRejection,
   DropzoneOptions,
 } from 'react-dropzone'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { toast } from '@/hooks/use-toast'
 import { buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -154,10 +154,7 @@ export const FileUploader = forwardRef<
         const files = acceptedFiles
 
         if (!files) {
-          toast({
-            variant: 'destructive',
-            title: 'No files selected',
-          })
+          toast('No files selected')
           return
         }
 
@@ -178,19 +175,13 @@ export const FileUploader = forwardRef<
         if (rejectedFiles.length > 0) {
           for (let i = 0; i < rejectedFiles.length; i++) {
             if (rejectedFiles[i].errors[0]?.code === 'file-too-large') {
-              toast({
-                variant: 'destructive',
-                title: 'File is too large',
-                description: `Max size is ${maxSize / 1024 / 1024}MB`,
+              toast('File is too large', {
+                description: `File ${rejectedFiles[i].file.name} is too large, max size is ${maxSize / 1024 / 1024}MB`,
               })
               break
             }
             if (rejectedFiles[i].errors[0]?.message) {
-              toast({
-                variant: 'destructive',
-                title: 'File error',
-                description: rejectedFiles[i].errors[0].message,
-              })
+              toast(rejectedFiles[i].errors[0].message)
               break
             }
           }
