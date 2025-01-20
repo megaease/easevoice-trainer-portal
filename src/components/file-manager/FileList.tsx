@@ -166,10 +166,10 @@ export const FileList: React.FC<FileListProps> = ({
           <Skeleton
             key={i}
             className={cn(
-              'rounded-lg bg-slate-100',
+              'rounded-lg bg-slate-100 dark:bg-gray-700',
               viewMode === 'grid' ? 'w-[150px] h-20' : 'w-full h-10'
             )}
-          />
+          ></Skeleton>
         ))}
       </div>
     )

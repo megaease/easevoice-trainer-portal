@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link, Tag } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import DataProcess from './data-process'
@@ -46,7 +47,9 @@ export default function AdvancedTraining({ className, ...props }: Props) {
       </div>
       <Separator className='mt-4' />
       <TabsContent value='dataProcess' className='h-full'>
-        <DataProcess />
+        <ScrollArea className='h-full'>
+          <DataProcess />
+        </ScrollArea>
       </TabsContent>
       <TabsContent value='modelTraining'>
         <FineTuningTraining />

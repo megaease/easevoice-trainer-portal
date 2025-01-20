@@ -34,7 +34,7 @@ export default function ModelTraining() {
               direction='horizontal'
               className='h-full items-stretch border rounded'
             >
-              <ResizablePanel minSize={20} maxSize={85} defaultSize={50}>
+              <ResizablePanel minSize={20} maxSize={70} defaultSize={70}>
                 <TabsContent value='basicMode' className='h-full'>
                   <BasicTraining />
                 </TabsContent>
@@ -48,7 +48,7 @@ export default function ModelTraining() {
                   direction='vertical'
                   className='h-full items-stretch'
                 >
-                  <ResizablePanel minSize={40} maxSize={80} defaultSize={80}>
+                  <ResizablePanel>
                     <div className='h-full'>
                       <FileManager />
                     </div>

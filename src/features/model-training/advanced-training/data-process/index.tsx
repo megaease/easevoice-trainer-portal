@@ -4,15 +4,14 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import BasicProcessForm from '../../basic-training/basic-training-form'
-import AudioTextEditingList from './audio-text-editing-list'
+import DataProcessForm from './data-process-form'
 
 export default function DataProcess() {
   return (
-    <div className='h-full'>
-      <ResizablePanelGroup className='w-full' direction='horizontal'>
-        <ResizablePanel minSize={0} maxSize={50} defaultSize={30}>
-          <BasicProcessForm />
+    <div className='h-full pb-[100px]'>
+      <DataProcessForm />
+      {/* <ResizablePanelGroup className='w-full' direction='horizontal'>
+        <ResizablePanel minSize={0} maxSize={70} defaultSize={60}>
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel>
@@ -20,7 +19,7 @@ export default function DataProcess() {
             <AudioTextEditingList />
           </ScrollArea>
         </ResizablePanel>
-      </ResizablePanelGroup>
+      </ResizablePanelGroup> */}
     </div>
   )
 }

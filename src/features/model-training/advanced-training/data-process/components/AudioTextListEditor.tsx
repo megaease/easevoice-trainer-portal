@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Loader2, Save } from 'lucide-react'
+import { Loader2, RefreshCcw, Save } from 'lucide-react'
 import { toast } from 'sonner'
 import audioSrc from '@/assets/test.mp3'
 import { Button } from '@/components/ui/button'
@@ -47,7 +47,11 @@ const mockData = [
   },
 ]
 
-export default function AudioTextEditingList() {
+export default function AudioTextListEditor({
+  onFinished,
+}: {
+  onFinished: () => void
+}) {
   const [editedTexts, setEditedTexts] = useState<Record<number, string>>({})
   const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>(
     {}
@@ -82,21 +86,29 @@ export default function AudioTextEditingList() {
 
   return (
     <div className='p-4 h-full mb-20'>
-      <div className='flex justify-between items-center gap-2'>
-        <h2 className='text-lg font-semibold'>音频文本校对</h2>
-        <Button onClick={handleSaveAll} disabled={isSaving} className='my-4'>
-          {isSaving ? (
-            <>
-              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-              保存中...
-            </>
-          ) : (
-            <>
-              <Save className='mr-2 h-4 w-4' />
-              保存
-            </>
-          )}
+      <div className='flex justify-between items-center gap-2 '>
+        <Button onClick={onFinished} className='my-4' variant={'outline'}>
+          返回
         </Button>
+        <div className='flex gap-2'>
+          <Button onClick={() => {}} className='my-4'>
+            <RefreshCcw className='mr-2 h-4 w-4' />
+            恢复数据
+          </Button>
+          <Button onClick={handleSaveAll} disabled={isSaving} className='my-4'>
+            {isSaving ? (
+              <>
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                保存中...
+              </>
+            ) : (
+              <>
+                <Save className='mr-2 h-4 w-4' />
+                保存
+              </>
+            )}
+          </Button>
+        </div>
       </div>
       <div className='flex flex-col gap-4'>
         {mockData.map((item) => (
