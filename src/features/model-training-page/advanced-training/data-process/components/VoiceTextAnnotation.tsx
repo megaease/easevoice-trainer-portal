@@ -13,6 +13,14 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
   Form,
   FormControl,
   FormDescription,
@@ -22,6 +30,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import AudioTextListEditor from './AudioTextListEditor'
 
@@ -38,11 +47,11 @@ function MyForm({ onStart }: { onStart: () => void }) {
     try {
       console.log(values)
       onStart()
-      toast(
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      )
+      // toast(
+      //   <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
+      //     <code className='text-white'>{JSON.stringify(values, null, 2)}</code>
+      //   </pre>
+      // )
     } catch (error) {
       console.error('Form submission error', error)
       toast.error('Failed to submit the form. Please try again.')
@@ -104,6 +113,25 @@ export default function VoiceTextAnnotation() {
             }}
           />
         )}
+        <Dialog
+          open={startAnnotation}
+          onOpenChange={(open) => {
+            if (!open) {
+              setStartAnnotation(false)
+            }
+          }}
+        >
+          <DialogContent className='h-[60%] overflow-auto w-full'>
+            <DialogHeader>
+              <DialogTitle>校对标注</DialogTitle>
+              <DialogDescription>
+                <ScrollArea className='h-[calc(100%-3rem)]'>
+                  <AudioTextListEditor onFinished={() => {}} />
+                </ScrollArea>
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   )

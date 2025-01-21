@@ -15,6 +15,8 @@ import {
 import { Input } from '@/components/ui/input'
 
 const formSchema = z.object({
+  name: z.string(),
+  textPath: z.string(),
   audioPath: z.string(),
 })
 
@@ -41,31 +43,45 @@ export default function BasicTrainingForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className='space-y-8 max-w-3xl mx-auto py-10 p-4'
+        className='space-y-8 max-w-3xl mx-auto py-10'
       >
         <FormField
           control={form.control}
-          name='audioPath'
+          name='name'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>音频文件路径</FormLabel>
+              <FormLabel>模型名称</FormLabel>
               <FormControl>
-                <Input
-                  placeholder='请输入音频文件路径所在的路径'
-                  type=''
-                  {...field}
-                />
+                <Input placeholder='请输入模型名称' type='' {...field} />
               </FormControl>
 
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button
-          type='submit'
-          className='w-full hover:shadow-lg hover:shadow-blue-300 transition-shadow'
-        >
-          开始处理
+        <FormField
+          control={form.control}
+          name='audioPath'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>训练集音频文件目录</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder='请输入训练集音频文件目录'
+                  type=''
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                This is your public display name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type='submit' className='w-full'>
+          开始训练
         </Button>
       </form>
     </Form>
