@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
-import { set } from 'zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchFolderContents, uploadFiles, deleteFiles } from '@/apis/files'
 import { ScrollArea } from '../ui/scroll-area'
 import { Separator } from '../ui/separator'
 import { Skeleton } from '../ui/skeleton'
-import { Breadcrumb } from './Breadcrumb'
+import { FileBreadcrumb } from './FileBreadcrumb'
 import { FileList } from './FileList'
 import { FilePreview } from './FilePreview'
 import { Toolbar } from './Toolbar'
@@ -105,7 +104,9 @@ function FileManager() {
         hasSelection={selectedItems.length > 0}
         isLoading={uploadMutation.isPending || deleteMutation.isPending}
       />
-      <Breadcrumb path={currentPath} onNavigate={handleNavigate} />
+      <div className='px-4 py-2'>
+        <FileBreadcrumb path={currentPath} onNavigate={handleNavigate} />
+      </div>
       <Separator />
       <ScrollArea className='flex-1'>
         <FileList

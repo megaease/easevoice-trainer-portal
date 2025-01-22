@@ -56,6 +56,53 @@ const fileSystem = new Map<string, FileItem[]>([
     ],
   ],
   [
+    '/Documents/Work',
+    [
+      {
+        id: '6',
+        name: 'Project',
+        type: 'folder',
+        lastModified: new Date(),
+        path: '/Documents/Work/Project',
+      },
+    ],
+  ],
+  [
+    '/Documents/Work/Project',
+    [
+      {
+        id: '7',
+        name: 'report.docx',
+        type: 'file',
+        size: 2048,
+        lastModified: new Date(),
+        path: '/Documents/Work/Project/report.docx',
+        content: 'Project Report Content',
+        mimeType:
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      },
+      {
+        id: '9',
+        name: 'dev',
+        type: 'folder',
+        lastModified: new Date(),
+        path: '/Documents/Work/Project/dev',
+      },
+    ],
+  ],
+  [
+    '/Documents/Work/Project/dev',
+    [
+      {
+        id: '10',
+        name: 'main.js',
+        type: 'file',
+        size: 3072,
+        lastModified: new Date(),
+      },
+    ],
+  ],
+  [
     '/Images',
     [
       {
@@ -64,6 +111,21 @@ const fileSystem = new Map<string, FileItem[]>([
         type: 'folder',
         lastModified: new Date(),
         path: '/Images/Vacation',
+      },
+    ],
+  ],
+  [
+    '/Images/Vacation',
+    [
+      {
+        id: '8',
+        name: 'Beach.png',
+        type: 'file',
+        size: 4096,
+        lastModified: new Date(),
+        path: '/Images/Vacation/Beach.png',
+        content: 'Base64EncodedImageContent',
+        mimeType: 'image/png',
       },
     ],
   ],
