@@ -6,7 +6,7 @@ import VoiceTextAnnotation from './components/VoiceTextAnnotation'
 
 export default function DataProcessForm() {
   return (
-    <div className='flex flex-col gap-4 w-full'>
+    <div className='flex flex-col gap-4 w-full p-4'>
       <URV5 />
 
       <VoiceSeparation />

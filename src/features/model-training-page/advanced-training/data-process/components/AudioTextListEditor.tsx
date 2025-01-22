@@ -1,10 +1,19 @@
 import { useState } from 'react'
-import { Loader2, RefreshCcw, Save } from 'lucide-react'
+import { Loader2, RefreshCcw, Save, Filter, ArrowUpDown } from 'lucide-react'
 import { toast } from 'sonner'
 import audioSrc from '@/assets/test.mp3'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import AudioPlayer from '@/components/audio-player'
 
@@ -47,17 +56,12 @@ const mockData = [
   },
 ]
 
-export default function AudioTextListEditor({
-  onFinished,
-}: {
-  onFinished: () => void
-}) {
+export default function AudioTextListEditor() {
   const [editedTexts, setEditedTexts] = useState<Record<number, string>>({})
   const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>(
     {}
   )
   const [isSaving, setIsSaving] = useState(false)
-
   const handleTextChange = (id: number, newText: string) => {
     setEditedTexts((prev) => ({ ...prev, [id]: newText }))
   }
@@ -84,14 +88,20 @@ export default function AudioTextListEditor({
     })
   }
 
+  const handleReset = () => {
+    setEditedTexts({})
+    setSelectedItems({})
+    toast('数据已恢复', {
+      description: '已恢复到初始状态',
+    })
+  }
+
   return (
     <div className='p-4 h-full mb-20'>
-      <div className='flex justify-between items-center gap-2 '>
-        <Button onClick={onFinished} className='my-4' variant={'outline'}>
-          返回
-        </Button>
+      <div className='flex justify-between items-center gap-2'>
+        <Input placeholder='shadcn' type='' />
         <div className='flex gap-2'>
-          <Button onClick={() => {}} className='my-4'>
+          <Button onClick={handleReset} className='my-4'>
             <RefreshCcw className='mr-2 h-4 w-4' />
             恢复数据
           </Button>
@@ -110,10 +120,11 @@ export default function AudioTextListEditor({
           </Button>
         </div>
       </div>
+
       <div className='flex flex-col gap-4'>
         {mockData.map((item) => (
           <Card key={item.id} className='w-full shadow-none'>
-            <CardContent className=' p-2'>
+            <CardContent className='p-2'>
               <Checkbox
                 checked={selectedItems[item.id] || false}
                 onCheckedChange={(checked) =>
@@ -130,7 +141,6 @@ export default function AudioTextListEditor({
                   }}
                 />
               </div>
-
               <div className='w-full'>
                 <div className='text-gray-500 text-sm'>{item.name}</div>
                 <Textarea

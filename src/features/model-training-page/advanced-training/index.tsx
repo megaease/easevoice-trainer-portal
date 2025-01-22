@@ -5,32 +5,17 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import DataProcess from './data-process'
-import BasicTrainingForm from './fine-tuning-training'
+import AudioTextListEditor from './data-process/components/AudioTextListEditor'
 import FineTuningTraining from './fine-tuning-training'
-
-type Item = {
-  title: string
-  id: number
-  icon: React.ReactNode
-}
 
 type Props = {
   className?: string
 }
 
-const items: Item[] = [
-  {
-    id: 1,
-    title: '基础模式',
-    icon: <Link />,
-  },
-  { id: 2, title: '高级模式', icon: <Link /> },
-]
-
 export default function AdvancedTraining({ className, ...props }: Props) {
   return (
-    <Tabs defaultValue='dataProcess' className='h-full px-4 py-2'>
-      <div className='flex justify-between items-center gap-2'>
+    <Tabs defaultValue='dataProcess' className='h-full py-2'>
+      <div className='flex justify-between items-center gap-2  px-4 '>
         <h2 className='text-lg font-semibold'>高级模式</h2>
         <nav
           className={cn(
@@ -41,6 +26,7 @@ export default function AdvancedTraining({ className, ...props }: Props) {
         >
           <TabsList>
             <TabsTrigger value='dataProcess'>前置数据处理</TabsTrigger>
+            <TabsTrigger value='annotation'>数据标注</TabsTrigger>
             <TabsTrigger value='modelTraining'>训练模型</TabsTrigger>
           </TabsList>
         </nav>
@@ -49,6 +35,11 @@ export default function AdvancedTraining({ className, ...props }: Props) {
       <TabsContent value='dataProcess' className='h-full'>
         <ScrollArea className='h-full'>
           <DataProcess />
+        </ScrollArea>
+      </TabsContent>
+      <TabsContent value='annotation' className='h-full'>
+        <ScrollArea className='h-full'>
+          <AudioTextListEditor />
         </ScrollArea>
       </TabsContent>
       <TabsContent value='modelTraining'>

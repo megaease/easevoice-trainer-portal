@@ -88,8 +88,6 @@ function MyForm({ onStart }: { onStart: () => void }) {
   )
 }
 export default function VoiceTextAnnotation() {
-  const [startAnnotation, setStartAnnotation] = useState(false)
-
   return (
     <Card className='w-full'>
       <CardHeader>
@@ -97,41 +95,11 @@ export default function VoiceTextAnnotation() {
         <CardDescription />
       </CardHeader>
       <CardContent>
-        {startAnnotation ? (
-          <div>
-            <AudioTextListEditor
-              onFinished={() => {
-                toast.success('标注完成')
-                setStartAnnotation(false)
-              }}
-            />
-          </div>
-        ) : (
-          <MyForm
-            onStart={() => {
-              setStartAnnotation(true)
-            }}
-          />
-        )}
-        <Dialog
-          open={startAnnotation}
-          onOpenChange={(open) => {
-            if (!open) {
-              setStartAnnotation(false)
-            }
+        <MyForm
+          onStart={() => {
+            setStartAnnotation(true)
           }}
-        >
-          <DialogContent className='h-[60%] overflow-auto w-full'>
-            <DialogHeader>
-              <DialogTitle>校对标注</DialogTitle>
-              <DialogDescription>
-                <ScrollArea className='h-[calc(100%-3rem)]'>
-                  <AudioTextListEditor onFinished={() => {}} />
-                </ScrollArea>
-              </DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
+        />
       </CardContent>
     </Card>
   )

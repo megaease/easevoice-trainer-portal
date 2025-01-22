@@ -111,7 +111,7 @@ export const FileList: React.FC<FileListProps> = ({
                 <span className='truncate text-center w-full'>{file.name}</span>
               </div>
             ) : (
-              <div className='flex items-center justify-between'>
+              <div className='flex items-center justify-between select-none'>
                 <div className='flex items-center space-x-3 flex-1'>
                   {getFileIcon(file)}
                   <span className='truncate'>{file.name}</span>
