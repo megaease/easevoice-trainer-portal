@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
+import NamespaceProvider from './components/namespace-provider'
 import { ThemeProvider } from './context/theme-context'
 import './index.css'
 // Import the generated route tree
@@ -107,7 +108,9 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider defaultTheme='system' storageKey='vite-ui-theme'>
-          <RouterProvider router={router} />
+          <NamespaceProvider>
+            <RouterProvider router={router} />
+          </NamespaceProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>

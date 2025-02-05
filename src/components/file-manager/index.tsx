@@ -27,7 +27,11 @@ function FileManager() {
   const queryClient = useQueryClient()
 
   // 查询当前文件夹内容
-  const { data: files = [], isFetching } = useQuery({
+  const {
+    data: files = [],
+    isFetching,
+    refetch,
+  } = useQuery({
     queryKey: ['files', currentPath],
     queryFn: () => fetchFolderContents(currentPath),
     placeholderData: (previousData) => previousData,
@@ -102,7 +106,10 @@ function FileManager() {
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
         hasSelection={selectedItems.length > 0}
-        isLoading={uploadMutation.isPending || deleteMutation.isPending}
+        isLoading={
+          isFetching || uploadMutation.isPending || deleteMutation.isPending
+        }
+        onRefresh={() => refetch()}
       />
       <div className='px-4 py-2'>
         <FileBreadcrumb path={currentPath} onNavigate={handleNavigate} />

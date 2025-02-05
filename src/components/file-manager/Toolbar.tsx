@@ -7,7 +7,9 @@ import {
   Download,
   LayoutGrid,
   List,
+  RefreshCw,
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -30,6 +32,7 @@ interface ToolbarProps {
   onViewModeChange: (mode: ViewMode) => void
   hasSelection: boolean
   isLoading: boolean
+  onRefresh: () => void
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -42,6 +45,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onViewModeChange,
   hasSelection,
   isLoading,
+  onRefresh,
 }) => {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -54,8 +58,19 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
   return (
     <TooltipProvider>
-      <div className='flex items-center justify-between p-4 bg-background border-b'>
+      <div className='flex items-center justify-between p-4 bg-background border-b flex-wrap'>
         <div className='flex items-center space-x-2'>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant='ghost' size='icon' onClick={onRefresh}>
+                <RefreshCw
+                  className={cn('h-4 w-4', { 'animate-spin': isLoading })}
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Refresh</TooltipContent>
+          </Tooltip>
+          <Separator orientation='vertical' className='h-6' />
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant='ghost' size='icon' onClick={onNewFolder}>
@@ -116,6 +131,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <TooltipContent>Delete</TooltipContent>
           </Tooltip>
         </div>
+
         <div className='flex items-center space-x-2'>
           <ToggleGroup
             type='single'

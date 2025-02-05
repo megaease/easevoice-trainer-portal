@@ -1,4 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
+import { LinkProps } from '@tanstack/react-router'
 import {
   AudioLines,
   Home,
@@ -18,11 +19,18 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
 } from '@/components/ui/sidebar'
+import { NamespaceSwitch } from '../namespace-switch'
 import { NavLink, NavItem } from './types'
 
 // Menu items.
-const items = [
+const items: {
+  title: string
+  url: LinkProps['to']
+
+  icon?: React.ComponentType
+}[] = [
   {
     title: 'Home',
     url: '/',
@@ -67,26 +75,31 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
   )
 }
 
-export function AppSidebar() {
+function Logo() {
   const { state } = useSidebar()
+  return (
+    <div className='flex gap-1 items-center py-1'>
+      <div
+        className='flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground
+                dark:bg-sidebar-primary-dark dark:text-sidebar-primary-dark-foreground
+                '
+      >
+        <img src={logoSvg} alt='EaseVoice Trainer' />
+      </div>
+      {state === 'expanded' && (
+        <h1 className='text-md font-bold text-center truncate'>
+          EaseVoice Trainer
+        </h1>
+      )}
+    </div>
+  )
+}
+export function AppSidebar() {
   const href = useLocation({ select: (location) => location.href })
   return (
     <Sidebar collapsible='icon' variant='floating'>
       <SidebarHeader>
-        <div className='flex gap-1 items-center'>
-          <div
-            className='flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground
-                dark:bg-sidebar-primary-dark dark:text-sidebar-primary-dark-foreground
-                '
-          >
-            <img src={logoSvg} alt='EaseVoice Trainer' />
-          </div>
-          {state === 'expanded' && (
-            <h1 className='text-md font-bold text-center truncate'>
-              EaseVoice Trainer
-            </h1>
-          )}
-        </div>
+        <Logo />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -100,6 +113,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <NamespaceSwitch />
+      </SidebarFooter>
     </Sidebar>
   )
 }
