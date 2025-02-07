@@ -2,7 +2,6 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { ModeToggle } from '../mode-toggle'
 
 interface HeaderProps extends React.HTMLAttributes<HTMLElement> {
   fixed?: boolean
@@ -34,7 +33,7 @@ export const Header = ({
       className={cn(
         'flex items-center gap-3 sm:gap-4 bg-background p-4 h-16',
         fixed && 'header-fixed peer/header w-[inherit] fixed z-50 rounded-md',
-        offset > 10 && fixed ? 'shadow' : 'shadow-none',
+        // offset > 10 && fixed ? 'shadow' : 'shadow-none',
         className
       )}
       {...props}

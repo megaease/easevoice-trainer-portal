@@ -1,9 +1,6 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
+import { About } from '@/features/about'
 
 export const Route = createLazyFileRoute('/_layout/about/')({
-  component: RouteComponent,
+  component: About,
 })
-
-function RouteComponent() {
-  return <div>Hello "/about"!</div>
-}
