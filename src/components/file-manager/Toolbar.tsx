@@ -59,7 +59,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   return (
     <TooltipProvider>
       <div className='flex items-center justify-between p-4 bg-background border-b flex-wrap'>
-        <div className='flex items-center space-x-2'>
+        <div className='flex items-center space-x-1 space-y-1'>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant='ghost' size='icon' onClick={onRefresh}>
