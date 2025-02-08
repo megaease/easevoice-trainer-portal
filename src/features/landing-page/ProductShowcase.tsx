@@ -40,7 +40,7 @@ const ReviewCard = ({ img, title }: { title: string; img: string }) => {
     >
       <div className='flex flex-row items-center gap-4 justify-center'>
         <img className='rounded-full' width='32' height='32' alt='' src={img} />
-        <blockquote className='mt-2 text-sm'>{title}</blockquote>
+        <blockquote className='text-sm'>{title}</blockquote>
       </div>
     </figure>
   )
