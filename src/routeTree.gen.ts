@@ -15,6 +15,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout/route'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
+import { Route as LayoutDashboardIndexImport } from './routes/_layout/dashboard/index'
 
 // Create Virtual Routes
 
@@ -73,6 +74,12 @@ const LayoutAboutIndexLazyRoute = LayoutAboutIndexLazyImport.update({
   import('./routes/_layout/about/index.lazy').then((d) => d.Route),
 )
 
+const LayoutDashboardIndexRoute = LayoutDashboardIndexImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => LayoutRouteRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -89,6 +96,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof LayoutIndexImport
+      parentRoute: typeof LayoutRouteImport
+    }
+    '/_layout/dashboard/': {
+      id: '/_layout/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof LayoutDashboardIndexImport
       parentRoute: typeof LayoutRouteImport
     }
     '/_layout/about/': {
@@ -126,6 +140,7 @@ declare module '@tanstack/react-router' {
 
 interface LayoutRouteRouteChildren {
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutDashboardIndexRoute: typeof LayoutDashboardIndexRoute
   LayoutAboutIndexLazyRoute: typeof LayoutAboutIndexLazyRoute
   LayoutModelTrainingIndexLazyRoute: typeof LayoutModelTrainingIndexLazyRoute
   LayoutTaskListIndexLazyRoute: typeof LayoutTaskListIndexLazyRoute
@@ -134,6 +149,7 @@ interface LayoutRouteRouteChildren {
 
 const LayoutRouteRouteChildren: LayoutRouteRouteChildren = {
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutDashboardIndexRoute: LayoutDashboardIndexRoute,
   LayoutAboutIndexLazyRoute: LayoutAboutIndexLazyRoute,
   LayoutModelTrainingIndexLazyRoute: LayoutModelTrainingIndexLazyRoute,
   LayoutTaskListIndexLazyRoute: LayoutTaskListIndexLazyRoute,
@@ -147,6 +163,7 @@ const LayoutRouteRouteWithChildren = LayoutRouteRoute._addFileChildren(
 export interface FileRoutesByFullPath {
   '': typeof LayoutRouteRouteWithChildren
   '/': typeof LayoutIndexRoute
+  '/dashboard': typeof LayoutDashboardIndexRoute
   '/about': typeof LayoutAboutIndexLazyRoute
   '/model-training': typeof LayoutModelTrainingIndexLazyRoute
   '/task-list': typeof LayoutTaskListIndexLazyRoute
@@ -155,6 +172,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof LayoutIndexRoute
+  '/dashboard': typeof LayoutDashboardIndexRoute
   '/about': typeof LayoutAboutIndexLazyRoute
   '/model-training': typeof LayoutModelTrainingIndexLazyRoute
   '/task-list': typeof LayoutTaskListIndexLazyRoute
@@ -165,6 +183,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_layout': typeof LayoutRouteRouteWithChildren
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/dashboard/': typeof LayoutDashboardIndexRoute
   '/_layout/about/': typeof LayoutAboutIndexLazyRoute
   '/_layout/model-training/': typeof LayoutModelTrainingIndexLazyRoute
   '/_layout/task-list/': typeof LayoutTaskListIndexLazyRoute
@@ -176,16 +195,24 @@ export interface FileRouteTypes {
   fullPaths:
     | ''
     | '/'
+    | '/dashboard'
     | '/about'
     | '/model-training'
     | '/task-list'
     | '/voice-clone'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/model-training' | '/task-list' | '/voice-clone'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/about'
+    | '/model-training'
+    | '/task-list'
+    | '/voice-clone'
   id:
     | '__root__'
     | '/_layout'
     | '/_layout/'
+    | '/_layout/dashboard/'
     | '/_layout/about/'
     | '/_layout/model-training/'
     | '/_layout/task-list/'
@@ -218,6 +245,7 @@ export const routeTree = rootRoute
       "filePath": "_layout/route.tsx",
       "children": [
         "/_layout/",
+        "/_layout/dashboard/",
         "/_layout/about/",
         "/_layout/model-training/",
         "/_layout/task-list/",
@@ -226,6 +254,10 @@ export const routeTree = rootRoute
     },
     "/_layout/": {
       "filePath": "_layout/index.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/dashboard/": {
+      "filePath": "_layout/dashboard/index.tsx",
       "parent": "/_layout"
     },
     "/_layout/about/": {

@@ -2,7 +2,7 @@ import { Link, useLocation } from '@tanstack/react-router'
 import { LinkProps } from '@tanstack/react-router'
 import {
   AudioLines,
-  Home,
+  CircleGauge,
   CalendarCheck,
   CircleHelp,
   Brain,
@@ -32,9 +32,9 @@ const items: {
   icon?: React.ComponentType
 }[] = [
   {
-    title: 'Home',
-    url: '/',
-    icon: Home,
+    title: '控制台',
+    url: '/dashboard',
+    icon: CircleGauge,
   },
   {
     title: '声音克隆',
@@ -78,20 +78,22 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
 function Logo() {
   const { state } = useSidebar()
   return (
-    <div className='flex gap-1 items-center py-1'>
-      <div
-        className='flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground
+    <Link to='/'>
+      <div className='flex gap-1 items-center py-1'>
+        <div
+          className='flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground
                 dark:bg-sidebar-primary-dark dark:text-sidebar-primary-dark-foreground
                 '
-      >
-        <img src={logoSvg} alt='EaseVoice Trainer' />
+        >
+          <img src={logoSvg} alt='EaseVoice Trainer' />
+        </div>
+        {state === 'expanded' && (
+          <h1 className='text-md font-bold text-center truncate'>
+            EaseVoice Trainer
+          </h1>
+        )}
       </div>
-      {state === 'expanded' && (
-        <h1 className='text-md font-bold text-center truncate'>
-          EaseVoice Trainer
-        </h1>
-      )}
-    </div>
+    </Link>
   )
 }
 export function AppSidebar() {
