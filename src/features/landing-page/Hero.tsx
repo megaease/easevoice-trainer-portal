@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { motion } from 'motion/react'
 import HeroImg from '@/assets/hero.avif'
 import { Button } from '@/components/ui/button'
 
@@ -6,14 +6,19 @@ export function Hero() {
   return (
     <div
       className='relative bg-gradient-to-br from-white to-gray-50
-      dark:from-gray-800 dark:to-gray-900 py-16 lg:py-24 overflow-hidden
+      dark:from-background dark:to-gray-900 py-16 lg:py-24 overflow-hidden
     '
     >
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex flex-col lg:flex-row items-center justify-between py-12 lg:py-24'>
           {/* Left Content */}
           <div className='flex-1 text-center lg:text-left lg:max-w-2xl'>
-            <h1 className='text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight'>
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className='text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight'
+            >
               <span
                 className='block text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500 
               dark:from-indigo-400 dark:to-blue-400'
@@ -23,12 +28,22 @@ export function Hero() {
               <span className='block mt-2 text-gray-900 dark:text-gray-100'>
                 让 AIGC 应用变得简单
               </span>
-            </h1>
-            <p className='mt-6 text-lg sm:text-xl text-gray-600 leading-relaxed dark:text-gray-300'>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className='mt-6 text-lg sm:text-xl text-gray-600 leading-relaxed dark:text-gray-300'
+            >
               一站式 GPU 云服务平台，为您提供高性能算力支持。从 Stable Diffusion
               到Comfyui，轻松部署您的 AI 应用。
-            </p>
-            <div className='mt-8 flex flex-col sm:flex-row justify-center lg:justify-start gap-4'>
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className='mt-8 flex flex-col sm:flex-row justify-center lg:justify-start gap-4'
+            >
               <Button size='lg' className='text-base px-8 py-6'>
                 <a
                   href='https://cloud.megaease.cn/megacloud/app/main/gpu/resources/list/start'
@@ -46,7 +61,7 @@ export function Hero() {
                   查看价格方案
                 </a>
               </Button>
-            </div>
+            </motion.div>
             <div className='mt-8 grid grid-cols-3 gap-8'>
               <div className='text-center lg:text-left'>
                 <div className='text-2xl font-bold text-indigo-600'>88折</div>

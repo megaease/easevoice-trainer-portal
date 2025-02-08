@@ -37,13 +37,13 @@ const footerLinks = {
 }
 function Footer() {
   return (
-    <footer className='bg-gray-900 dark:bg-gray-800'>
+    <footer className=''>
       {/* Main Footer Content */}
       <div className='mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8'>
         <div className='grid grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-4'>
           {/* Products */}
           <div>
-            <h3 className='text-xl font-semibold leading-6 text-blue-400'>
+            <h3 className='text-xl font-semibold leading-6 text-primary'>
               软件产品
             </h3>
             <ul role='list' className='mt-6 space-y-4'>
@@ -51,7 +51,7 @@ function Footer() {
                 <li key={item.name}>
                   <a
                     href={item.href}
-                    className='text-sm leading-6 text-gray-300 hover:text-blue-400 transition-colors'
+                    className='text-sm leading-6 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors'
                   >
                     {item.name}
                   </a>
@@ -62,7 +62,7 @@ function Footer() {
 
           {/* Resources */}
           <div>
-            <h3 className='text-xl font-semibold leading-6 text-blue-400'>
+            <h3 className='text-xl font-semibold leading-6 text-primary'>
               相关资源
             </h3>
             <ul role='list' className='mt-6 space-y-4'>
@@ -70,7 +70,7 @@ function Footer() {
                 <li key={item.name}>
                   <a
                     href={item.href}
-                    className='text-sm leading-6 text-gray-300 hover:text-blue-400 transition-colors'
+                    className='text-sm leading-6 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors'
                   >
                     {item.name}
                   </a>
@@ -81,16 +81,18 @@ function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className='text-xl font-semibold leading-6 text-blue-400'>
+            <h3 className='text-xl font-semibold leading-6 text-primary'>
               联系我们
             </h3>
             <ul role='list' className='mt-6 space-y-4'>
               {footerLinks.contact.map((item) => (
                 <li
                   key={item.label}
-                  className='text-sm leading-6 text-gray-300'
+                  className='text-sm leading-6 text-gray-600 dark:text-gray-400'
                 >
-                  <span className='text-gray-500'>{item.label}：</span>
+                  <span className='text-gray-600 dark:text-gray-400'>
+                    {item.label}：
+                  </span>
                   {item.value}
                 </li>
               ))}
@@ -99,7 +101,7 @@ function Footer() {
 
           {/* Social Links */}
           <div>
-            <h3 className='text-xl font-semibold leading-6 text-blue-400'>
+            <h3 className='text-xl font-semibold leading-6 text-primary'>
               关注我们
             </h3>
             <div className='mt-6 flex gap-4'>
@@ -107,7 +109,7 @@ function Footer() {
                 <a
                   key={item.name}
                   href={item.href}
-                  className='text-gray-400 hover:text-blue-400 transition-colors'
+                  className='text-gray-600 dark:text-gray-400 hover:text-primary transition-colors'
                   title={item.name}
                 >
                   <item.icon className='h-6 w-6' aria-hidden='true' />
@@ -123,15 +125,15 @@ function Footer() {
             <div className='flex gap-2 items-center'>
               <img src={LogoImg} alt='MegaEase' className='h-[50px]' />
               <div>
-                <p className='text-xs text-gray-400 dark:text-gray-500'>
+                <p className='text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400'>
                   © 2017 - 2025
                 </p>
-                <p className='text-xs text-gray-400 dark:text-gray-500'>
+                <p className='text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400'>
                   MegaEase, Inc. All Rights Reserved!
                 </p>
               </div>
             </div>
-            <div className='flex gap-4 text-xs text-gray-500 dark:text-gray-400'>
+            <div className='flex gap-4 text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400'>
               <a href='#' className='hover:text-primary transition-colors'>
                 京公网安备 11010502045885号
               </a>

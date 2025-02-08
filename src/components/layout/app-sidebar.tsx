@@ -32,11 +32,6 @@ const items: {
   icon?: React.ComponentType
 }[] = [
   {
-    title: '控制台',
-    url: '/dashboard',
-    icon: CircleGauge,
-  },
-  {
     title: '声音克隆',
     url: '/voice-clone',
     icon: AudioLines,
@@ -45,6 +40,11 @@ const items: {
     title: '模型训练',
     url: '/model-training',
     icon: Brain,
+  },
+  {
+    title: '控制台',
+    url: '/dashboard',
+    icon: CircleGauge,
   },
   {
     title: '任务列表',
