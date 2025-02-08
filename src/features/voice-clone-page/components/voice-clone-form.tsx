@@ -278,7 +278,7 @@ export default function VoiceCloneForm() {
         </section>
         <Button
           type='submit'
-          className='w-full hover:shadow-lg hover:shadow-blue-200 transition-shadow'
+          className='w-full hover:shadow-md hover:shadow-blue-200 transition-shadow dark:hover:shadow-blue-800'
           size={'lg'}
         >
           开始合成
