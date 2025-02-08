@@ -111,6 +111,7 @@ function Footer() {
                   href={item.href}
                   className='text-gray-600 dark:text-gray-400 hover:text-primary transition-colors'
                   title={item.name}
+                  target='_blank'
                 >
                   <item.icon className='h-6 w-6' aria-hidden='true' />
                 </a>
@@ -125,15 +126,15 @@ function Footer() {
             <div className='flex gap-2 items-center'>
               <img src={LogoImg} alt='MegaEase' className='h-[50px]' />
               <div>
-                <p className='text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400'>
+                <p className='text-xs text-gray-600 dark:text-gray-400 '>
                   © 2017 - 2025
                 </p>
-                <p className='text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400'>
+                <p className='text-xs text-gray-600 dark:text-gray-400 '>
                   MegaEase, Inc. All Rights Reserved!
                 </p>
               </div>
             </div>
-            <div className='flex gap-4 text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400'>
+            <div className='flex gap-4 text-xs text-gray-600 dark:text-gray-400 '>
               <a href='#' className='hover:text-primary transition-colors'>
                 京公网安备 11010502045885号
               </a>

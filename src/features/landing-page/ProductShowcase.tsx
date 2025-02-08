@@ -1,7 +1,6 @@
 import jupyterImg from '@/assets/jupyter.svg'
 import sdImg from '@/assets/sd.svg'
 import { cn } from '@/lib/utils'
-import { Card, CardContent } from '@/components/ui/card'
 import { Marquee } from '@/components/magicui/marquee'
 
 const reviews = [
@@ -38,7 +37,7 @@ const ReviewCard = ({ img, title }: { title: string; img: string }) => {
         'dark:border-gray-50/[.1] dark:bg-gray-50/[.10] dark:hover:bg-gray-50/[.15]'
       )}
     >
-      <div className='flex flex-row items-center gap-4 justify-center'>
+      <div className='flex flex-row items-center gap-4 justify-center h-full'>
         <img className='rounded-full' width='32' height='32' alt='' src={img} />
         <blockquote className='text-sm'>{title}</blockquote>
       </div>
