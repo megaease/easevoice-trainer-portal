@@ -76,7 +76,7 @@ const queryClient = new QueryClient({
         }
         if (error.response?.status === 500) {
           toast('Internal Server Error!')
-          router.navigate({ to: '/500' })
+          // router.navigate({ to: '/500' })
         }
         if (error.response?.status === 403) {
           // router.navigate("/forbidden", { replace: true });
@@ -108,9 +108,9 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider defaultTheme='system' storageKey='vite-ui-theme'>
-          <NamespaceProvider>
-            <RouterProvider router={router} />
-          </NamespaceProvider>
+          {/* <NamespaceProvider> */}
+          <RouterProvider router={router} />
+          {/* </NamespaceProvider> */}
         </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>

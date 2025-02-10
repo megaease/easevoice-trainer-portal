@@ -1,18 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
+import namspaceApi from '@/apis/namespace'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 
 async function fetchNamespaces(): Promise<string[]> {
-  // const response = await fetch('/api/namespaces')
-  // if (!response.ok) {
-  //   throw new Error('获取命名空间列表失败')
-  // }
-  // return response.json()
-  //模拟
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(['default', 'test'])
-    }, 1000)
-  })
+  const { data } = await namspaceApi.getNamespaces()
+  return data
 }
 
 export function useNamespaceList() {
@@ -21,6 +13,7 @@ export function useNamespaceList() {
   const query = useQuery({
     queryKey: ['namespaces'],
     queryFn: fetchNamespaces,
+    retry: 1,
   })
   const { data: namespaces = [], isLoading, isError } = query
 

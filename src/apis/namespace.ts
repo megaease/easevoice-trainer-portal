@@ -1,0 +1,25 @@
+import apiClient from "@/lib/apiClient";
+
+class NamespaceApi { 
+  async getNamespaces() {
+    return await apiClient.get("/namespaces");
+  }
+  
+  async getNamespace(id: string) {
+    return await apiClient.get(`/namespaces/${id}`);
+  }
+
+  async createNamespace(data: any) {
+    return await apiClient.post("/namespaces", data);
+  }
+
+  async updateNamespace(id: string, data: any) {
+    return await apiClient.put(`/namespaces/${id}`, data);
+  }
+
+  async deleteNamespace(id: string) {
+    return await apiClient.delete(`/namespaces/${id}`);
+  }
+}
+
+export default new NamespaceApi();

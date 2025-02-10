@@ -1,3 +1,5 @@
+import apiClient from "@/lib/apiClient"
+
 export interface FileItem {
   id: string
   name: string
@@ -191,4 +193,31 @@ function readFileContent(file: File): Promise<string> {
       reader.readAsDataURL(file)
     }
   })
+}
+
+
+class FileApi {
+  async createFolder(directoryPath:string) { 
+    return await apiClient.post("/files/folders", { directoryPath });
+  }
+
+  async deleteFolder(directoryPath:string) { 
+    return await apiClient.delete("/files/folders", );
+  }
+
+  async getFolderContents(directoryPath: string) { 
+    return await apiClient.get(`/files/folders/${directoryPath}`);
+  }
+
+  async uploadFiles(directoryPath: string, files: File[]) { 
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
+    return await apiClient.post(`/files/upload/${directoryPath}`, formData);
+  }
+
+  async deleteFiles(directoryPath: string, fileIds: string[]) { 
+    return await apiClient.delete(`/files/${directoryPath}`, { data: { fileIds } });
+  }
 }
