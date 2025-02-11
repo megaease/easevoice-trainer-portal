@@ -98,15 +98,20 @@ export const FolderList: React.FC<FolderListProps> = ({
             {viewMode === 'grid' ? (
               <div className='flex flex-col items-center space-y-2 select-none w-[120px] justify-center'>
                 {getFileIcon()}
-                <span className='truncate text-center w-full'>
+                <span
+                  className='truncate text-center w-full'
+                  title={folder.directoryName}
+                >
                   {folder.directoryName}
                 </span>
               </div>
             ) : (
               <div className='flex items-center justify-between select-none'>
-                <div className='flex items-center space-x-3 flex-1'>
+                <div className='flex items-center space-x-3 flex-1 truncate'>
                   {getFileIcon()}
-                  <span className='truncate'>{folder.directoryName}</span>
+                  <span className='truncate' title={folder.directoryName}>
+                    {folder.directoryName}
+                  </span>
                 </div>
               </div>
             )}

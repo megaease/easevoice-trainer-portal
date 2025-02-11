@@ -1,4 +1,4 @@
-import apiClient from "@/lib/apiClient"
+import apiClient from '@/lib/apiClient'
 
 export interface FileItem {
   id: string
@@ -195,39 +195,40 @@ function readFileContent(file: File): Promise<string> {
   })
 }
 
-
 class FileApi {
-  async createFolder(directoryPath:string) { 
-    return await apiClient.post("/directories", { directoryPath });
+  async createFolder(directoryPath: string) {
+    return await apiClient.post('/directories', { directoryPath })
   }
 
-  async deleteFolder(directoryPath:string) { 
-    return await apiClient.delete("/directories", );
+  async deleteFolder(directoryPath: string) {
+    return await apiClient.delete('/directories')
   }
 
-  async getFolderContents(directoryPath: string) { 
+  async getFolderContents(directoryPath: string) {
     return await apiClient({
       method: 'GET',
       url: `/directories`,
-      params: { directoryPath }
-    });
+      params: { directoryPath },
+    })
   }
 
-  async uploadFiles(directoryPath: string, files: File[]) { 
-    const formData = new FormData();
+  async uploadFiles(directoryPath: string, files: File[]) {
+    const formData = new FormData()
     files.forEach((file) => {
-      formData.append('files', file);
-    });
-    return await apiClient.post(`/files/upload/${directoryPath}`, formData);
+      formData.append('files', file)
+    })
+    return await apiClient.post(`/files/upload/${directoryPath}`, formData)
   }
 
-  async deleteFiles(directoryPath: string[],) { 
+  async deleteFileAndFolders(directoryPath: string[]) {
     return await apiClient({
-      method: 'DELETE',
-      url: `/directories`,
-      data: { directoryPath: directoryPath[0] }
-    });
+      method: 'POST',
+      url: `/delete-dirs-files`,
+      data: {
+        paths: directoryPath,
+      },
+    })
   }
 }
 
-export default new FileApi();
+export default new FileApi()

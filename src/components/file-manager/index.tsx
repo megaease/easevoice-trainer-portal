@@ -35,10 +35,7 @@ function FileManager() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [deletePaths, setDeletePaths] = useState<string[]>([])
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
-  console.log(currentNamespace, currentPath, 'currentPath')
-  const queryClient = useQueryClient()
 
-  // 查询当前文件夹内容
   const {
     data = { files: [], directories: [] },
     isFetching,
@@ -64,17 +61,18 @@ function FileManager() {
   })
 
   const uploadMutation = useMutation({
-    mutationFn: (newFiles: File[]) => uploadFiles(currentPath, newFiles),
-    onSuccess: (newFiles) => {
-      queryClient.setQueryData(
-        ['files', currentPath],
-        (old: FileItem[] = []) => [...old, ...newFiles]
-      )
+    mutationFn: (newFiles: File[]) => {
+      console.log(newFiles, 'newFiles')
+      return uploadFiles(newFiles, currentPath)
+    },
+    onSuccess: (newFiles) => {},
+    onSettled: () => {
+      refetch()
     },
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (paths: string[]) => fileApi.deleteFiles(paths),
+    mutationFn: (paths: string[]) => fileApi.deleteFileAndFolders(paths),
     onSuccess: () => {
       setDeletePaths([])
       setSelectedItems([])
@@ -93,9 +91,8 @@ function FileManager() {
       refetch()
     },
   })
-  const handleDelete = (names: string[]) => {
-    const paths = names.map((name) => getPath(name, currentPath))
-    deleteMutation.mutate(paths)
+  const handleDelete = () => {
+    deleteMutation.mutate(deletePaths)
   }
   const handleNewFolder = async (name: string) => {
     const path = getPath(name, currentPath)
@@ -137,7 +134,7 @@ function FileManager() {
     const path = getPath(name, currentPath)
     navigator.clipboard.writeText(path)
   }
-  console.log(deletePaths, 'deletePaths')
+
   return (
     <div className='h-full max-w-7xl mx-auto shadow-sm flex flex-col'>
       <Toolbar
@@ -145,11 +142,12 @@ function FileManager() {
           setNewFolderDialogOpen(true)
         }}
         onDelete={() => {
-          setDeletePaths(selectedItems)
+          setDeletePaths(
+            selectedItems.map((name) => getPath(name, currentPath))
+          )
           setOpenDeleteDialog(true)
         }}
         onUpload={handleUpload}
-        onDownload={() => alert('Download')}
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
         hasSelection={selectedItems.length > 0}
@@ -157,6 +155,7 @@ function FileManager() {
           isFetching || uploadMutation.isPending || deleteMutation.isPending
         }
         onRefresh={() => refetch()}
+        onHome={() => setCurrentPath(currentNamespace?.homePath || '/')}
       />
       <div className='px-4 py-2'>
         <FileBreadcrumb path={currentPath} onNavigate={handleNavigate} />
@@ -237,7 +236,7 @@ function FileManager() {
         isOpen={openDeleteDialog}
         isLoading={deleteMutation.isPending}
         onClose={() => setOpenDeleteDialog(false)}
-        onConfirm={() => handleDelete(selectedItems)}
+        onConfirm={() => handleDelete()}
       />
 
       <NewFolderDialog

@@ -29,7 +29,7 @@ export function FileBreadcrumb({
   const shouldShowEllipsis = parts.length > (maxItems || 3)
   const visibleParts = shouldShowEllipsis ? parts.slice(-2) : parts
   const hiddenParts = shouldShowEllipsis ? parts.slice(0, -2) : []
-  console.log('parts', hiddenParts)
+
   return (
     <Breadcrumb>
       <BreadcrumbList>
@@ -38,7 +38,7 @@ export function FileBreadcrumb({
             onClick={() => onNavigate('/')}
             className='cursor-pointer'
           >
-            Home
+            /
           </BreadcrumbLink>
         </BreadcrumbItem>
 

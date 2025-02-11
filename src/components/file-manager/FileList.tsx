@@ -101,15 +101,20 @@ export const FileList: React.FC<FileListProps> = ({
             {viewMode === 'grid' ? (
               <div className='flex flex-col items-center space-y-2 select-none w-[120px] justify-center'>
                 {getFileIcon(file)}
-                <span className='truncate text-center w-full'>
+                <span
+                  className='truncate text-center w-full'
+                  title={file.fileName}
+                >
                   {file.fileName}
                 </span>
               </div>
             ) : (
-              <div className='flex items-center justify-between select-none'>
-                <div className='flex items-center space-x-3 flex-1'>
+              <div className='flex items-center justify-between select-none gap-2'>
+                <div className='flex items-center space-x-3 flex-1 truncate'>
                   {getFileIcon(file)}
-                  <span className='truncate'>{file.fileName}</span>
+                  <span className='truncate' title={file.fileName}>
+                    {file.fileName}
+                  </span>
                 </div>
                 <div className='flex items-center space-x-4 text-sm text-gray-500'>
                   <span>

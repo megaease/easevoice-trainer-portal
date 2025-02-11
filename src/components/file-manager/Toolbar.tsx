@@ -8,6 +8,7 @@ import {
   LayoutGrid,
   List,
   RefreshCw,
+  Home,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -26,24 +27,25 @@ interface ToolbarProps {
   onNewFolder: () => void
   onDelete: () => void
   onUpload: (files: File[]) => void
-  onDownload: () => void
+
   viewMode: ViewMode
   onViewModeChange: (mode: ViewMode) => void
   hasSelection: boolean
   isLoading: boolean
   onRefresh: () => void
+  onHome: () => void
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
   onNewFolder,
   onDelete,
   onUpload,
-  onDownload,
   viewMode,
   onViewModeChange,
   hasSelection,
   isLoading,
   onRefresh,
+  onHome,
 }) => {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -66,16 +68,26 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Refresh</TooltipContent>
+            <TooltipContent>刷新</TooltipContent>
           </Tooltip>
           <Separator orientation='vertical' className='h-6' />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant='ghost' size='icon' onClick={onHome}>
+                <Home className='h-5 w-5 text-black' />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>工作目录</TooltipContent>
+          </Tooltip>
+          <Separator orientation='vertical' className='h-6' />
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant='ghost' size='icon' onClick={onNewFolder}>
                 <FolderPlus className='h-4 w-4' />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>New Folder</TooltipContent>
+            <TooltipContent>新建目录</TooltipContent>
           </Tooltip>
           <Separator orientation='vertical' className='h-6' />
           <Tooltip>
@@ -94,20 +106,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </TooltipTrigger>
             <TooltipContent>Upload</TooltipContent>
           </Tooltip>
+          <Separator orientation='vertical' className='h-6' />
           <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant='ghost'
-                size='icon'
-                onClick={onDownload}
-                disabled={!hasSelection}
-              >
-                <Download className='h-4 w-4' />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Download</TooltipContent>
-          </Tooltip>
-          {/* <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant='ghost'
@@ -119,7 +119,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent>Delete</TooltipContent>
-          </Tooltip> */}
+          </Tooltip>
         </div>
 
         <div className='flex items-center space-x-2'>

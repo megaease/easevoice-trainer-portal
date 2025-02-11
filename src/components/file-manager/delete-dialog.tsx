@@ -30,7 +30,8 @@ export const DeleteDialog = ({
         <DialogHeader>
           <DialogTitle>确认删除</DialogTitle>
           <DialogDescription>
-            你确定要删除以下{deletePaths.length}个文件吗？此操作不可恢复。
+            你确定要删除以下{deletePaths.length}
+            个文件或者文件夹吗？此操作不可恢复。
           </DialogDescription>
         </DialogHeader>
 
