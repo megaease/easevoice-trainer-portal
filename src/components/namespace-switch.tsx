@@ -42,7 +42,10 @@ export function NamespaceSwitch() {
   const createNamespaceMutation = useMutation({
     mutationFn: namespaceApi.createNamespace,
     onSuccess: () => {
-      toast.success('命名空间创建成功')
+      toast.success('工作目录创建成功')
+    },
+    onError: (error) => {
+      toast.error((error as any)?.response?.data?.detail || error.message)
     },
     onSettled: () => {
       refetch()
@@ -55,7 +58,7 @@ export function NamespaceSwitch() {
 
   const handleAddNamespace = async () => {
     if (!newNamespace.trim()) {
-      toast.error('命名空间名称不能为空')
+      toast.error('工作目录名称不能为空')
       return
     }
     const res = await createNamespaceMutation.mutateAsync({
@@ -68,7 +71,7 @@ export function NamespaceSwitch() {
   const deleteNamespaceMutation = useMutation({
     mutationFn: namespaceApi.deleteNamespace,
     onSuccess: () => {
-      toast.success('命名空间删除成功')
+      toast.success('工作目录删除成功')
       if (namespaces.length > 0) {
         setCurrentNamespace(namespaces[0])
       }
@@ -109,7 +112,7 @@ export function NamespaceSwitch() {
             sideOffset={4}
           >
             <DropdownMenuLabel className='text-xs text-muted-foreground'>
-              命名空间
+              工作目录
             </DropdownMenuLabel>
             {namespaces.map((namespace) => {
               const Icon = getRandomIconByName(namespace?.name || '')
@@ -127,7 +130,7 @@ export function NamespaceSwitch() {
                     onClick={async (e) => {
                       e.stopPropagation()
                       if (namespaces.length === 1) {
-                        toast.error('至少需要一个命名空间')
+                        toast.error('至少需要一个工作目录')
                         return
                       }
                       await deleteNamespaceMutation.mutateAsync(namespace.name)
@@ -146,7 +149,7 @@ export function NamespaceSwitch() {
               >
                 <Plus className='size-4' />
                 <div className='font-medium text-muted-foreground'>
-                  添加命名空间
+                  添加工作目录
                 </div>
               </div>
             </DropdownMenuItem>
@@ -155,16 +158,20 @@ export function NamespaceSwitch() {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>添加命名空间</DialogTitle>
-              <DialogDescription>输入新的命名空间名称</DialogDescription>
+              <DialogTitle>添加工作目录</DialogTitle>
+              <DialogDescription>
+                训练模型时，会将产生的文件保存在工作目录中
+              </DialogDescription>
             </DialogHeader>
             <Input
               value={newNamespace}
               onChange={(e) => setNewNamespace(e.target.value)}
-              placeholder='命名空间名称'
+              placeholder='建议使用英文名称'
             />
             <DialogFooter>
-              <Button onClick={handleAddNamespace}>添加</Button>
+              <Button onClick={handleAddNamespace}>
+                {createNamespaceMutation.isPending ? '创建中...' : '创建'}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

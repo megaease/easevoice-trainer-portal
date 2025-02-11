@@ -14,7 +14,7 @@ const NamespaceProvider = ({ children }: { children: React.ReactNode }) => {
   const createNamespaceMutation = useMutation({
     mutationFn: namespaceApi.createNamespace,
     onSuccess: () => {
-      toast.success('命名空间创建成功')
+      toast.success('工作目录创建成功')
     },
   })
 
