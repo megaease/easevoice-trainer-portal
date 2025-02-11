@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Separator } from '../ui/separator'
 
 interface BreadcrumbProps {
   path: string
@@ -42,9 +44,9 @@ export function FileBreadcrumb({
           </BreadcrumbLink>
         </BreadcrumbItem>
 
+        <BreadcrumbSeparator />
         {shouldShowEllipsis && (
           <BreadcrumbItem>
-            <BreadcrumbSeparator />
             <DropdownMenu>
               <DropdownMenuTrigger className='flex items-center gap-1 hover:text-foreground outline-none'>
                 <BreadcrumbEllipsis className='h-5 w-5' />
@@ -76,15 +78,17 @@ export function FileBreadcrumb({
                 ].join('/')
               : parts.slice(0, index + 1).join('/'))
           return (
-            <BreadcrumbItem key={currentPath}>
+            <React.Fragment key={currentPath}>
               <BreadcrumbSeparator />
-              <BreadcrumbLink
-                onClick={() => onNavigate(currentPath)}
-                className='cursor-pointer'
-              >
-                {part}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  onClick={() => onNavigate(currentPath)}
+                  className='cursor-pointer'
+                >
+                  {part}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            </React.Fragment>
           )
         })}
       </BreadcrumbList>

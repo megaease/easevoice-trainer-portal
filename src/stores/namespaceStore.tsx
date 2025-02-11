@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 type Namespace = {
-  namespaceID: string
   name: string
   homePath: string
   createdAt: string

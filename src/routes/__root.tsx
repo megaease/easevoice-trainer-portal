@@ -15,12 +15,12 @@ function RootComponent() {
   return (
     <React.Fragment>
       <Outlet />
-      <Toaster />
+      <Toaster position='top-right' />
 
       {import.meta.env.MODE === 'development' && (
         <>
-          {/* <ReactQueryDevtools buttonPosition='bottom-left' />
-          <TanStackRouterDevtools position='bottom-right' /> */}
+          <ReactQueryDevtools buttonPosition='bottom-left' />
+          <TanStackRouterDevtools position='bottom-right' />
         </>
       )}
     </React.Fragment>

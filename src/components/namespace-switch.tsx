@@ -41,9 +41,8 @@ export function NamespaceSwitch() {
 
   const createNamespaceMutation = useMutation({
     mutationFn: namespaceApi.createNamespace,
-    onSuccess: (_, namespace) => {
+    onSuccess: () => {
       toast.success('命名空间创建成功')
-      setCurrentNamespace(namespace)
     },
     onSettled: () => {
       refetch()
@@ -59,23 +58,26 @@ export function NamespaceSwitch() {
       toast.error('命名空间名称不能为空')
       return
     }
-    createNamespaceMutation.mutate({ name: newNamespace })
+    const res = await createNamespaceMutation.mutateAsync({
+      name: newNamespace,
+    })
+    setCurrentNamespace(res?.data || '')
     setIsDialogOpen(false)
   }
 
   const deleteNamespaceMutation = useMutation({
     mutationFn: namespaceApi.deleteNamespace,
-    onSuccess: (_, namespaceId) => {
+    onSuccess: () => {
       toast.success('命名空间删除成功')
-      if (currentNamespace?.namespaceID === namespaceId) {
-        setCurrentNamespace(null)
+      if (namespaces.length > 0) {
+        setCurrentNamespace(namespaces[0])
       }
     },
     onError: (error) => {
       toast.error(error.message)
     },
     onSettled: () => {
-      refetch().then(() => {})
+      refetch()
     },
   })
 
@@ -122,13 +124,13 @@ export function NamespaceSwitch() {
                   </div>
                   {namespace?.name}
                   <DropdownMenuShortcut
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation()
                       if (namespaces.length === 1) {
                         toast.error('至少需要一个命名空间')
                         return
                       }
-                      deleteNamespaceMutation.mutate(namespace.namespaceID)
+                      await deleteNamespaceMutation.mutateAsync(namespace.name)
                     }}
                   >
                     <X className='size-4' />

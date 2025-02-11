@@ -3,7 +3,6 @@ import namespaceApi from '@/apis/namespace'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 
 type Namespace = {
-  namespaceID: string
   name: string
   homePath: string
   createdAt: string
@@ -20,7 +19,9 @@ export function useNamespaceList() {
           setCurrentNamespace(res.data.namespaces[0])
         }
         if (res.data.namespaces.length === 0) {
-          const newNamespace = await namespaceApi.createNamespace({ name: '' })
+          const newNamespace = await namespaceApi.createNamespace({
+            name: 'default',
+          })
           setCurrentNamespace(newNamespace.data)
         }
         return res.data
