@@ -24,7 +24,6 @@ import { ViewMode } from './types'
 
 interface ToolbarProps {
   onNewFolder: () => void
-  onNewFile: () => void
   onDelete: () => void
   onUpload: (files: File[]) => void
   onDownload: () => void
@@ -37,7 +36,6 @@ interface ToolbarProps {
 
 export const Toolbar: React.FC<ToolbarProps> = ({
   onNewFolder,
-  onNewFile,
   onDelete,
   onUpload,
   onDownload,
@@ -79,14 +77,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </TooltipTrigger>
             <TooltipContent>New Folder</TooltipContent>
           </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant='ghost' size='icon' onClick={onNewFile}>
-                <FilePlus className='h-4 w-4' />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>New File</TooltipContent>
-          </Tooltip>
           <Separator orientation='vertical' className='h-6' />
           <Tooltip>
             <TooltipTrigger asChild>
@@ -117,7 +107,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             </TooltipTrigger>
             <TooltipContent>Download</TooltipContent>
           </Tooltip>
-          <Tooltip>
+          {/* <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant='ghost'
@@ -129,7 +119,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent>Delete</TooltipContent>
-          </Tooltip>
+          </Tooltip> */}
         </div>
 
         <div className='flex items-center space-x-2'>

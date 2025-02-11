@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import fileApi from '@/apis/files'
 import { fetchFolderContents, uploadFiles, deleteFiles } from '@/apis/files'
+import { useNamespaceStore } from '@/stores/namespaceStore'
+import { cn } from '@/lib/utils'
 import { ScrollArea } from '../ui/scroll-area'
 import { Separator } from '../ui/separator'
 import { Skeleton } from '../ui/skeleton'
@@ -15,34 +17,52 @@ import { NewFileDialog } from './new-file-dialog'
 import { NewFolderDialog } from './new-folder-dialog'
 import { FileItem, FolderItem } from './types'
 
+function getPath(name: string, currentPath: string) {
+  return currentPath === '/' ? currentPath + name : currentPath + '/' + name
+}
 function FileManager() {
-  const [currentPath, setCurrentPath] = useState('/')
+  const { currentNamespace } = useNamespaceStore()
+  const [currentPath, setCurrentPath] = useState(
+    currentNamespace?.homePath || '/'
+  )
+  useEffect(() => {
+    setCurrentPath(currentNamespace?.homePath || '/')
+  }, [currentNamespace])
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null)
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
-  const [deleteIds, setDeleteIds] = useState<string[]>([])
+  const [deletePaths, setDeletePaths] = useState<string[]>([])
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
-  const [newFileDialogOpen, setNewFileDialogOpen] = useState(false)
-
+  console.log(currentNamespace, currentPath, 'currentPath')
   const queryClient = useQueryClient()
 
   // 查询当前文件夹内容
   const {
-    data = [],
+    data = { files: [], directories: [] },
     isFetching,
     refetch,
   } = useQuery({
     queryKey: ['files', currentPath],
     queryFn: async () => {
-      const res = await fileApi.getFolderContents(currentPath)
-      return res.data
+      try {
+        const res = await fileApi.getFolderContents(currentPath)
+        return {
+          files: res.data.files || [],
+          directories: res.data.directories || [],
+        }
+      } catch (error) {
+        console.error('Error fetching folder contents:', error)
+        return {
+          files: [],
+          directories: [],
+        }
+      }
     },
     placeholderData: (previousData) => previousData,
   })
 
-  // 上传文件的 mutation
   const uploadMutation = useMutation({
     mutationFn: (newFiles: File[]) => uploadFiles(currentPath, newFiles),
     onSuccess: (newFiles) => {
@@ -52,20 +72,36 @@ function FileManager() {
       )
     },
   })
-  const handleDelete = (ids: string[]) => {
-    deleteMutation.mutate(ids)
-  }
-  // 删除文件的 mutation
+
   const deleteMutation = useMutation({
-    mutationFn: (ids: string[]) => deleteFiles(currentPath, ids),
+    mutationFn: (paths: string[]) => fileApi.deleteFiles(paths),
     onSuccess: () => {
-      // queryClient.setQueryData(['files', currentPath], (old: FileItem[] = []) =>
-      //   old.filter((file) => !deleteIds.includes(file.id))
-      // )
+      setDeletePaths([])
       setSelectedItems([])
       setOpenDeleteDialog(false)
     },
+    onSettled: () => {
+      refetch()
+    },
   })
+  const newFolderMutation = useMutation({
+    mutationFn: (path: string) => fileApi.createFolder(path),
+    onSuccess: () => {
+      setNewFolderDialogOpen(false)
+    },
+    onSettled: () => {
+      refetch()
+    },
+  })
+  const handleDelete = (names: string[]) => {
+    const paths = names.map((name) => getPath(name, currentPath))
+    deleteMutation.mutate(paths)
+  }
+  const handleNewFolder = async (name: string) => {
+    const path = getPath(name, currentPath)
+    await newFolderMutation.mutateAsync(path)
+    setNewFolderDialogOpen(false)
+  }
 
   const handleSelect = (name: string) => {
     if (selectedItems.includes(name)) {
@@ -77,7 +113,8 @@ function FileManager() {
 
   const handleOpen = (item: FileItem | FolderItem) => {
     if (item.type === 'directory') {
-      setCurrentPath(data.directoryPath + item.directoryName)
+      const path = getPath(item.directoryName, currentPath)
+      setCurrentPath(path)
       setSelectedItems([])
     } else {
       setPreviewFile(item)
@@ -96,17 +133,19 @@ function FileManager() {
   const handleViewModeChange = (mode: 'grid' | 'list') => {
     setViewMode(mode)
   }
-
-  console.log('data', data)
+  const handleCopyPath = (name: string) => {
+    const path = getPath(name, currentPath)
+    navigator.clipboard.writeText(path)
+  }
+  console.log(deletePaths, 'deletePaths')
   return (
     <div className='h-full max-w-7xl mx-auto shadow-sm flex flex-col'>
       <Toolbar
         onNewFolder={() => {
           setNewFolderDialogOpen(true)
         }}
-        onNewFile={() => setNewFileDialogOpen(true)}
         onDelete={() => {
-          setDeleteIds(selectedItems)
+          setDeletePaths(selectedItems)
           setOpenDeleteDialog(true)
         }}
         onUpload={handleUpload}
@@ -124,61 +163,91 @@ function FileManager() {
       </div>
       <Separator />
       <ScrollArea className='flex-1'>
-        <div className='p-4 space-y-2'>
-          <FolderList
-            folders={data.directories || []}
-            selectedItems={selectedItems}
-            viewMode={viewMode}
-            onSelect={handleSelect}
-            onOpen={handleOpen}
-            onDelete={(ids) => {
-              setDeleteIds(ids)
-              setOpenDeleteDialog(true)
-            }}
-            isLoading={
-              isFetching || uploadMutation.isPending || deleteMutation.isPending
-            }
-          />
-          <FileList
-            files={data.files || []}
-            selectedItems={selectedItems}
-            viewMode={viewMode}
-            onSelect={handleSelect}
-            onOpen={handleOpen}
-            onDelete={(ids) => {
-              setDeleteIds(ids)
-              setOpenDeleteDialog(true)
-            }}
-            isLoading={
-              isFetching || uploadMutation.isPending || deleteMutation.isPending
-            }
-          />
-        </div>
+        {isFetching ? (
+          <div
+            className={cn(
+              'transition-all duration-300 ease-in-out p-4 h-full',
+              viewMode === 'grid'
+                ? 'flex flex-wrap flex-row gap-4'
+                : 'flex flex-col space-y-2'
+            )}
+          >
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton
+                key={i}
+                className={cn(
+                  'rounded-lg bg-slate-100 dark:bg-gray-700',
+                  viewMode === 'grid' ? 'w-[150px] h-20' : 'w-full h-10'
+                )}
+              ></Skeleton>
+            ))}
+          </div>
+        ) : (
+          <div
+            className={cn(
+              'transition-all duration-300 ease-in-out h-full p-4',
+              viewMode === 'grid'
+                ? 'flex flex-wrap flex-row gap-4'
+                : 'flex flex-col space-y-2'
+            )}
+          >
+            <FolderList
+              folders={data.directories || []}
+              selectedItems={selectedItems}
+              viewMode={viewMode}
+              onSelect={handleSelect}
+              onOpen={handleOpen}
+              onDelete={(item: FolderItem) => {
+                const path = getPath(item.directoryName, currentPath)
+                setDeletePaths([path])
+                setOpenDeleteDialog(true)
+              }}
+              isLoading={
+                isFetching ||
+                uploadMutation.isPending ||
+                deleteMutation.isPending
+              }
+              handleCopyPath={handleCopyPath}
+            />
+            <FileList
+              files={data.files || []}
+              selectedItems={selectedItems}
+              viewMode={viewMode}
+              onSelect={handleSelect}
+              onOpen={handleOpen}
+              onDelete={(item: FileItem) => {
+                const path = getPath(item.fileName, currentPath)
+                setDeletePaths([path])
+                setOpenDeleteDialog(true)
+              }}
+              isLoading={
+                isFetching ||
+                uploadMutation.isPending ||
+                deleteMutation.isPending
+              }
+              handleCopyPath={handleCopyPath}
+            />
+          </div>
+        )}
       </ScrollArea>
 
       <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
-      {/* <DeleteDialog
-        selectedFiles={[...data?.files, ...data?.directories].filter((file) =>
-          deleteIds.includes(file.id)
-        )}
+      <DeleteDialog
+        deletePaths={deletePaths}
         isOpen={openDeleteDialog}
         isLoading={deleteMutation.isPending}
         onClose={() => setOpenDeleteDialog(false)}
         onConfirm={() => handleDelete(selectedItems)}
-      /> */}
-      <NewFileDialog
-        isOpen={newFileDialogOpen}
-        onClose={() => {
-          setNewFileDialogOpen(false)
-        }}
-        onConfirm={(name) => {}}
       />
+
       <NewFolderDialog
         isOpen={newFolderDialogOpen}
         onClose={() => {
           setNewFolderDialogOpen(false)
         }}
-        onConfirm={(name) => {}}
+        onConfirm={(name) => {
+          handleNewFolder(name)
+        }}
       />
     </div>
   )

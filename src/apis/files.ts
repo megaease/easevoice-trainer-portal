@@ -221,8 +221,12 @@ class FileApi {
     return await apiClient.post(`/files/upload/${directoryPath}`, formData);
   }
 
-  async deleteFiles(directoryPath: string, fileIds: string[]) { 
-    return await apiClient.delete(`/files/${directoryPath}`, { data: { fileIds } });
+  async deleteFiles(directoryPath: string[],) { 
+    return await apiClient({
+      method: 'DELETE',
+      url: `/directories`,
+      data: { directoryPath: directoryPath[0] }
+    });
   }
 }
 

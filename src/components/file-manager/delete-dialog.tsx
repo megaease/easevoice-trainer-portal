@@ -10,7 +10,7 @@ import {
 import { FileItem } from './types'
 
 interface DeleteDialogProps {
-  selectedFiles: FileItem[]
+  deletePaths: string[]
   isOpen: boolean
   isLoading: boolean
   onClose: () => void
@@ -18,7 +18,7 @@ interface DeleteDialogProps {
 }
 
 export const DeleteDialog = ({
-  selectedFiles,
+  deletePaths,
   isOpen,
   isLoading,
   onClose,
@@ -30,15 +30,15 @@ export const DeleteDialog = ({
         <DialogHeader>
           <DialogTitle>确认删除</DialogTitle>
           <DialogDescription>
-            你确定要删除以下{selectedFiles.length}个文件吗？此操作不可恢复。
+            你确定要删除以下{deletePaths.length}个文件吗？此操作不可恢复。
           </DialogDescription>
         </DialogHeader>
 
         <div className='max-h-[200px] overflow-y-auto'>
           <ul className='space-y-2'>
-            {selectedFiles.map((file) => (
-              <li key={file.id} className='text-sm text-gray-500'>
-                {file.name}
+            {deletePaths.map((file) => (
+              <li key={file} className='text-sm text-gray-500'>
+                {file}
               </li>
             ))}
           </ul>

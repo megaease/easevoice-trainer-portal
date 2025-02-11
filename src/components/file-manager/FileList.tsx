@@ -24,8 +24,9 @@ interface FileListProps {
   viewMode: ViewMode
   onSelect: (name: string) => void
   onOpen: (item: FileItem) => void
-  onDelete: (ids: string[]) => void
+  onDelete: (item: FileItem) => void
   isLoading: boolean
+  handleCopyPath: (name: string) => void
 }
 
 export const FileList: React.FC<FileListProps> = ({
@@ -35,17 +36,9 @@ export const FileList: React.FC<FileListProps> = ({
   onSelect,
   onOpen,
   onDelete,
-  isLoading,
+  handleCopyPath,
 }) => {
   const [previewFile, setPreviewFile] = React.useState<FileItem | null>(null)
-
-  const handleCopyPath = async (file: FileItem) => {
-    try {
-      await navigator.clipboard.writeText(file.fileName)
-    } catch (err) {
-      console.error('Failed to copy path:', err)
-    }
-  }
 
   const getFileIcon = (file: FileItem) => {
     // if (file.mimeType?.startsWith('audio/'))
@@ -133,13 +126,13 @@ export const FileList: React.FC<FileListProps> = ({
             <Eye className='mr-2 h-4 w-4' />
             Preview
           </ContextMenuItem>
-          <ContextMenuItem onClick={() => handleCopyPath(file)}>
+          <ContextMenuItem onClick={() => handleCopyPath(file.fileName)}>
             <Copy className='mr-2 h-4 w-4' />
             Copy Path
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem
-            onClick={() => onDelete([file.fileName])}
+            onClick={() => onDelete(file)}
             className='text-red-600 focus:text-red-600'
           >
             <Trash className='mr-2 h-4 w-4' />
@@ -149,44 +142,13 @@ export const FileList: React.FC<FileListProps> = ({
       </ContextMenu>
     )
   }
-  console.log('isLoading', isLoading)
-  if (isLoading) {
-    return (
-      <div
-        className={cn(
-          'transition-all duration-300 ease-in-out  h-full',
-          viewMode === 'grid'
-            ? 'flex flex-wrap flex-row gap-4'
-            : 'flex flex-col space-y-2'
-        )}
-      >
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton
-            key={i}
-            className={cn(
-              'rounded-lg bg-slate-100 dark:bg-gray-700',
-              viewMode === 'grid' ? 'w-[150px] h-20' : 'w-full h-10'
-            )}
-          ></Skeleton>
-        ))}
-      </div>
-    )
-  }
 
   return (
     <>
-      <div
-        className={cn(
-          'transition-all duration-300 ease-in-out h-full',
-          viewMode === 'grid'
-            ? 'flex flex-wrap flex-row gap-4'
-            : 'flex flex-col space-y-2'
-        )}
-      >
-        {files.map((file) => (
-          <FileItem key={file.fileName} file={file} />
-        ))}
-      </div>
+      {files.map((file) => (
+        <FileItem key={file.fileName} file={file} />
+      ))}
+
       <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
     </>
   )

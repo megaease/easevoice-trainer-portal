@@ -13,19 +13,17 @@ import {
   ContextMenuTrigger,
   ContextMenuSeparator,
 } from '@/components/ui/context-menu'
-import { Spinner } from '../ui/Spinner'
-import { Skeleton } from '../ui/skeleton'
-import { FilePreview } from './FilePreview'
-import { folderItem, ViewMode } from './types'
+import { FolderItem, ViewMode } from './types'
 
 interface FolderListProps {
-  folders: folderItem[]
+  folders: FolderItem[]
   selectedItems: string[]
   viewMode: ViewMode
   onSelect: (name: string) => void
-  onOpen: (item: folderItem) => void
-  onDelete: (ids: string[]) => void
+  onOpen: (item: FolderItem) => void
+  onDelete: (item: FolderItem) => void
   isLoading: boolean
+  handleCopyPath: (name: string) => void
 }
 
 export const FolderList: React.FC<FolderListProps> = ({
@@ -35,18 +33,8 @@ export const FolderList: React.FC<FolderListProps> = ({
   onSelect,
   onOpen,
   onDelete,
-  isLoading,
+  handleCopyPath,
 }) => {
-  const [previewFile, setPreviewFile] = React.useState<folderItem | null>(null)
-
-  const handleCopyPath = async (folder: folderItem) => {
-    try {
-      await navigator.clipboard.writeText(folder.directoryName)
-    } catch (err) {
-      console.error('Failed to copy path:', err)
-    }
-  }
-
   const getFileIcon = () => {
     return <FolderIcon className='h-6 w-6 text-yellow-500' />
   }
@@ -129,13 +117,13 @@ export const FolderList: React.FC<FolderListProps> = ({
             <Eye className='mr-2 h-4 w-4' />
             Open
           </ContextMenuItem>
-          <ContextMenuItem onClick={() => handleCopyPath(folder)}>
+          <ContextMenuItem onClick={() => handleCopyPath(folder.directoryName)}>
             <Copy className='mr-2 h-4 w-4' />
             Copy Path
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem
-            onClick={() => onDelete([folder.directoryName])}
+            onClick={() => onDelete(folder)}
             className='text-red-600 focus:text-red-600'
           >
             <Trash className='mr-2 h-4 w-4' />
@@ -145,44 +133,12 @@ export const FolderList: React.FC<FolderListProps> = ({
       </ContextMenu>
     )
   }
-  console.log('isLoading', isLoading)
-  if (isLoading) {
-    return (
-      <div
-        className={cn(
-          'transition-all duration-300 ease-in-out  h-full',
-          viewMode === 'grid'
-            ? 'flex flex-wrap flex-row gap-4'
-            : 'flex flex-col'
-        )}
-      >
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton
-            key={i}
-            className={cn(
-              'rounded-lg bg-slate-100 dark:bg-gray-700',
-              viewMode === 'grid' ? 'w-[150px] h-20' : 'w-full h-10'
-            )}
-          ></Skeleton>
-        ))}
-      </div>
-    )
-  }
 
   return (
     <>
-      <div
-        className={cn(
-          'transition-all duration-300 ease-in-out h-full',
-          viewMode === 'grid'
-            ? 'flex flex-wrap flex-row gap-4'
-            : 'flex flex-col space-y-2'
-        )}
-      >
-        {folders.map((folder) => (
-          <FolderItem key={folder.directoryName} folder={folder} />
-        ))}
-      </div>
+      {folders.map((folder) => (
+        <FolderItem key={folder.directoryName} folder={folder} />
+      ))}
     </>
   )
 }
