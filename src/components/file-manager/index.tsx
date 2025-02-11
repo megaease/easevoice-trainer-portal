@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import fileApi from '@/apis/files'
+import fileApi, { RequestBody } from '@/apis/files'
 import { fetchFolderContents, uploadFiles, deleteFiles } from '@/apis/files'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { cn } from '@/lib/utils'
@@ -13,7 +13,6 @@ import { FilePreview } from './FilePreview'
 import { FolderList } from './FolderList'
 import { Toolbar } from './Toolbar'
 import { DeleteDialog } from './delete-dialog'
-import { NewFileDialog } from './new-file-dialog'
 import { NewFolderDialog } from './new-folder-dialog'
 import { FileItem, FolderItem } from './types'
 
@@ -61,9 +60,8 @@ function FileManager() {
   })
 
   const uploadMutation = useMutation({
-    mutationFn: (newFiles: File[]) => {
-      console.log(newFiles, 'newFiles')
-      return uploadFiles(newFiles, currentPath)
+    mutationFn: (data: RequestBody) => {
+      return fileApi.uploadFiles(data)
     },
     onSuccess: (newFiles) => {},
     onSettled: () => {
@@ -123,8 +121,8 @@ function FileManager() {
     setSelectedItems([])
   }
 
-  const handleUpload = async (files: File[]) => {
-    await uploadMutation.mutateAsync(files)
+  const handleUpload = async (data: RequestBody) => {
+    await uploadMutation.mutateAsync(data)
   }
 
   const handleViewModeChange = (mode: 'grid' | 'list') => {
@@ -156,6 +154,7 @@ function FileManager() {
         }
         onRefresh={() => refetch()}
         onHome={() => setCurrentPath(currentNamespace?.homePath || '/')}
+        currentPath={currentPath}
       />
       <div className='px-4 py-2'>
         <FileBreadcrumb path={currentPath} onNavigate={handleNavigate} />

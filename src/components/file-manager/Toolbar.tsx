@@ -1,4 +1,5 @@
 import React from 'react'
+import { RequestBody } from '@/apis/files'
 import {
   FolderPlus,
   FilePlus,
@@ -26,14 +27,14 @@ import { ViewMode } from './types'
 interface ToolbarProps {
   onNewFolder: () => void
   onDelete: () => void
-  onUpload: (files: File[]) => void
-
+  onUpload: (data: RequestBody) => void
   viewMode: ViewMode
   onViewModeChange: (mode: ViewMode) => void
   hasSelection: boolean
   isLoading: boolean
   onRefresh: () => void
   onHome: () => void
+  currentPath: string
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -46,14 +47,26 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   isLoading,
   onRefresh,
   onHome,
+  currentPath,
 }) => {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (files) {
-      onUpload(Array.from(files))
+    event.preventDefault()
+    if (!event.target.files) return
+    const file = event.target.files[0]
+    const reader = new FileReader()
+
+    reader.onloadend = async () => {
+      const base64String =
+        typeof reader.result === 'string' ? reader.result.split(',')[1] : ''
+      const requestBody = {
+        directoryPath: currentPath,
+        fileName: file.name,
+        fileContent: base64String,
+      }
+      onUpload(requestBody)
     }
-    // Reset input value to allow uploading the same file again
-    event.target.value = ''
+
+    reader.readAsDataURL(file) // 将文件读取为 Data URL
   }
 
   return (
