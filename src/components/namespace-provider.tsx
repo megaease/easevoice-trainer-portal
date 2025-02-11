@@ -1,24 +1,38 @@
 import { useEffect } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import namespaceApi from '@/apis/namespace'
+import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { useNamespaceList } from '@/hooks/use-namespace-list'
 import { Spinner } from './ui/Spinner'
 
 const NamespaceProvider = ({ children }: { children: React.ReactNode }) => {
-  const { namespaceList } = useNamespaceStore()
-  const { isLoading } = useNamespaceList()
+  const { currentNamespace, setCurrentNamespace, setNamespaceList } =
+    useNamespaceStore()
+  const { namespaces, isLoading, isError } = useNamespaceList()
+
+  const createNamespaceMutation = useMutation({
+    mutationFn: namespaceApi.createNamespace,
+    onSuccess: () => {
+      toast.success('命名空间创建成功')
+    },
+  })
 
   useEffect(() => {
-    if (
-      namespaceList &&
-      namespaceList.length > 0 &&
-      !useNamespaceStore.getState().currentNamespace
-    ) {
-      const defaultNamespace = namespaceList[0]
-      useNamespaceStore.getState().setCurrentNamespace(defaultNamespace)
+    if (namespaces?.length === 0) {
+      console.log('createNamespaceMutation.mutate')
+      // createNamespaceMutation.mutate({ name: 'default' })
     }
-  }, [namespaceList, isLoading])
+    if (namespaces?.length > 0) {
+      console.log('useEffect', namespaces)
+      setNamespaceList(namespaces)
+    }
+    if (namespaces?.length > 0 && !currentNamespace) {
+      setCurrentNamespace(namespaces[0])
+    }
+  }, [currentNamespace, setCurrentNamespace, isLoading])
 
-  if (isLoading || !namespaceList) {
+  if (isLoading || !namespaces) {
     return (
       <div className='fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm'>
         <Spinner>

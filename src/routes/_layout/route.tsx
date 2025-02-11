@@ -2,6 +2,7 @@ import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
+import NamespaceProvider from '@/components/namespace-provider'
 
 export const Route = createFileRoute('/_layout')({
   component: RouteComponent,
@@ -9,6 +10,7 @@ export const Route = createFileRoute('/_layout')({
 
 function RouteComponent() {
   return (
+    // <NamespaceProvider>
     <SidebarProvider>
       <AppSidebar />
       <div
@@ -26,5 +28,6 @@ function RouteComponent() {
         <Outlet />
       </div>
     </SidebarProvider>
+    // </NamespaceProvider>
   )
 }

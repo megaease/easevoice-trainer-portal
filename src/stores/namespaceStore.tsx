@@ -1,19 +1,26 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+type Namespace = {
+  namespaceID: string
+  name: string
+  homePath: string
+  createdAt: string
+}
+
 type NamespaceStore = {
-  currentNamespace: string
-  namespaceList: string[]
-  setCurrentNamespace: (newNamespace: string) => void
-  setNamespaceList: (list: string[]) => void
+  currentNamespace: Namespace | null
+  namespaceList: Namespace[]
+  setCurrentNamespace: (newNamespace: Namespace) => void
+  setNamespaceList: (list: Namespace[]) => void
 }
 
 export const useNamespaceStore = create<NamespaceStore>()(
   persist(
     (set) => ({
-      currentNamespace: '',
+      currentNamespace: null,
       namespaceList: [],
-      setCurrentNamespace: (newNamespace) =>
+      setCurrentNamespace: (newNamespace: Namespace | null) =>
         set({ currentNamespace: newNamespace }),
       setNamespaceList: (list) => set({ namespaceList: list }),
     }),

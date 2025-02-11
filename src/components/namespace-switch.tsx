@@ -1,9 +1,21 @@
 import * as React from 'react'
-import { ChevronsUpDown, GalleryVerticalEnd, Plus } from 'lucide-react'
-import logoSvg from '@/assets/logo.svg'
+import { useMutation } from '@tanstack/react-query'
+import namespaceApi from '@/apis/namespace'
+import { ChevronsUpDown, Plus, X } from 'lucide-react'
+import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { getRandomIconByName } from '@/lib/randomIcon'
 import { useNamespaceList } from '@/hooks/use-namespace-list'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +25,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -22,9 +35,49 @@ import {
 
 export function NamespaceSwitch() {
   const { isMobile } = useSidebar()
-  const { namespaces } = useNamespaceList()
   const { currentNamespace, setCurrentNamespace } = useNamespaceStore()
-  const Icon = getRandomIconByName(currentNamespace || '')
+
+  const { namespaces = [], refetch } = useNamespaceList()
+
+  const createNamespaceMutation = useMutation({
+    mutationFn: namespaceApi.createNamespace,
+    onSuccess: (_, namespace) => {
+      toast.success('命名空间创建成功')
+      setCurrentNamespace(namespace)
+    },
+    onSettled: () => {
+      refetch()
+    },
+  })
+
+  const Icon = getRandomIconByName(currentNamespace?.name || '')
+  const [newNamespace, setNewNamespace] = React.useState('')
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+
+  const handleAddNamespace = async () => {
+    if (!newNamespace.trim()) {
+      toast.error('命名空间名称不能为空')
+      return
+    }
+    createNamespaceMutation.mutate({ name: newNamespace })
+    setIsDialogOpen(false)
+  }
+
+  const deleteNamespaceMutation = useMutation({
+    mutationFn: namespaceApi.deleteNamespace,
+    onSuccess: (_, namespaceId) => {
+      toast.success('命名空间删除成功')
+      if (currentNamespace?.namespaceID === namespaceId) {
+        setCurrentNamespace(null)
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+    onSettled: () => {
+      refetch().then(() => {})
+    },
+  })
 
   return (
     <SidebarMenu>
@@ -41,7 +94,7 @@ export function NamespaceSwitch() {
 
               <div className='grid flex-1 text-left text-sm leading-tight'>
                 <span className='truncate font-semibold'>
-                  {currentNamespace}
+                  {currentNamespace?.name || null}
                 </span>
               </div>
               <ChevronsUpDown className='ml-auto' />
@@ -57,31 +110,62 @@ export function NamespaceSwitch() {
               命名空间
             </DropdownMenuLabel>
             {namespaces.map((namespace) => {
-              const Icon = getRandomIconByName(namespace)
+              const Icon = getRandomIconByName(namespace?.name || '')
               return (
                 <DropdownMenuItem
-                  key={namespace}
+                  key={namespace?.name}
                   onClick={() => setCurrentNamespace(namespace)}
-                  className='gap-2 p-2'
+                  className='gap-2 p-2 truncate'
                 >
                   <div className='flex size-6 items-center justify-center rounded-sm border'>
                     <Icon className='size-4' />
                   </div>
-                  {namespace}
+                  {namespace?.name}
+                  <DropdownMenuShortcut
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (namespaces.length === 1) {
+                        toast.error('至少需要一个命名空间')
+                        return
+                      }
+                      deleteNamespaceMutation.mutate(namespace.namespaceID)
+                    }}
+                  >
+                    <X className='size-4' />
+                  </DropdownMenuShortcut>
                 </DropdownMenuItem>
               )
             })}
             <DropdownMenuSeparator />
             <DropdownMenuItem className='gap-2 p-2'>
-              <div className='flex size-6 items-center justify-center rounded-md border bg-background'>
+              <div
+                className='flex items-center justify-center w-full h-full gap-2'
+                onClick={() => setIsDialogOpen(true)}
+              >
                 <Plus className='size-4' />
-              </div>
-              <div className='font-medium text-muted-foreground'>
-                添加命名空间
+                <div className='font-medium text-muted-foreground'>
+                  添加命名空间
+                </div>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>添加命名空间</DialogTitle>
+              <DialogDescription>输入新的命名空间名称</DialogDescription>
+            </DialogHeader>
+            <Input
+              value={newNamespace}
+              onChange={(e) => setNewNamespace(e.target.value)}
+              placeholder='命名空间名称'
+            />
+            <DialogFooter>
+              <Button onClick={handleAddNamespace}>添加</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </SidebarMenuItem>
     </SidebarMenu>
   )

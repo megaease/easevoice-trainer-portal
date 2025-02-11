@@ -198,15 +198,19 @@ function readFileContent(file: File): Promise<string> {
 
 class FileApi {
   async createFolder(directoryPath:string) { 
-    return await apiClient.post("/files/folders", { directoryPath });
+    return await apiClient.post("/directories", { directoryPath });
   }
 
   async deleteFolder(directoryPath:string) { 
-    return await apiClient.delete("/files/folders", );
+    return await apiClient.delete("/directories", );
   }
 
   async getFolderContents(directoryPath: string) { 
-    return await apiClient.get(`/files/folders/${directoryPath}`);
+    return await apiClient({
+      method: 'GET',
+      url: `/directories`,
+      params: { directoryPath }
+    });
   }
 
   async uploadFiles(directoryPath: string, files: File[]) { 
@@ -221,3 +225,5 @@ class FileApi {
     return await apiClient.delete(`/files/${directoryPath}`, { data: { fileIds } });
   }
 }
+
+export default new FileApi();

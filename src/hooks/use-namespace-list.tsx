@@ -1,31 +1,40 @@
 import { useQuery } from '@tanstack/react-query'
-import namspaceApi from '@/apis/namespace'
+import namespaceApi from '@/apis/namespace'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 
-async function fetchNamespaces(): Promise<string[]> {
-  const { data } = await namspaceApi.getNamespaces()
-  return data
+type Namespace = {
+  namespaceID: string
+  name: string
+  homePath: string
+  createdAt: string
 }
 
 export function useNamespaceList() {
   const { currentNamespace, setCurrentNamespace } = useNamespaceStore()
-
   const query = useQuery({
     queryKey: ['namespaces'],
-    queryFn: fetchNamespaces,
-    retry: 1,
+    queryFn: async () => {
+      try {
+        const res = await namespaceApi.getNamespaces()
+        if (!currentNamespace && res.data.namespaces.length > 0) {
+          setCurrentNamespace(res.data.namespaces[0])
+        }
+        if (res.data.namespaces.length === 0) {
+          const newNamespace = await namespaceApi.createNamespace({ name: '' })
+          setCurrentNamespace(newNamespace.data)
+        }
+        return res.data
+      } catch (error) {
+        console.log('error', error)
+        return { namespaces: [] }
+      }
+    },
+    staleTime: 0,
   })
-  const { data: namespaces = [], isLoading, isError } = query
-
-  if (
-    namespaces.length > 0 &&
-    !namespaces.find((ns) => ns === currentNamespace)
-  ) {
-    setCurrentNamespace(namespaces[0] || 'default')
-  }
   return {
-    namespaces,
-    isLoading,
-    isError,
+    namespaces: (query?.data as any)?.namespaces as Namespace[],
+    isLoading: query.isLoading,
+    isError: query.isError,
+    refetch: query.refetch,
   }
 }

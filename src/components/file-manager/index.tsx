@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import fileApi from '@/apis/files'
 import { fetchFolderContents, uploadFiles, deleteFiles } from '@/apis/files'
 import { ScrollArea } from '../ui/scroll-area'
 import { Separator } from '../ui/separator'
@@ -33,7 +34,7 @@ function FileManager() {
     refetch,
   } = useQuery({
     queryKey: ['files', currentPath],
-    queryFn: () => fetchFolderContents(currentPath),
+    queryFn: () => fileApi.getFolderContents(currentPath),
     placeholderData: (previousData) => previousData,
   })
 

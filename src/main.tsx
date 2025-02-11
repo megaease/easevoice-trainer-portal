@@ -8,7 +8,6 @@ import {
 } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import NamespaceProvider from './components/namespace-provider'
 import { ThemeProvider } from './context/theme-context'
 import './index.css'
 // Import the generated route tree
@@ -43,6 +42,16 @@ const queryClient = new QueryClient({
     queries: {
       retry: (failureCount, error) => {
         // eslint-disable-next-line no-console
+        if (error instanceof AxiosError) {
+          if ([404, 500].includes(error.response?.status ?? 0)) {
+            console.log(error.response?.status)
+            return false
+          }
+
+          if ([401, 403].includes(error.response?.status ?? 0)) {
+            return false
+          }
+        }
         if (import.meta.env.DEV) console.log({ failureCount, error })
 
         if (failureCount >= 0 && import.meta.env.DEV) return false
@@ -108,9 +117,7 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider defaultTheme='system' storageKey='vite-ui-theme'>
-          {/* <NamespaceProvider> */}
           <RouterProvider router={router} />
-          {/* </NamespaceProvider> */}
         </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>
