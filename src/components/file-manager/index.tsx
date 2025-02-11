@@ -8,11 +8,12 @@ import { Skeleton } from '../ui/skeleton'
 import { FileBreadcrumb } from './FileBreadcrumb'
 import { FileList } from './FileList'
 import { FilePreview } from './FilePreview'
+import { FolderList } from './FolderList'
 import { Toolbar } from './Toolbar'
 import { DeleteDialog } from './delete-dialog'
 import { NewFileDialog } from './new-file-dialog'
 import { NewFolderDialog } from './new-folder-dialog'
-import { FileItem } from './types'
+import { FileItem, FolderItem } from './types'
 
 function FileManager() {
   const [currentPath, setCurrentPath] = useState('/')
@@ -29,12 +30,15 @@ function FileManager() {
 
   // 查询当前文件夹内容
   const {
-    data: files = [],
+    data = [],
     isFetching,
     refetch,
   } = useQuery({
     queryKey: ['files', currentPath],
-    queryFn: () => fileApi.getFolderContents(currentPath),
+    queryFn: async () => {
+      const res = await fileApi.getFolderContents(currentPath)
+      return res.data
+    },
     placeholderData: (previousData) => previousData,
   })
 
@@ -55,23 +59,25 @@ function FileManager() {
   const deleteMutation = useMutation({
     mutationFn: (ids: string[]) => deleteFiles(currentPath, ids),
     onSuccess: () => {
-      queryClient.setQueryData(['files', currentPath], (old: FileItem[] = []) =>
-        old.filter((file) => !deleteIds.includes(file.id))
-      )
+      // queryClient.setQueryData(['files', currentPath], (old: FileItem[] = []) =>
+      //   old.filter((file) => !deleteIds.includes(file.id))
+      // )
       setSelectedItems([])
       setOpenDeleteDialog(false)
     },
   })
 
-  const handleSelect = (id: string) => {
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    )
+  const handleSelect = (name: string) => {
+    if (selectedItems.includes(name)) {
+      setSelectedItems(selectedItems.filter((item) => item !== name))
+    } else {
+      setSelectedItems([...selectedItems, name])
+    }
   }
 
-  const handleOpen = (item: FileItem) => {
-    if (item.type === 'folder') {
-      setCurrentPath(item.path)
+  const handleOpen = (item: FileItem | FolderItem) => {
+    if (item.type === 'directory') {
+      setCurrentPath(data.directoryPath + item.directoryName)
       setSelectedItems([])
     } else {
       setPreviewFile(item)
@@ -91,6 +97,7 @@ function FileManager() {
     setViewMode(mode)
   }
 
+  console.log('data', data)
   return (
     <div className='h-full max-w-7xl mx-auto shadow-sm flex flex-col'>
       <Toolbar
@@ -117,30 +124,48 @@ function FileManager() {
       </div>
       <Separator />
       <ScrollArea className='flex-1'>
-        <FileList
-          files={files}
-          selectedItems={selectedItems}
-          viewMode={viewMode}
-          onSelect={handleSelect}
-          onOpen={handleOpen}
-          onDelete={(ids) => {
-            setDeleteIds(ids)
-            setOpenDeleteDialog(true)
-          }}
-          isLoading={
-            isFetching || uploadMutation.isPending || deleteMutation.isPending
-          }
-        />
+        <div className='p-4 space-y-2'>
+          <FolderList
+            folders={data.directories || []}
+            selectedItems={selectedItems}
+            viewMode={viewMode}
+            onSelect={handleSelect}
+            onOpen={handleOpen}
+            onDelete={(ids) => {
+              setDeleteIds(ids)
+              setOpenDeleteDialog(true)
+            }}
+            isLoading={
+              isFetching || uploadMutation.isPending || deleteMutation.isPending
+            }
+          />
+          <FileList
+            files={data.files || []}
+            selectedItems={selectedItems}
+            viewMode={viewMode}
+            onSelect={handleSelect}
+            onOpen={handleOpen}
+            onDelete={(ids) => {
+              setDeleteIds(ids)
+              setOpenDeleteDialog(true)
+            }}
+            isLoading={
+              isFetching || uploadMutation.isPending || deleteMutation.isPending
+            }
+          />
+        </div>
       </ScrollArea>
 
       <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
-      <DeleteDialog
-        selectedFiles={files.filter((file) => deleteIds.includes(file.id))}
+      {/* <DeleteDialog
+        selectedFiles={[...data?.files, ...data?.directories].filter((file) =>
+          deleteIds.includes(file.id)
+        )}
         isOpen={openDeleteDialog}
         isLoading={deleteMutation.isPending}
         onClose={() => setOpenDeleteDialog(false)}
         onConfirm={() => handleDelete(selectedItems)}
-      />
+      /> */}
       <NewFileDialog
         isOpen={newFileDialogOpen}
         onClose={() => {

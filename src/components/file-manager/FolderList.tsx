@@ -16,20 +16,20 @@ import {
 import { Spinner } from '../ui/Spinner'
 import { Skeleton } from '../ui/skeleton'
 import { FilePreview } from './FilePreview'
-import { FileItem, ViewMode } from './types'
+import { folderItem, ViewMode } from './types'
 
-interface FileListProps {
-  files: FileItem[]
+interface FolderListProps {
+  folders: folderItem[]
   selectedItems: string[]
   viewMode: ViewMode
   onSelect: (name: string) => void
-  onOpen: (item: FileItem) => void
+  onOpen: (item: folderItem) => void
   onDelete: (ids: string[]) => void
   isLoading: boolean
 }
 
-export const FileList: React.FC<FileListProps> = ({
-  files,
+export const FolderList: React.FC<FolderListProps> = ({
+  folders,
   selectedItems,
   viewMode,
   onSelect,
@@ -37,36 +37,34 @@ export const FileList: React.FC<FileListProps> = ({
   onDelete,
   isLoading,
 }) => {
-  const [previewFile, setPreviewFile] = React.useState<FileItem | null>(null)
+  const [previewFile, setPreviewFile] = React.useState<folderItem | null>(null)
 
-  const handleCopyPath = async (file: FileItem) => {
+  const handleCopyPath = async (folder: folderItem) => {
     try {
-      await navigator.clipboard.writeText(file.fileName)
+      await navigator.clipboard.writeText(folder.directoryName)
     } catch (err) {
       console.error('Failed to copy path:', err)
     }
   }
 
-  const getFileIcon = (file: FileItem) => {
-    // if (file.mimeType?.startsWith('audio/'))
-    //   return <MusicalNoteIcon className='h-6 w-6 text-purple-500' />
-    return <DocumentIcon className='h-6 w-6 text-blue-500' />
+  const getFileIcon = () => {
+    return <FolderIcon className='h-6 w-6 text-yellow-500' />
   }
 
-  const FileItem = ({ file }: { file: FileItem }) => {
+  const FolderItem = ({ folder }: { folder: folderItem }) => {
     const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-    const handleClick = (e: React.MouseEvent, file: FileItem) => {
+    const handleClick = (e: React.MouseEvent, folder: folderItem) => {
       if (clickTimerRef.current) {
         clearTimeout(clickTimerRef.current)
         clickTimerRef.current = null
-        onOpen(file)
+        onOpen(folder)
       } else {
         clickTimerRef.current = setTimeout(() => {
           if (e.ctrlKey || e.metaKey) {
-            onSelect(file.fileName)
+            onSelect(folder.directoryName)
           } else {
-            onSelect(file.fileName)
+            onSelect(folder.directoryName)
           }
           clickTimerRef.current = null
         }, 200)
@@ -90,56 +88,54 @@ export const FileList: React.FC<FileListProps> = ({
               'cursor-pointer  border rounded-lg hover:bg-gray-50',
               {
                 'bg-blue-50 border-blue-500': selectedItems.includes(
-                  file.fileName
+                  folder.directoryName
                 ),
-                'border-gray-200': !selectedItems.includes(file.fileName),
+                'border-gray-200': !selectedItems.includes(
+                  folder.directoryName
+                ),
                 'p-4': viewMode === 'grid',
                 'p-2': viewMode !== 'grid',
               },
               'dark:bg-gray-800 dark:border-gray-700',
               'dark:hover:bg-gray-700 dark:hover:border-gray-200',
               {
-                'dark:border-gray-200': selectedItems.includes(file.fileName),
+                'dark:border-gray-200': selectedItems.includes(
+                  folder.directoryName
+                ),
               },
               'transition-colors duration-200 ease-in-out'
             )}
-            onClick={(e) => handleClick(e, file)}
+            onClick={(e) => handleClick(e, folder)}
           >
             {viewMode === 'grid' ? (
               <div className='flex flex-col items-center space-y-2 select-none w-[120px] justify-center'>
-                {getFileIcon(file)}
+                {getFileIcon()}
                 <span className='truncate text-center w-full'>
-                  {file.fileName}
+                  {folder.directoryName}
                 </span>
               </div>
             ) : (
               <div className='flex items-center justify-between select-none'>
                 <div className='flex items-center space-x-3 flex-1'>
-                  {getFileIcon(file)}
-                  <span className='truncate'>{file.fileName}</span>
-                </div>
-                <div className='flex items-center space-x-4 text-sm text-gray-500'>
-                  <span>
-                    {file.fileSize && `${(file.fileSize / 1024).toFixed(2)} KB`}
-                  </span>
-                  <span>{file.modifiedAt}</span>
+                  {getFileIcon()}
+                  <span className='truncate'>{folder.directoryName}</span>
                 </div>
               </div>
             )}
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
-          <ContextMenuItem onClick={() => setPreviewFile(file)}>
+          <ContextMenuItem onClick={() => onOpen(folder)}>
             <Eye className='mr-2 h-4 w-4' />
-            Preview
+            Open
           </ContextMenuItem>
-          <ContextMenuItem onClick={() => handleCopyPath(file)}>
+          <ContextMenuItem onClick={() => handleCopyPath(folder)}>
             <Copy className='mr-2 h-4 w-4' />
             Copy Path
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem
-            onClick={() => onDelete([file.fileName])}
+            onClick={() => onDelete([folder.directoryName])}
             className='text-red-600 focus:text-red-600'
           >
             <Trash className='mr-2 h-4 w-4' />
@@ -157,7 +153,7 @@ export const FileList: React.FC<FileListProps> = ({
           'transition-all duration-300 ease-in-out  h-full',
           viewMode === 'grid'
             ? 'flex flex-wrap flex-row gap-4'
-            : 'flex flex-col space-y-2'
+            : 'flex flex-col'
         )}
       >
         {Array.from({ length: 3 }).map((_, i) => (
@@ -183,11 +179,10 @@ export const FileList: React.FC<FileListProps> = ({
             : 'flex flex-col space-y-2'
         )}
       >
-        {files.map((file) => (
-          <FileItem key={file.fileName} file={file} />
+        {folders.map((folder) => (
+          <FolderItem key={folder.directoryName} folder={folder} />
         ))}
       </div>
-      <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
     </>
   )
 }
