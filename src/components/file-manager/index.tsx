@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import fileApi, { RequestBody } from '@/apis/files'
 import { fetchFolderContents, uploadFiles, deleteFiles } from '@/apis/files'
+import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { cn } from '@/lib/utils'
 import { ScrollArea } from '../ui/scroll-area'
@@ -63,7 +64,21 @@ function FileManager() {
     mutationFn: (data: RequestBody) => {
       return fileApi.uploadFiles(data)
     },
-    onSuccess: (newFiles) => {},
+    onMutate: () => {
+      return toast.loading('上传中', {
+        id: 'upload-toast',
+      })
+    },
+    onSuccess: () => {
+      toast.success('上传成功', {
+        id: 'upload-toast',
+      })
+    },
+    onError: (error) => {
+      toast.error('上传失败', {
+        id: 'upload-toast',
+      })
+    },
     onSettled: () => {
       refetch()
     },

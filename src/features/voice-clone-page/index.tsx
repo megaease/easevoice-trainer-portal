@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -8,10 +9,12 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
 import FileManager from '../../components/file-manager'
-import TrainingStatus from './components/training-status'
+import { CloneResult } from './CloneResult'
 import VoiceCloneForm from './components/voice-clone-form'
+import useResultStore from './useResultStore'
 
 export default function VoiceClone() {
+  const { cloneResult, setCloneResult } = useResultStore()
   return (
     <>
       <Header>
@@ -26,9 +29,14 @@ export default function VoiceClone() {
             direction='horizontal'
             className='h-full items-stretch border rounded'
           >
-            <ResizablePanel minSize={20} maxSize={70} defaultSize={70}>
+            <ResizablePanel minSize={20} maxSize={70} defaultSize={66}>
               <ScrollArea className='h-full'>
-                <VoiceCloneForm />
+                <VoiceCloneForm
+                  onClone={(result) => {
+                    setCloneResult(result)
+                  }}
+                />
+                <CloneResult result={cloneResult} />
               </ScrollArea>
             </ResizablePanel>
             <ResizableHandle withHandle />
@@ -37,25 +45,16 @@ export default function VoiceClone() {
                 direction='vertical'
                 className='h-full items-stretch'
               >
-                <ResizablePanel minSize={40} maxSize={80} defaultSize={80}>
+                <ResizablePanel minSize={40} maxSize={80} defaultSize={60}>
                   <div className='h-full'>
                     <FileManager />
                   </div>
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel>
-                  <TrainingStatus
-                    steps={
-                      [
-                        // { label: '选择模型', status: 'completed' },
-                        // { label: '声音克隆', status: 'in-progress' },
-                        // { label: '训练完成', status: 'pending' },
-                      ]
-                    }
-                    currentStep={1}
-                    progress={45}
-                    status='in-progress'
-                  />
+                  <div className='h-full'>
+                    <CloneResult result={cloneResult} />
+                  </div>
                 </ResizablePanel>
               </ResizablePanelGroup>
             </ResizablePanel>

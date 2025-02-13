@@ -68,9 +68,19 @@ export function useWaveSurfer(
 
   const loadAudio = useCallback(
     (url: string) => {
+      console.log('Loading audio:', url)
       if (wavesurfer.current && isReady) {
-        console.log('Loading audio:', url)
-        wavesurfer.current.load(url)
+        if (url.startsWith('data:audio/wav;base64,')) {
+          const base64Audio = url.split(',')[1]
+          const audioBlob = new Blob(
+            [Uint8Array.from(atob(base64Audio), (c) => c.charCodeAt(0))],
+            { type: 'audio/wav' }
+          )
+          const audioUrl = URL.createObjectURL(audioBlob)
+          wavesurfer.current.load(audioUrl)
+        } else {
+          wavesurfer.current.load(url)
+        }
       }
     },
     [isReady]

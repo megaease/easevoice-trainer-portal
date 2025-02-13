@@ -44,28 +44,32 @@ export function FileBreadcrumb({
           </BreadcrumbLink>
         </BreadcrumbItem>
 
-        <BreadcrumbSeparator />
         {shouldShowEllipsis && (
-          <BreadcrumbItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger className='flex items-center gap-1 hover:text-foreground outline-none'>
-                <BreadcrumbEllipsis className='h-5 w-5' />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='start'>
-                {hiddenParts.map((part, index) => {
-                  const currentPath = '/' + parts.slice(0, index + 1).join('/')
-                  return (
-                    <DropdownMenuItem
-                      key={currentPath}
-                      onClick={() => onNavigate(currentPath)}
-                    >
-                      {part}
-                    </DropdownMenuItem>
-                  )
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </BreadcrumbItem>
+          <>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger className='flex items-center gap-1 hover:text-foreground outline-none'>
+                  <BreadcrumbEllipsis className='h-5 w-5' />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='start'>
+                  {hiddenParts.map((part, index) => {
+                    const currentPath =
+                      '/' + parts.slice(0, index + 1).join('/')
+                    console.log('currentPath', currentPath)
+                    return (
+                      <DropdownMenuItem
+                        key={currentPath}
+                        onClick={() => onNavigate(currentPath)}
+                      >
+                        {part}
+                      </DropdownMenuItem>
+                    )
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </BreadcrumbItem>
+          </>
         )}
 
         {visibleParts.map((part, index) => {
@@ -77,6 +81,7 @@ export function FileBreadcrumb({
                   ...visibleParts.slice(0, index + 1),
                 ].join('/')
               : parts.slice(0, index + 1).join('/'))
+
           return (
             <React.Fragment key={currentPath}>
               <BreadcrumbSeparator />

@@ -1,15 +1,13 @@
 import axios, { AxiosInstance } from 'axios'
 
-const isProd = import.meta.env.PROD;
+const isProd = import.meta.env.PROD
 
-const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: isProd ? VITE_API_BASE_URL + "/v1" : "/api",
-  timeout: 10000,
-});
-
-
+  baseURL: isProd ? VITE_API_BASE_URL + '/v1' : '/api',
+  timeout: 0,
+})
 
 apiClient.interceptors.request.use(
   (config) => {

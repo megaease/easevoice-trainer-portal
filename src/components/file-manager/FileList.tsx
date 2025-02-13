@@ -153,8 +153,6 @@ export const FileList: React.FC<FileListProps> = ({
       {files.map((file) => (
         <FileItem key={file.fileName} file={file} />
       ))}
-
-      <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
     </>
   )
 }

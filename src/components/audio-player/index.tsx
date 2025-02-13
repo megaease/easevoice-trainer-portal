@@ -6,9 +6,13 @@ import { Button } from '../ui/button'
 
 interface AudioPlayerProps {
   audioState: AudioState
+  streamUrl?: string
 }
 
-export default function AudioPlayer({ audioState }: AudioPlayerProps) {
+export default function AudioPlayer({
+  audioState,
+  streamUrl,
+}: AudioPlayerProps) {
   const waveformRef = useRef<HTMLDivElement | null>(null)
   const { isPlaying, togglePlay, loadAudio, isReady } = useWaveSurfer(
     waveformRef,
@@ -18,11 +22,11 @@ export default function AudioPlayer({ audioState }: AudioPlayerProps) {
   )
   const { url: audioUrl } = audioState
   useEffect(() => {
-    if (audioUrl && isReady) {
-      loadAudio(audioUrl)
+    if ((audioUrl || streamUrl) && isReady) {
+      loadAudio((streamUrl || audioUrl) as string)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audioUrl, isReady])
+  }, [audioUrl, streamUrl, isReady])
 
   return (
     <div className='flex items-center justify-center w-full'>

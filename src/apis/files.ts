@@ -41,6 +41,13 @@ class FileApi {
       },
     })
   }
+  async downloadFile(filePath: string) {
+    return await apiClient({
+      method: 'GET',
+      url: `/files`,
+      params: { filePath },
+    })
+  }
 }
 
 export default new FileApi()

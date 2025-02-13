@@ -2,8 +2,11 @@ import { useCallback, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQuery } from '@tanstack/react-query'
+import voicecloneApi from '@/apis/voiceclone'
 import { CloudUpload, Paperclip } from 'lucide-react'
 import { toast } from 'sonner'
+import { useNamespaceStore } from '@/stores/namespaceStore'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -21,6 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -28,54 +32,140 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
+import AudioPlayer from '@/components/audio-player'
 import AudioRecordPlayer from '@/components/audio-record-player'
 import { AudioState } from '@/components/audio-record-player/type'
+import { CloneResult } from '../CloneResult'
 
 const formSchema = z.object({
-  SoVITS: z.string(),
-  gpt: z.string(),
   text: z.string(),
-  language: z.string(),
-  text2: z.string(),
+  text_lang: z.string(),
+  ref_audio_path: z.string(),
+  prompt_text: z.string(),
+  prompt_lang: z.string(),
+  text_split_method: z.string(),
+  aux_ref_audio_paths: z.array(z.string()).optional(),
+  // seed: z.number().optional(),
+  top_k: z.number().optional(),
+  top_p: z.number().optional(),
+  temperature: z.number().optional(),
+  batch_size: z.number().optional(),
+  speed_factor: z.number().optional(),
+  ref_text_free: z.boolean().optional(),
+  split_bucket: z.boolean().optional(),
+  fragment_interval: z.number().optional(),
+  keep_random: z.boolean().optional(),
+  parallel_infer: z.boolean().optional(),
+  repetition_penalty: z.number().optional(),
+  sovits_path: z.string().optional(),
+  gpt_path: z.string().optional(),
 })
+const languages = ['auto', 'zh', 'en', 'ja', 'yue', 'ko']
+const splitMethods = [
+  'no_split',
+  'by_4_sentences',
+  'by_50_chars',
+  'by_chinese_period',
+  'by_english_period',
+  'by_punctuation',
+]
+export default function VoiceCloneForm({
+  onClone,
+}: {
+  onClone: (result: AudioState) => void
+}) {
+  const { currentNamespace } = useNamespaceStore()
+  const { data: voiceCloneModels, isLoading } = useQuery({
+    queryKey: ['voiceCloneModels'],
+    queryFn: voicecloneApi.getVoiceCloneModels,
+  })
 
-export default function VoiceCloneForm() {
   const [audioState, setAudioState] = useState<AudioState>({
     url: null,
     duration: '0s',
     name: 'recording.wav',
   })
+  const [cloneLoading, setCloneLoading] = useState(false)
   const handleAudioStateChange = useCallback((audioState: AudioState) => {
     setAudioState(audioState)
   }, [])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      text: '',
+      text_lang: 'zh',
+      ref_audio_path: '',
+      prompt_text: '',
+      prompt_lang: 'auto',
+      text_split_method: 'by_4_sentences',
+      aux_ref_audio_paths: [],
+      // seed: -1,
+      top_k: 5,
+      top_p: 1,
+      temperature: 1,
+      batch_size: 20,
+      speed_factor: 1.0,
+      ref_text_free: false,
+      split_bucket: true,
+      fragment_interval: 0.3,
+      keep_random: true,
+      parallel_infer: true,
+      repetition_penalty: 1.3,
+      sovits_path: 'default',
+      gpt_path: 'default',
+    },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!audioState || !audioState.url) {
+      toast.error('请录制或上传音频')
+      return
+    }
+    if (!values.text) {
+      toast.error('请输入要合成的文本')
+      return
+    }
+    const audioPath = currentNamespace?.homePath + '/voices/' + audioState.name
     try {
-      toast('Form submitted', {
-        description: (
-          <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-            <code className='text-white'>
-              {JSON.stringify(values, null, 2)}
-            </code>
-          </pre>
-        ),
+      setCloneLoading(true)
+      await voicecloneApi.startVoiceCloneService()
+      const res = await voicecloneApi.cloneVoice({
+        ...values,
+        ref_audio_path: audioPath,
       })
+      const audio = res.data.data?.audio // base64
+      const base64Url = `data:audio/wav;base64,${audio}`
+      const result = {
+        url: base64Url,
+        duration: '',
+        name: '合成音频',
+      }
+      onClone(result)
     } catch (error) {
       console.error('Form submission error', error)
+    } finally {
+      setCloneLoading(false)
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className='p-4 space-y-8'>
+        <Skeleton className='h-[400px] w-full bg-gray-100' />
+      </div>
+    )
+  }
+  const gptList = voiceCloneModels?.data?.gpts || []
+  const sovitsList = voiceCloneModels?.data?.sovits || []
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className='space-y-8 max-w-3xl mx-auto h-full p-4 '
+        className='space-y-8 max-w-3xl mx-auto h-full p-4'
       >
         <section className='space-y-4'>
           <Card>
@@ -91,7 +181,6 @@ export default function VoiceCloneForm() {
                     name='text'
                     render={({ field }) => (
                       <FormItem>
-                        {/* <FormLabel>Bio</FormLabel> */}
                         <FormControl>
                           <Textarea
                             placeholder='请输入要合成的文本'
@@ -99,15 +188,11 @@ export default function VoiceCloneForm() {
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
-                          You can @mention other users and organizations.
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 }
-                audioState={audioState}
               ></AudioRecordPlayer>
             </CardContent>
           </Card>
@@ -120,7 +205,7 @@ export default function VoiceCloneForm() {
             <CardContent className='space-y-4'>
               <FormField
                 control={form.control}
-                name='SoVITS'
+                name='sovits_path'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>SoVITS模型</FormLabel>
@@ -134,15 +219,11 @@ export default function VoiceCloneForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='m@example.com'>
-                          m@example.com
-                        </SelectItem>
-                        <SelectItem value='m@google.com'>
-                          m@google.com
-                        </SelectItem>
-                        <SelectItem value='m@support.com'>
-                          m@support.com
-                        </SelectItem>
+                        {sovitsList.map((sovits: string) => (
+                          <SelectItem key={sovits} value={sovits}>
+                            {sovits}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
 
@@ -152,7 +233,7 @@ export default function VoiceCloneForm() {
               />
               <FormField
                 control={form.control}
-                name='gpt'
+                name='gpt_path'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>GPT模型</FormLabel>
@@ -166,15 +247,11 @@ export default function VoiceCloneForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='m@example.com'>
-                          m@example.com
-                        </SelectItem>
-                        <SelectItem value='m@google.com'>
-                          m@google.com
-                        </SelectItem>
-                        <SelectItem value='m@support.com'>
-                          m@support.com
-                        </SelectItem>
+                        {gptList.map((gpt: string) => (
+                          <SelectItem key={gpt} value={gpt}>
+                            {gpt}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
 
@@ -187,7 +264,7 @@ export default function VoiceCloneForm() {
                 <div className='col-span-8 h-full'>
                   <FormField
                     control={form.control}
-                    name='text2'
+                    name='prompt_text'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>参考音频的文本</FormLabel>
@@ -196,11 +273,11 @@ export default function VoiceCloneForm() {
                             placeholder='请输入参考音频的文本'
                             {...field}
                             className=''
-                            rows={5}
+                            rows={10}
                           />
                         </FormControl>
                         <FormDescription>
-                          You can @mention other users and organizations.
+                          参考音频的文本，可以不填
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -211,7 +288,7 @@ export default function VoiceCloneForm() {
                 <div className='col-span-4 gap-4 space-y-4'>
                   <FormField
                     control={form.control}
-                    name='language'
+                    name='prompt_lang'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>参考音频的语种</FormLabel>
@@ -223,27 +300,26 @@ export default function VoiceCloneForm() {
                             <SelectTrigger>
                               <SelectValue
                                 placeholder='
-                        选择参考音频的语种
-                        '
+              选择参考音频的语种
+              '
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value='m@example.com'>中文</SelectItem>
-                            <SelectItem value='m@google.com'>英文</SelectItem>
-                            <SelectItem value='m@support.com'>日文</SelectItem>
+                            {languages.map((lang) => (
+                              <SelectItem key={lang} value={lang}>
+                                {lang}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
-                        {/* <FormDescription>
-                    You can manage email addresses in your email settings.
-                  </FormDescription> */}
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name='language'
+                    name='text_lang'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>需要合成的语种</FormLabel>
@@ -255,15 +331,17 @@ export default function VoiceCloneForm() {
                             <SelectTrigger>
                               <SelectValue
                                 placeholder='
-                        选择需要合成的语种
-                        '
+              选择需要合成的语种
+              '
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value='m@example.com'>中文</SelectItem>
-                            <SelectItem value='m@google.com'>英文</SelectItem>
-                            <SelectItem value='m@support.com'>日文</SelectItem>
+                            {languages.map((lang) => (
+                              <SelectItem key={lang} value={lang}>
+                                {lang}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         {/* <FormDescription></FormDescription> */}
@@ -271,7 +349,133 @@ export default function VoiceCloneForm() {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name='text_split_method'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>文本切分方法</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='选择切分方式' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {splitMethods.map((method) => (
+                              <SelectItem key={method} value={method}>
+                                {method}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
+              </div>
+
+              <div className='grid grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='speed_factor'
+                  render={({ field: { value, onChange } }) => (
+                    <FormItem>
+                      <div className='flex justify-between gap-2'>
+                        <FormLabel>语速</FormLabel>
+                        <span>{value}</span>
+                      </div>
+                      <FormControl>
+                        <Slider
+                          min={0.6}
+                          max={1.65}
+                          step={0.05}
+                          value={[value || 1]}
+                          onValueChange={(vals) => {
+                            onChange(vals[0])
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='top_k'
+                  render={({ field: { value, onChange } }) => (
+                    <FormItem>
+                      <div className='flex justify-between gap-2'>
+                        <FormLabel>top_k</FormLabel>
+                        <span>{value}</span>
+                      </div>
+                      <FormControl>
+                        <Slider
+                          min={1}
+                          max={100}
+                          step={1}
+                          defaultValue={[5]}
+                          onValueChange={(vals) => {
+                            onChange(vals[0])
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='top_p'
+                  render={({ field: { value, onChange } }) => (
+                    <FormItem>
+                      <div className='flex justify-between gap-2'>
+                        <FormLabel>top_p</FormLabel>
+                        <span>{value}</span>
+                      </div>
+                      <FormControl>
+                        <Slider
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          defaultValue={[1]}
+                          onValueChange={(vals) => {
+                            onChange(vals[0])
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='temperature'
+                  render={({ field: { value, onChange } }) => (
+                    <FormItem>
+                      <div className='flex justify-between gap-2'>
+                        <FormLabel>Temperature</FormLabel>
+                        <span>{value}</span>
+                      </div>
+                      <FormControl>
+                        <Slider
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          defaultValue={[1]}
+                          onValueChange={(vals) => {
+                            onChange(vals[0])
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </CardContent>
           </Card>
@@ -281,7 +485,7 @@ export default function VoiceCloneForm() {
           className='w-full hover:shadow-md hover:shadow-blue-200 transition-shadow dark:hover:shadow-blue-800'
           size={'lg'}
         >
-          开始合成
+          {cloneLoading ? '合成中...' : '开始合成'}
         </Button>
       </form>
     </Form>

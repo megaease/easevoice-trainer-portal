@@ -35,10 +35,10 @@ export const DeleteDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className='max-h-[200px] overflow-y-auto'>
-          <ul className='space-y-2'>
+        <div className='overflow-y-auto w-full'>
+          <ul className='space-y-2 '>
             {deletePaths.map((file) => (
-              <li key={file} className='text-sm text-gray-500'>
+              <li key={file} className='text-sm text-gray-500 break-words'>
                 {file}
               </li>
             ))}
