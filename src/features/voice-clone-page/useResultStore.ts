@@ -3,19 +3,20 @@ import { persist } from 'zustand/middleware'
 import { AudioState } from '@/components/audio-record-player/type'
 
 interface ResultState {
-  cloneResult: AudioState | null
-  setCloneResult: (newResult: AudioState | null) => void
+  cloneResults: AudioState[]
+  setCloneResults: (newResults: AudioState[]) => void
 }
 
 const useResultStore = create<ResultState>()(
   persist(
     (set) => ({
-      cloneResult: null,
-      setCloneResult: (newResult: AudioState | null) =>
-        set({ cloneResult: newResult }),
+      cloneResults: [],
+      setCloneResults: (newResults: AudioState[]) => {
+        set({ cloneResults: newResults })
+      },
     }),
     {
-      name: 'clone-result-storage', // unique name
+      name: 'clone-results-storage', // unique name
     }
   )
 )

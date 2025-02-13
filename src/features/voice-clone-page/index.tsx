@@ -11,10 +11,8 @@ import { ModeToggle } from '@/components/mode-toggle'
 import FileManager from '../../components/file-manager'
 import { CloneResult } from './CloneResult'
 import VoiceCloneForm from './components/voice-clone-form'
-import useResultStore from './useResultStore'
 
 export default function VoiceClone() {
-  const { cloneResult, setCloneResult } = useResultStore()
   return (
     <>
       <Header>
@@ -31,12 +29,7 @@ export default function VoiceClone() {
           >
             <ResizablePanel minSize={20} maxSize={70} defaultSize={66}>
               <ScrollArea className='h-full'>
-                <VoiceCloneForm
-                  onClone={(result) => {
-                    setCloneResult(result)
-                  }}
-                />
-                <CloneResult result={cloneResult} />
+                <VoiceCloneForm />
               </ScrollArea>
             </ResizablePanel>
             <ResizableHandle withHandle />
@@ -51,11 +44,7 @@ export default function VoiceClone() {
                   </div>
                 </ResizablePanel>
                 <ResizableHandle withHandle />
-                <ResizablePanel>
-                  <div className='h-full'>
-                    <CloneResult result={cloneResult} />
-                  </div>
-                </ResizablePanel>
+                <ResizablePanel></ResizablePanel>
               </ResizablePanelGroup>
             </ResizablePanel>
           </ResizablePanelGroup>

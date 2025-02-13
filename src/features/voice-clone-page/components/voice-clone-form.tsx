@@ -39,6 +39,7 @@ import AudioPlayer from '@/components/audio-player'
 import AudioRecordPlayer from '@/components/audio-record-player'
 import { AudioState } from '@/components/audio-record-player/type'
 import { CloneResult } from '../CloneResult'
+import useResultStore from '../useResultStore'
 
 const formSchema = z.object({
   text: z.string(),
@@ -72,12 +73,9 @@ const splitMethods = [
   'by_english_period',
   'by_punctuation',
 ]
-export default function VoiceCloneForm({
-  onClone,
-}: {
-  onClone: (result: AudioState) => void
-}) {
+export default function VoiceCloneForm() {
   const { currentNamespace } = useNamespaceStore()
+  const { cloneResults, setCloneResults } = useResultStore()
   const { data: voiceCloneModels, isLoading } = useQuery({
     queryKey: ['voiceCloneModels'],
     queryFn: voicecloneApi.getVoiceCloneModels,
@@ -142,9 +140,9 @@ export default function VoiceCloneForm({
       const result = {
         url: base64Url,
         duration: '',
-        name: '合成音频',
+        name: 'result' + new Date().toISOString() + '.wav',
       }
-      onClone(result)
+      setCloneResults([...cloneResults, result])
     } catch (error) {
       console.error('Form submission error', error)
     } finally {
@@ -162,332 +160,338 @@ export default function VoiceCloneForm({
   const gptList = voiceCloneModels?.data?.gpts || []
   const sovitsList = voiceCloneModels?.data?.sovits || []
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className='space-y-8 max-w-3xl mx-auto h-full p-4'
-      >
-        <section className='space-y-4'>
-          <Card>
-            <CardHeader>
-              <CardTitle>第一步：声音和文本</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AudioRecordPlayer
-                onAudioStateChange={handleAudioStateChange}
-                text={
-                  <FormField
-                    control={form.control}
-                    name='text'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Textarea
-                            placeholder='请输入要合成的文本'
-                            rows={5}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                }
-              ></AudioRecordPlayer>
-            </CardContent>
-          </Card>
-        </section>
-        <section className='space-y-4'>
-          <Card>
-            <CardHeader>
-              <CardTitle>第二步：模型和参数</CardTitle>
-            </CardHeader>
-            <CardContent className='space-y-4'>
-              <FormField
-                control={form.control}
-                name='sovits_path'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>SoVITS模型</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='请选择SoVITS模型' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {sovitsList.map((sovits: string) => (
-                          <SelectItem key={sovits} value={sovits}>
-                            {sovits}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='gpt_path'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>GPT模型</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='请选择GPT模型' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {gptList.map((gpt: string) => (
-                          <SelectItem key={gpt} value={gpt}>
-                            {gpt}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className='grid grid-cols-12 gap-4'>
-                <div className='col-span-8 h-full'>
-                  <FormField
-                    control={form.control}
-                    name='prompt_text'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>参考音频的文本</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder='请输入参考音频的文本'
-                            {...field}
-                            className=''
-                            rows={10}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          参考音频的文本，可以不填
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className='col-span-4 gap-4 space-y-4'>
-                  <FormField
-                    control={form.control}
-                    name='prompt_lang'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>参考音频的语种</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
+    <>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='space-y-8 max-w-3xl mx-auto h-full p-4'
+        >
+          <section className='space-y-4'>
+            <Card>
+              <CardHeader>
+                <CardTitle>第一步：声音和文本</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AudioRecordPlayer
+                  onAudioStateChange={handleAudioStateChange}
+                  text={
+                    <FormField
+                      control={form.control}
+                      name='text'
+                      render={({ field }) => (
+                        <FormItem>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue
-                                placeholder='
+                            <Textarea
+                              placeholder='请输入要合成的文本'
+                              rows={5}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  }
+                ></AudioRecordPlayer>
+              </CardContent>
+            </Card>
+          </section>
+          <section className='space-y-4'>
+            <Card>
+              <CardHeader>
+                <CardTitle>第二步：模型和参数</CardTitle>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <FormField
+                  control={form.control}
+                  name='sovits_path'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>SoVITS模型</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder='请选择SoVITS模型' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {sovitsList.map((sovits: string) => (
+                            <SelectItem key={sovits} value={sovits}>
+                              {sovits}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='gpt_path'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>GPT模型</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder='请选择GPT模型' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {gptList.map((gpt: string) => (
+                            <SelectItem key={gpt} value={gpt}>
+                              {gpt}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className='grid grid-cols-12 gap-4'>
+                  <div className='col-span-8 h-full'>
+                    <FormField
+                      control={form.control}
+                      name='prompt_text'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>参考音频的文本</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder='请输入参考音频的文本'
+                              {...field}
+                              className=''
+                              rows={10}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            参考音频的文本，可以不填
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className='col-span-4 gap-4 space-y-4'>
+                    <FormField
+                      control={form.control}
+                      name='prompt_lang'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>参考音频的语种</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder='
               选择参考音频的语种
               '
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {languages.map((lang) => (
-                              <SelectItem key={lang} value={lang}>
-                                {lang}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name='text_lang'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>需要合成的语种</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue
-                                placeholder='
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {languages.map((lang) => (
+                                <SelectItem key={lang} value={lang}>
+                                  {lang}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='text_lang'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>需要合成的语种</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder='
               选择需要合成的语种
               '
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {languages.map((lang) => (
-                              <SelectItem key={lang} value={lang}>
-                                {lang}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {/* <FormDescription></FormDescription> */}
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {languages.map((lang) => (
+                                <SelectItem key={lang} value={lang}>
+                                  {lang}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {/* <FormDescription></FormDescription> */}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='text_split_method'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>文本切分方法</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder='选择切分方式' />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {splitMethods.map((method) => (
+                                <SelectItem key={method} value={method}>
+                                  {method}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
+                  其他配置，如不了解请保持默认
+                </div>
+                <div className='grid grid-cols-2 gap-8'>
+                  <FormField
+                    control={form.control}
+                    name='speed_factor'
+                    render={({ field: { value, onChange } }) => (
+                      <FormItem>
+                        <div className='flex justify-between gap-2'>
+                          <FormLabel>语速</FormLabel>
+                          <span>{value}</span>
+                        </div>
+                        <FormControl>
+                          <Slider
+                            min={0.6}
+                            max={1.65}
+                            step={0.05}
+                            value={[value || 1]}
+                            onValueChange={(vals) => {
+                              onChange(vals[0])
+                            }}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name='text_split_method'
-                    render={({ field }) => (
+                    name='top_k'
+                    render={({ field: { value, onChange } }) => (
                       <FormItem>
-                        <FormLabel>文本切分方法</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder='选择切分方式' />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {splitMethods.map((method) => (
-                              <SelectItem key={method} value={method}>
-                                {method}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className='flex justify-between gap-2'>
+                          <FormLabel>top_k</FormLabel>
+                          <span>{value}</span>
+                        </div>
+                        <FormControl>
+                          <Slider
+                            min={1}
+                            max={100}
+                            step={1}
+                            defaultValue={[5]}
+                            onValueChange={(vals) => {
+                              onChange(vals[0])
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='top_p'
+                    render={({ field: { value, onChange } }) => (
+                      <FormItem>
+                        <div className='flex justify-between gap-2'>
+                          <FormLabel>top_p</FormLabel>
+                          <span>{value}</span>
+                        </div>
+                        <FormControl>
+                          <Slider
+                            min={0}
+                            max={1}
+                            step={0.05}
+                            defaultValue={[1]}
+                            onValueChange={(vals) => {
+                              onChange(vals[0])
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='temperature'
+                    render={({ field: { value, onChange } }) => (
+                      <FormItem>
+                        <div className='flex justify-between gap-2'>
+                          <FormLabel>Temperature</FormLabel>
+                          <span>{value}</span>
+                        </div>
+                        <FormControl>
+                          <Slider
+                            min={0}
+                            max={1}
+                            step={0.05}
+                            defaultValue={[1]}
+                            onValueChange={(vals) => {
+                              onChange(vals[0])
+                            }}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-              </div>
-
-              <div className='grid grid-cols-2 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='speed_factor'
-                  render={({ field: { value, onChange } }) => (
-                    <FormItem>
-                      <div className='flex justify-between gap-2'>
-                        <FormLabel>语速</FormLabel>
-                        <span>{value}</span>
-                      </div>
-                      <FormControl>
-                        <Slider
-                          min={0.6}
-                          max={1.65}
-                          step={0.05}
-                          value={[value || 1]}
-                          onValueChange={(vals) => {
-                            onChange(vals[0])
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='top_k'
-                  render={({ field: { value, onChange } }) => (
-                    <FormItem>
-                      <div className='flex justify-between gap-2'>
-                        <FormLabel>top_k</FormLabel>
-                        <span>{value}</span>
-                      </div>
-                      <FormControl>
-                        <Slider
-                          min={1}
-                          max={100}
-                          step={1}
-                          defaultValue={[5]}
-                          onValueChange={(vals) => {
-                            onChange(vals[0])
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='top_p'
-                  render={({ field: { value, onChange } }) => (
-                    <FormItem>
-                      <div className='flex justify-between gap-2'>
-                        <FormLabel>top_p</FormLabel>
-                        <span>{value}</span>
-                      </div>
-                      <FormControl>
-                        <Slider
-                          min={0}
-                          max={1}
-                          step={0.05}
-                          defaultValue={[1]}
-                          onValueChange={(vals) => {
-                            onChange(vals[0])
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='temperature'
-                  render={({ field: { value, onChange } }) => (
-                    <FormItem>
-                      <div className='flex justify-between gap-2'>
-                        <FormLabel>Temperature</FormLabel>
-                        <span>{value}</span>
-                      </div>
-                      <FormControl>
-                        <Slider
-                          min={0}
-                          max={1}
-                          step={0.05}
-                          defaultValue={[1]}
-                          onValueChange={(vals) => {
-                            onChange(vals[0])
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-        <Button
-          type='submit'
-          className='w-full hover:shadow-md hover:shadow-blue-200 transition-shadow dark:hover:shadow-blue-800'
-          size={'lg'}
-        >
-          {cloneLoading ? '合成中...' : '开始合成'}
-        </Button>
-      </form>
-    </Form>
+              </CardContent>
+            </Card>
+          </section>
+          <Button
+            type='submit'
+            className='w-full hover:shadow-md hover:shadow-blue-200 transition-shadow dark:hover:shadow-blue-800'
+            size={'lg'}
+          >
+            {cloneLoading ? '合成中...' : '开始合成'}
+          </Button>
+        </form>
+      </Form>
+      <CloneResult />
+    </>
   )
 }
