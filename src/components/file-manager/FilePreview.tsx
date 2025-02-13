@@ -28,27 +28,32 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose }) => {
   const getPreviewContent = () => {
     if (!file) return null
 
-    const extension = file.name.split('.').pop()?.toLowerCase()
+    const extension = file.fileName.split('.').pop()?.toLowerCase()
 
     switch (extension) {
       case 'jpg':
       case 'jpeg':
       case 'png':
       case 'gif':
-        return (
-          <img
-            src={file.content}
-            alt={file.name}
-            className='max-w-full max-h-[70vh] object-contain'
-          />
-        )
+        return null
+      // return (
+      //   <img
+      //     src={file.content}
+      //     alt={file.fileName}
+      //     className='max-w-full max-h-[70vh] object-contain'
+      //   />
+      // )
       case 'mp3':
       case 'wav':
       case 'ogg':
         return (
           <div className='w-full flex justify-center p-4'>
             <AudioPlayer
-              audioState={{ url: audioSrc, duration: '0s', name: file.name }}
+              audioState={{
+                url: audioSrc,
+                duration: '0s',
+                name: file.fileName,
+              }}
             />
           </div>
         )
@@ -57,7 +62,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose }) => {
           <iframe
             src={file.content}
             className='w-full h-[70vh]'
-            title={file.name}
+            title={file.fileName}
           />
         )
       case 'txt':
@@ -81,7 +86,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({ file, onClose }) => {
     <Dialog open={!!file} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className='max-w-4xl w-[90vw]'>
         <DialogHeader>
-          <DialogTitle>{file?.name}</DialogTitle>
+          <DialogTitle>{file?.fileName}</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
         <div className='mt-4'>{getPreviewContent()}</div>

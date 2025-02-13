@@ -4,17 +4,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import voicecloneApi from '@/apis/voiceclone'
-import { CloudUpload, Paperclip } from 'lucide-react'
+import dayjs from 'dayjs'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-  FileInput,
-} from '@/components/ui/file-uploader'
 import {
   Form,
   FormControl,
@@ -24,7 +18,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -35,7 +28,6 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
-import AudioPlayer from '@/components/audio-player'
 import AudioRecordPlayer from '@/components/audio-record-player'
 import { AudioState } from '@/components/audio-record-player/type'
 import { CloneResult } from '../CloneResult'
@@ -140,8 +132,9 @@ export default function VoiceCloneForm() {
       const result = {
         url: base64Url,
         duration: '',
-        name: 'result' + new Date().toISOString() + '.wav',
+        name: 'result_' + dayjs().format() + '.wav',
       }
+      result.name = result.name.replace(/ /g, '_')
       setCloneResults([...cloneResults, result])
     } catch (error) {
       console.error('Form submission error', error)

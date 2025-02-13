@@ -59,8 +59,8 @@ export function CloneResult() {
         { throwOnError: true, cancelRefetch: true }
       )
     },
-    onError: () => {
-      toast.error('保存失败', {
+    onError: (error) => {
+      toast.error('保存失败:' + (error as any)?.response.data.detail, {
         id: 'upload-toast',
       })
     },
