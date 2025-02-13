@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { set } from 'zod'
 import { useMutation } from '@tanstack/react-query'
 import namespaceApi from '@/apis/namespace'
 import { ChevronsUpDown, Plus, X } from 'lucide-react'
@@ -32,13 +33,27 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from './ui/alert-dialog'
 
 export function NamespaceSwitch() {
   const { isMobile } = useSidebar()
   const { currentNamespace, setCurrentNamespace } = useNamespaceStore()
 
   const { namespaces = [], refetch } = useNamespaceList()
-
+  const [deleteNamespace, setDeleteNamespace] = React.useState<string | null>(
+    null
+  )
+  const [isAlertOpen, setIsAlertOpen] = React.useState(false)
   const createNamespaceMutation = useMutation({
     mutationFn: namespaceApi.createNamespace,
     onSuccess: () => {
@@ -70,16 +85,13 @@ export function NamespaceSwitch() {
 
   const deleteNamespaceMutation = useMutation({
     mutationFn: namespaceApi.deleteNamespace,
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('工作目录删除成功')
-      if (namespaces.length > 0) {
-        setCurrentNamespace(namespaces[0])
-      }
     },
     onError: (error) => {
       toast.error(error.message)
     },
-    onSettled: () => {
+    onSettled: async () => {
       refetch()
     },
   })
@@ -87,7 +99,7 @@ export function NamespaceSwitch() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size='lg'
@@ -126,17 +138,24 @@ export function NamespaceSwitch() {
                     <Icon className='size-4' />
                   </div>
                   {namespace?.name}
-                  <DropdownMenuShortcut
-                    onClick={async (e) => {
-                      e.stopPropagation()
-                      if (namespaces.length === 1) {
-                        toast.error('至少需要一个工作目录')
-                        return
-                      }
-                      await deleteNamespaceMutation.mutateAsync(namespace.name)
-                    }}
-                  >
-                    <X className='size-4' />
+                  <DropdownMenuShortcut>
+                    <X
+                      className='size-4'
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        if (currentNamespace?.name === namespace?.name) {
+                          toast.error('不能删除当前工作目录')
+                          return
+                        }
+                        if (namespaces.length === 1) {
+                          toast.error('至少需要一个工作目录')
+                          return
+                        }
+
+                        setDeleteNamespace(namespace?.name)
+                        setIsAlertOpen(true)
+                      }}
+                    />
                   </DropdownMenuShortcut>
                 </DropdownMenuItem>
               )
@@ -169,12 +188,45 @@ export function NamespaceSwitch() {
               placeholder='建议使用英文名称'
             />
             <DialogFooter>
+              <Button
+                onClick={() => setIsDialogOpen(false)}
+                variant={'outline'}
+              >
+                取消
+              </Button>
               <Button onClick={handleAddNamespace}>
                 {createNamespaceMutation.isPending ? '创建中...' : '创建'}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>删除工作目录</AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogDescription>
+              确定要删除工作目录 {deleteNamespace} 吗？
+            </AlertDialogDescription>
+            <AlertDialogFooter>
+              <AlertDialogCancel>取消</AlertDialogCancel>
+              <Button
+                onClick={async (e) => {
+                  e.stopPropagation()
+
+                  if (!deleteNamespace) {
+                    return
+                  }
+                  await deleteNamespaceMutation.mutateAsync(deleteNamespace)
+                  setDeleteNamespace(null)
+                  setIsAlertOpen(false)
+                }}
+              >
+                {deleteNamespaceMutation.isPending ? '删除中...' : '删除'}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </SidebarMenuItem>
     </SidebarMenu>
   )

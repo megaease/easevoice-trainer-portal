@@ -96,7 +96,8 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
         )
       case 'mp3':
       case 'wav':
-      case 'ogg':
+      case 'flac':
+      case 'm4a':
         return (
           <div className='w-full flex justify-center p-4'>
             <AudioPlayer
@@ -142,7 +143,6 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
         )
       case 'mp4':
       case 'webm':
-      case 'ogg':
         return (
           <video src={fileContent || ''} controls className='w-full h-[70vh]' />
         )
