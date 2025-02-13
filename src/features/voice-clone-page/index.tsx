@@ -10,7 +10,7 @@ import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
 import FileManager from '../../components/file-manager'
 import { CloneResult } from './CloneResult'
-import VoiceCloneForm from './components/voice-clone-form'
+import VoiceCloneForm from './voice-clone-form'
 
 export default function VoiceClone() {
   return (

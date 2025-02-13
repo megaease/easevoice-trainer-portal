@@ -46,6 +46,7 @@ class FileApi {
       method: 'GET',
       url: `/files`,
       params: { filePath },
+      responseType: 'blob',
     })
   }
 }

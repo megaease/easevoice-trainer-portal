@@ -56,7 +56,6 @@ export function FileBreadcrumb({
                   {hiddenParts.map((part, index) => {
                     const currentPath =
                       '/' + parts.slice(0, index + 1).join('/')
-                    console.log('currentPath', currentPath)
                     return (
                       <DropdownMenuItem
                         key={currentPath}

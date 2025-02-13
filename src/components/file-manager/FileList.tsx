@@ -38,11 +38,7 @@ export const FileList: React.FC<FileListProps> = ({
   onDelete,
   handleCopyPath,
 }) => {
-  const [previewFile, setPreviewFile] = React.useState<FileItem | null>(null)
-
   const getFileIcon = (file: FileItem) => {
-    // if (file.mimeType?.startsWith('audio/'))
-    //   return <MusicalNoteIcon className='h-6 w-6 text-purple-500' />
     if (file.fileName.match(/\.(wav|mp3|ogg|flac|aac|m4a)$/i)) {
       return <MusicalNoteIcon className='h-6 w-6 text-purple-500' />
     }
@@ -136,7 +132,7 @@ export const FileList: React.FC<FileListProps> = ({
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
-          <ContextMenuItem onClick={() => setPreviewFile(file)}>
+          <ContextMenuItem onClick={() => onOpen(file)}>
             <Eye className='mr-2 h-4 w-4' />
             Preview
           </ContextMenuItem>
@@ -162,7 +158,6 @@ export const FileList: React.FC<FileListProps> = ({
       {files.map((file) => (
         <FileItem key={file.fileName} file={file} />
       ))}
-      <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
     </>
   )
 }

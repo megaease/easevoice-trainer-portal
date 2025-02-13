@@ -43,11 +43,13 @@ export function CloneResult() {
     onMutate: () => {
       return toast.loading('正在保存', {
         id: 'upload-toast',
+        description: '请稍等',
       })
     },
     onSuccess: () => {
       toast.success('文件已保存到：' + path, {
         id: 'upload-toast',
+        description: '请到文件管理器中查看',
       })
       queryClient.invalidateQueries(
         {

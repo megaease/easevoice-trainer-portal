@@ -125,10 +125,10 @@ function FileManager() {
     if (item.type === 'directory') {
       const path = getPath(item.directoryName, currentPath)
       setCurrentPath(path)
-      setSelectedItems([])
     } else {
       setPreviewFile(item)
     }
+    setSelectedItems([])
   }
 
   const handleNavigate = (path: string) => {
@@ -244,7 +244,6 @@ function FileManager() {
         )}
       </ScrollArea>
 
-      <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
       <DeleteDialog
         deletePaths={deletePaths}
         isOpen={openDeleteDialog}
@@ -262,6 +261,13 @@ function FileManager() {
           handleNewFolder(name)
         }}
       />
+      {previewFile ? (
+        <FilePreview
+          currentPath={currentPath}
+          file={previewFile}
+          onClose={() => setPreviewFile(null)}
+        />
+      ) : null}
     </div>
   )
 }

@@ -30,8 +30,8 @@ import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 import AudioRecordPlayer from '@/components/audio-record-player'
 import { AudioState } from '@/components/audio-record-player/type'
-import { CloneResult } from '../CloneResult'
-import useResultStore from '../useResultStore'
+import { CloneResult } from './CloneResult'
+import useResultStore from './useResultStore'
 
 const formSchema = z.object({
   text: z.string(),
