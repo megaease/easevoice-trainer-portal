@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react'
 import {
-  FolderIcon,
   DocumentIcon,
   MusicalNoteIcon,
+  DocumentTextIcon, // Add this import
 } from '@heroicons/react/24/outline'
 import { Eye, Copy, Trash } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -13,9 +13,6 @@ import {
   ContextMenuTrigger,
   ContextMenuSeparator,
 } from '@/components/ui/context-menu'
-import { Spinner } from '../ui/Spinner'
-import { Skeleton } from '../ui/skeleton'
-import { FilePreview } from './FilePreview'
 import { FileItem, ViewMode } from './types'
 
 interface FileListProps {
@@ -41,6 +38,10 @@ export const FileList: React.FC<FileListProps> = ({
   const getFileIcon = (file: FileItem) => {
     if (file.fileName.match(/\.(wav|mp3|ogg|flac|aac|m4a)$/i)) {
       return <MusicalNoteIcon className='h-6 w-6 text-purple-500' />
+    }
+    if (file.fileName.match(/\.(txt|md|log)$/i)) {
+      // Add this condition
+      return <DocumentTextIcon className='h-6 w-6 text-green-500' />
     }
     return <DocumentIcon className='h-6 w-6 text-blue-500' />
   }

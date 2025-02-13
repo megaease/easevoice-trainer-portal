@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import fileApi from '@/apis/files'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { toast } from 'sonner'
 import {
   Dialog,
@@ -100,7 +102,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
             <AudioPlayer
               audioState={{
                 url: fileContent,
-                duration: '0s',
+                duration: '',
                 name: file.fileName,
               }}
             />
@@ -118,18 +120,25 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
       case 'md':
       case 'json':
       case 'log':
-        return (
-          <pre className='h-[70vh] overflow-auto p-4 bg-gray-50 rounded w-full break-words'>
-            {fileContent}
-          </pre>
-        )
+      case 'yml':
+      case 'yaml':
+      case 'js':
+      case 'jsx':
+      case 'ts':
+      case 'tsx':
       case 'html':
+      case 'css':
+      case 'scss':
+      case 'less':
+      case 'xml':
         return (
-          <iframe
-            src={fileContent || ''}
-            className='w-full h-[70vh]'
-            title={file.fileName}
-          />
+          <SyntaxHighlighter
+            language={extension}
+            style={materialLight}
+            className='h-[70vh] overflow-auto p-4 bg-gray-50 rounded w-full break-words'
+          >
+            {fileContent}
+          </SyntaxHighlighter>
         )
       case 'mp4':
       case 'webm':
@@ -148,12 +157,13 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
 
   return (
     <Dialog open={!!file?.fileName} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className='max-w-4xl w-[90vw]'>
+      <DialogContent className='max-w-4xl'>
         <DialogHeader>
           <DialogTitle>{file?.fileName}</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <div className='mt-4'>{getPreviewContent()}</div>
+
+        <div className='mt-4 w-full overflow-auto'>{getPreviewContent()}</div>
       </DialogContent>
     </Dialog>
   )
