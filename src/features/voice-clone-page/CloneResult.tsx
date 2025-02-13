@@ -23,13 +23,12 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import AudioPlayer from '@/components/audio-player'
-import { AudioState } from '@/components/audio-record-player/type'
 import useResultStore from './useResultStore'
 
 export function CloneResult() {
   const { currentNamespace } = useNamespaceStore()
   const { setCloneResults, cloneResults } = useResultStore()
-  const path = currentNamespace?.homePath + '/outputs' || '/'
+  const path = currentNamespace?.homePath + '/outputs'
   // const query = useQuery({
   //   queryKey: ['session'],
   //   queryFn: async () => {
@@ -60,8 +59,9 @@ export function CloneResult() {
       )
     },
     onError: (error) => {
-      toast.error('保存失败:' + (error as any)?.response.data.detail, {
+      toast.error('保存失败: 请新建outputs文件夹后重试', {
         id: 'upload-toast',
+        description: (error as any)?.response.data.detail,
       })
     },
   })

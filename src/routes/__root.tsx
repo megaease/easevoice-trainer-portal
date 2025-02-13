@@ -15,7 +15,7 @@ function RootComponent() {
   return (
     <React.Fragment>
       <Outlet />
-      <Toaster position='top-right' />
+      <Toaster position='top-right' richColors />
 
       {import.meta.env.MODE === 'development' && (
         <>
