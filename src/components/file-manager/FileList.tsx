@@ -43,6 +43,9 @@ export const FileList: React.FC<FileListProps> = ({
   const getFileIcon = (file: FileItem) => {
     // if (file.mimeType?.startsWith('audio/'))
     //   return <MusicalNoteIcon className='h-6 w-6 text-purple-500' />
+    if (file.fileName.match(/\.(wav|mp3|ogg|flac|aac|m4a)$/i)) {
+      return <MusicalNoteIcon className='h-6 w-6 text-purple-500' />
+    }
     return <DocumentIcon className='h-6 w-6 text-blue-500' />
   }
 
@@ -109,10 +112,13 @@ export const FileList: React.FC<FileListProps> = ({
                 </span>
               </div>
             ) : (
-              <div className='flex items-center justify-between select-none gap-2'>
+              <div className='flex items-center justify-between select-none gap-2 overflow-auto w-full'>
                 <div className='flex items-center space-x-3 flex-1 truncate'>
                   {getFileIcon(file)}
-                  <span className='truncate' title={file.fileName}>
+                  <span
+                    className='truncate text-sm flex-1'
+                    title={file.fileName}
+                  >
                     {file.fileName}
                   </span>
                 </div>
@@ -120,7 +126,10 @@ export const FileList: React.FC<FileListProps> = ({
                   <span>
                     {file.fileSize && `${(file.fileSize / 1024).toFixed(2)} KB`}
                   </span>
-                  <span>{file.modifiedAt}</span>
+                  <span>
+                    {file.modifiedAt &&
+                      new Date(file.modifiedAt).toLocaleString()}
+                  </span>
                 </div>
               </div>
             )}
@@ -153,6 +162,7 @@ export const FileList: React.FC<FileListProps> = ({
       {files.map((file) => (
         <FileItem key={file.fileName} file={file} />
       ))}
+      <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
     </>
   )
 }
