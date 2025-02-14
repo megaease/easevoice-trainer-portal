@@ -145,7 +145,7 @@ const StatusItem: React.FC<{ label: string; value: React.ReactNode }> = ({
 }) => (
   <div>
     <label className='text-sm font-medium'>{label}</label>
-    <p className='mt-1 text-muted-foreground'>{value}</p>
+    <div className='mt-1 text-muted-foreground'>{value}</div>
   </div>
 )
 
