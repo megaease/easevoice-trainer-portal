@@ -8,9 +8,13 @@ type Namespace = {
   createdAt: string
 }
 
+type NamespaceList = {
+  namespaces: Namespace[]
+}
+
 export function useNamespaceList() {
   const { currentNamespace, setCurrentNamespace } = useNamespaceStore()
-  const query = useQuery({
+  const query = useQuery<NamespaceList>({
     queryKey: ['namespaces'],
     queryFn: async () => {
       try {
@@ -33,7 +37,7 @@ export function useNamespaceList() {
     staleTime: 0,
   })
   return {
-    namespaces: (query?.data as any)?.namespaces as Namespace[],
+    namespaces: query?.data?.namespaces || [],
     isLoading: query.isLoading,
     isError: query.isError,
     refetch: query.refetch,
