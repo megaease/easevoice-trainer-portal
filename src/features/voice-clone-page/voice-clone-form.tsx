@@ -140,6 +140,13 @@ export default function VoiceCloneForm() {
       toast.success('合成成功', { id: 'clone-loading' })
     } catch (error) {
       console.error('Form submission error', error)
+      toast.error(
+        '合成失败:' + (error as any).response?.data?.detail?.error ||
+          '请检查参数是否正确',
+        {
+          id: 'clone-loading',
+        }
+      )
     } finally {
       setCloneLoading(false)
     }

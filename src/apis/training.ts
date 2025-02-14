@@ -1,8 +1,8 @@
 import apiClient from '@/lib/apiClient'
 
 class trainingApi {
-  async startTraining() {
-    return await apiClient.post(`/easevoice/start`)
+  async startTraining(data: { source_dir: string }) {
+    return await apiClient.post(`/easevoice/start`, data)
   }
 
   async getTrainingStatus() {

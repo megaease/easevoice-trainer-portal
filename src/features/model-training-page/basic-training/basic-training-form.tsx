@@ -1,6 +1,9 @@
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
+import trainingAPi from '@/apis/training'
+import voicecloneApi from '@/apis/voiceclone'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,27 +18,37 @@ import {
 import { Input } from '@/components/ui/input'
 
 const formSchema = z.object({
-  name: z.string(),
-  textPath: z.string(),
-  audioPath: z.string(),
+  source_dir: z.string(),
 })
 
 export default function BasicTrainingForm() {
+  const queryClient = useQueryClient()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values)
-      toast(
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      )
+      const response = await trainingAPi.startTraining({
+        source_dir: values.source_dir,
+      })
+      if (response && response.status === 200) {
+        toast.success('训练已经开始')
+        queryClient.invalidateQueries(
+          {
+            queryKey: ['session'],
+            exact: true,
+            refetchType: 'active',
+          },
+          { throwOnError: true, cancelRefetch: true }
+        )
+      }
     } catch (error) {
       console.error('Form submission error', error)
-      toast.error('Failed to submit form')
+      toast.error(
+        '训练开始失败:' + (error as any).response?.data?.detail ||
+          '请检查目录是否正确'
+      )
     }
   }
 
@@ -44,21 +57,7 @@ export default function BasicTrainingForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
         <FormField
           control={form.control}
-          name='name'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>模型名称</FormLabel>
-              <FormControl>
-                <Input placeholder='请输入模型名称' type='' {...field} />
-              </FormControl>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='audioPath'
+          name='source_dir'
           render={({ field }) => (
             <FormItem>
               <FormLabel>训练集音频文件目录</FormLabel>
@@ -69,9 +68,7 @@ export default function BasicTrainingForm() {
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+              <FormDescription>请确保目录中包含您的音频文件</FormDescription>
               <FormMessage />
             </FormItem>
           )}

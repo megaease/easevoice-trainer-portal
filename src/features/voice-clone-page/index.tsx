@@ -7,8 +7,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
+import SessionManagement from '@/features/session-management'
 import FileManager from '../../components/file-manager'
-import SessionManagement from './SessionManagement'
 import VoiceCloneForm from './voice-clone-form'
 
 export default function VoiceClone() {
@@ -44,7 +44,9 @@ export default function VoiceClone() {
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel>
-                  <SessionManagement />
+                  <ScrollArea className='h-full'>
+                    <SessionManagement />
+                  </ScrollArea>
                 </ResizablePanel>
               </ResizablePanelGroup>
             </ResizablePanel>

@@ -9,9 +9,9 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
 import FileManager from '../../components/file-manager'
+import SessionManagement from '../session-management'
 import AdvancedTraining from './advanced-training'
 import BasicTraining from './basic-training'
-import TrainingStatus from './components/training-status'
 
 export default function ModelTraining() {
   return (
@@ -55,16 +55,9 @@ export default function ModelTraining() {
                   </ResizablePanel>
                   <ResizableHandle withHandle />
                   <ResizablePanel>
-                    <TrainingStatus
-                      steps={[
-                        { label: '1. 前置数据处理', status: 'completed' },
-                        { label: '2. 训练模型', status: 'in-progress' },
-                        { label: '3. 训练完成', status: 'pending' },
-                      ]}
-                      currentStep={1}
-                      progress={45}
-                      status='in-progress'
-                    />
+                    <ScrollArea className='h-full w-full'>
+                      <SessionManagement />
+                    </ScrollArea>
                   </ResizablePanel>
                 </ResizablePanelGroup>
               </ResizablePanel>
