@@ -206,7 +206,8 @@ export function NamespaceSwitch() {
               <AlertDialogTitle>删除工作目录</AlertDialogTitle>
             </AlertDialogHeader>
             <AlertDialogDescription>
-              确定要删除工作目录 {deleteNamespace} 吗？
+              删除工作目录会删除目录中所有文件， 您确定要删除工作目录{' '}
+              {deleteNamespace} 吗？
             </AlertDialogDescription>
             <AlertDialogFooter>
               <AlertDialogCancel>取消</AlertDialogCancel>

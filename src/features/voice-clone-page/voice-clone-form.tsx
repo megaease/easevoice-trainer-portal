@@ -75,7 +75,7 @@ export default function VoiceCloneForm() {
 
   const [audioState, setAudioState] = useState<AudioState>({
     url: null,
-    duration: '0s',
+    duration: '',
     name: 'recording.wav',
   })
   const [cloneLoading, setCloneLoading] = useState(false)
@@ -122,6 +122,7 @@ export default function VoiceCloneForm() {
     const audioPath = currentNamespace?.homePath + '/voices/' + audioState.name
     try {
       setCloneLoading(true)
+      toast.loading('正在合成声音...', { id: 'clone-loading' })
       await voicecloneApi.startVoiceCloneService()
       const res = await voicecloneApi.cloneVoice({
         ...values,
@@ -136,6 +137,7 @@ export default function VoiceCloneForm() {
       }
       result.name = result.name.replace(/ /g, '_')
       setCloneResults([...cloneResults, result])
+      toast.success('合成成功', { id: 'clone-loading' })
     } catch (error) {
       console.error('Form submission error', error)
     } finally {
@@ -480,7 +482,7 @@ export default function VoiceCloneForm() {
             className='w-full hover:shadow-md hover:shadow-blue-200 transition-shadow dark:hover:shadow-blue-800'
             size={'lg'}
           >
-            {cloneLoading ? '合成中...' : '开始合成'}
+            {cloneLoading ? '正在合成声音...' : '开始合成'}
           </Button>
         </form>
       </Form>

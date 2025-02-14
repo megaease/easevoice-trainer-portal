@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -9,7 +8,7 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
 import FileManager from '../../components/file-manager'
-import { CloneResult } from './CloneResult'
+import SessionManagement from './SessionManagement'
 import VoiceCloneForm from './voice-clone-form'
 
 export default function VoiceClone() {
@@ -44,7 +43,9 @@ export default function VoiceClone() {
                   </div>
                 </ResizablePanel>
                 <ResizableHandle withHandle />
-                <ResizablePanel></ResizablePanel>
+                <ResizablePanel>
+                  <SessionManagement />
+                </ResizablePanel>
               </ResizablePanelGroup>
             </ResizablePanel>
           </ResizablePanelGroup>

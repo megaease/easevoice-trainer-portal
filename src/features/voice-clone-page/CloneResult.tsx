@@ -29,12 +29,7 @@ export function CloneResult() {
   const { currentNamespace } = useNamespaceStore()
   const { setCloneResults, cloneResults } = useResultStore()
   const path = currentNamespace?.homePath + '/outputs'
-  // const query = useQuery({
-  //   queryKey: ['session'],
-  //   queryFn: async () => {
-  //     return sessionApi.getSessionInfo()
-  //   },
-  // })
+
   const queryClient = useQueryClient()
   const uploadMutation = useMutation({
     mutationFn: (data: RequestBody) => {

@@ -87,7 +87,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant='ghost' size='icon' onClick={onHome}>
-                <Home className='h-5 w-5 text-black' />
+                <Home className='h-5 w-5' />
               </Button>
             </TooltipTrigger>
             <TooltipContent>工作目录</TooltipContent>
