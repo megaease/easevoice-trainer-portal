@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import fileApi, { RequestBody } from '@/apis/files'
-import { fetchFolderContents, uploadFiles, deleteFiles } from '@/apis/files'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { cn } from '@/lib/utils'
@@ -15,7 +14,7 @@ import { FolderList } from './FolderList'
 import { Toolbar } from './Toolbar'
 import { DeleteDialog } from './delete-dialog'
 import { NewFolderDialog } from './new-folder-dialog'
-import { FileItem, FolderItem } from './types'
+import { FileItem, FolderItem, FileListType } from './types'
 
 function getPath(name: string, currentPath: string) {
   return currentPath === '/' ? currentPath + name : currentPath + '/' + name
@@ -37,18 +36,15 @@ function FileManager() {
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
 
   const {
-    data = { files: [], directories: [] },
+    data = { files: [], directories: [], directoryPath: 'currentPath' },
     isFetching,
     refetch,
-  } = useQuery({
+  } = useQuery<FileListType>({
     queryKey: ['files', currentPath],
     queryFn: async () => {
       try {
         const res = await fileApi.getFolderContents(currentPath)
-        return {
-          files: res.data.files || [],
-          directories: res.data.directories || [],
-        }
+        return res.data
       } catch (error) {
         console.error('Error fetching folder contents:', error)
         return {

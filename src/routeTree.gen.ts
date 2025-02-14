@@ -22,7 +22,6 @@ import { Route as LayoutDashboardIndexImport } from './routes/_layout/dashboard/
 const LayoutVoiceCloneIndexLazyImport = createFileRoute(
   '/_layout/voice-clone/',
 )()
-const LayoutTaskListIndexLazyImport = createFileRoute('/_layout/task-list/')()
 const LayoutModelTrainingIndexLazyImport = createFileRoute(
   '/_layout/model-training/',
 )()
@@ -47,14 +46,6 @@ const LayoutVoiceCloneIndexLazyRoute = LayoutVoiceCloneIndexLazyImport.update({
   getParentRoute: () => LayoutRouteRoute,
 } as any).lazy(() =>
   import('./routes/_layout/voice-clone/index.lazy').then((d) => d.Route),
-)
-
-const LayoutTaskListIndexLazyRoute = LayoutTaskListIndexLazyImport.update({
-  id: '/task-list/',
-  path: '/task-list/',
-  getParentRoute: () => LayoutRouteRoute,
-} as any).lazy(() =>
-  import('./routes/_layout/task-list/index.lazy').then((d) => d.Route),
 )
 
 const LayoutModelTrainingIndexLazyRoute =
@@ -119,13 +110,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutModelTrainingIndexLazyImport
       parentRoute: typeof LayoutRouteImport
     }
-    '/_layout/task-list/': {
-      id: '/_layout/task-list/'
-      path: '/task-list'
-      fullPath: '/task-list'
-      preLoaderRoute: typeof LayoutTaskListIndexLazyImport
-      parentRoute: typeof LayoutRouteImport
-    }
     '/_layout/voice-clone/': {
       id: '/_layout/voice-clone/'
       path: '/voice-clone'
@@ -143,7 +127,6 @@ interface LayoutRouteRouteChildren {
   LayoutDashboardIndexRoute: typeof LayoutDashboardIndexRoute
   LayoutAboutIndexLazyRoute: typeof LayoutAboutIndexLazyRoute
   LayoutModelTrainingIndexLazyRoute: typeof LayoutModelTrainingIndexLazyRoute
-  LayoutTaskListIndexLazyRoute: typeof LayoutTaskListIndexLazyRoute
   LayoutVoiceCloneIndexLazyRoute: typeof LayoutVoiceCloneIndexLazyRoute
 }
 
@@ -152,7 +135,6 @@ const LayoutRouteRouteChildren: LayoutRouteRouteChildren = {
   LayoutDashboardIndexRoute: LayoutDashboardIndexRoute,
   LayoutAboutIndexLazyRoute: LayoutAboutIndexLazyRoute,
   LayoutModelTrainingIndexLazyRoute: LayoutModelTrainingIndexLazyRoute,
-  LayoutTaskListIndexLazyRoute: LayoutTaskListIndexLazyRoute,
   LayoutVoiceCloneIndexLazyRoute: LayoutVoiceCloneIndexLazyRoute,
 }
 
@@ -166,7 +148,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof LayoutDashboardIndexRoute
   '/about': typeof LayoutAboutIndexLazyRoute
   '/model-training': typeof LayoutModelTrainingIndexLazyRoute
-  '/task-list': typeof LayoutTaskListIndexLazyRoute
   '/voice-clone': typeof LayoutVoiceCloneIndexLazyRoute
 }
 
@@ -175,7 +156,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof LayoutDashboardIndexRoute
   '/about': typeof LayoutAboutIndexLazyRoute
   '/model-training': typeof LayoutModelTrainingIndexLazyRoute
-  '/task-list': typeof LayoutTaskListIndexLazyRoute
   '/voice-clone': typeof LayoutVoiceCloneIndexLazyRoute
 }
 
@@ -186,7 +166,6 @@ export interface FileRoutesById {
   '/_layout/dashboard/': typeof LayoutDashboardIndexRoute
   '/_layout/about/': typeof LayoutAboutIndexLazyRoute
   '/_layout/model-training/': typeof LayoutModelTrainingIndexLazyRoute
-  '/_layout/task-list/': typeof LayoutTaskListIndexLazyRoute
   '/_layout/voice-clone/': typeof LayoutVoiceCloneIndexLazyRoute
 }
 
@@ -198,16 +177,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/about'
     | '/model-training'
-    | '/task-list'
     | '/voice-clone'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/dashboard'
-    | '/about'
-    | '/model-training'
-    | '/task-list'
-    | '/voice-clone'
+  to: '/' | '/dashboard' | '/about' | '/model-training' | '/voice-clone'
   id:
     | '__root__'
     | '/_layout'
@@ -215,7 +187,6 @@ export interface FileRouteTypes {
     | '/_layout/dashboard/'
     | '/_layout/about/'
     | '/_layout/model-training/'
-    | '/_layout/task-list/'
     | '/_layout/voice-clone/'
   fileRoutesById: FileRoutesById
 }
@@ -248,7 +219,6 @@ export const routeTree = rootRoute
         "/_layout/dashboard/",
         "/_layout/about/",
         "/_layout/model-training/",
-        "/_layout/task-list/",
         "/_layout/voice-clone/"
       ]
     },
@@ -266,10 +236,6 @@ export const routeTree = rootRoute
     },
     "/_layout/model-training/": {
       "filePath": "_layout/model-training/index.lazy.tsx",
-      "parent": "/_layout"
-    },
-    "/_layout/task-list/": {
-      "filePath": "_layout/task-list/index.lazy.tsx",
       "parent": "/_layout"
     },
     "/_layout/voice-clone/": {

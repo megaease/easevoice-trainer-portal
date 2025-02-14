@@ -47,11 +47,6 @@ const items: {
     icon: CircleGauge,
   },
   {
-    title: '任务列表',
-    url: '/task-list',
-    icon: CalendarCheck,
-  },
-  {
     title: '关于',
     url: '/about',
     icon: CircleHelp,
