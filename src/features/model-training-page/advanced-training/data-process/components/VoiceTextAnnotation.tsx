@@ -75,37 +75,40 @@ function MyForm() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-        <FormField
-          control={form.control}
-          name='input_dir'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>.list标注文件的路径</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder='请输入.list标注文件的路径'
-                  type='text'
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className='grid grid-cols-2 gap-4'>
-          <Button type='submit' className='h-full'>
-            开始标注
-          </Button>
-          <Textarea
-            placeholder='输出信息'
-            readOnly
-            value={statusQuery.data?.last_session?.output}
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+          <FormField
+            control={form.control}
+            name='input_dir'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>.list标注文件的路径</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder='请输入.list标注文件的路径'
+                    type='text'
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-      </form>
-    </Form>
+          <div className='grid grid-cols-2 gap-4'>
+            <Button type='submit' className='h-full'>
+              开始标注
+            </Button>
+            <Textarea
+              placeholder='输出信息'
+              readOnly
+              value={statusQuery.data?.last_session?.output}
+            />
+          </div>
+        </form>
+      </Form>
+      <AudioTextListEditor />
+    </>
   )
 }
 

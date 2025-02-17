@@ -1,11 +1,8 @@
-import React from 'react'
-import { Link, Tag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import DataProcess from './data-process'
-import AudioTextListEditor from './data-process/components/AudioTextListEditor'
 import FineTuningTraining from './fine-tuning-training'
 
 type Props = {
@@ -26,7 +23,6 @@ export default function AdvancedTraining({ className, ...props }: Props) {
         >
           <TabsList>
             <TabsTrigger value='dataProcess'>前置数据处理</TabsTrigger>
-            <TabsTrigger value='annotation'>数据标注</TabsTrigger>
             <TabsTrigger value='modelTraining'>训练模型</TabsTrigger>
           </TabsList>
         </nav>
@@ -37,11 +33,7 @@ export default function AdvancedTraining({ className, ...props }: Props) {
           <DataProcess />
         </ScrollArea>
       </TabsContent>
-      <TabsContent value='annotation' className='h-full'>
-        <ScrollArea className='h-full'>
-          <AudioTextListEditor />
-        </ScrollArea>
-      </TabsContent>
+
       <TabsContent value='modelTraining'>
         <FineTuningTraining />
       </TabsContent>

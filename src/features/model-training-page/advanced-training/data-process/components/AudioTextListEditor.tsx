@@ -1,23 +1,23 @@
+'use client'
+
 import { useState } from 'react'
-import { Loader2, RefreshCcw, Save, Filter, ArrowUpDown } from 'lucide-react'
+import { Loader2, RefreshCcw, Save, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import audioSrc from '@/assets/test.mp3'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import AudioPlayer from '@/components/audio-player'
 
-// 模拟数据，实际使用时应该从API获取
+// Simulated data, in real use this should be fetched from an API
 const mockData = [
   {
     id: 1,
@@ -58,95 +58,118 @@ const mockData = [
 
 export default function AudioTextListEditor() {
   const [editedTexts, setEditedTexts] = useState<Record<number, string>>({})
-  const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>(
-    {}
-  )
   const [isSaving, setIsSaving] = useState(false)
+  const [data, setData] = useState(mockData)
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null)
+
   const handleTextChange = (id: number, newText: string) => {
     setEditedTexts((prev) => ({ ...prev, [id]: newText }))
   }
 
-  const handleCheckboxChange = (id: number, checked: boolean) => {
-    setSelectedItems((prev) => ({ ...prev, [id]: checked }))
-  }
-
-  const handleSaveAll = async () => {
+  const handleSave = async (id: number) => {
     setIsSaving(true)
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    mockData.forEach((item) => {
-      if (selectedItems[item.id]) {
-        console.log(
-          `Saving item ${item.id} with text: ${editedTexts[item.id] || item.text}`
-        )
-      }
-    })
+    console.log(
+      `Saving item ${id} with text: ${editedTexts[id] || data.find((item) => item.id === id)?.text}`
+    )
 
     setIsSaving(false)
     toast('保存成功', {
-      description: '已成功保存所有更改',
+      description: `已成功保存更改 (ID: ${id})`,
     })
   }
 
   const handleReset = () => {
     setEditedTexts({})
-    setSelectedItems({})
     toast('数据已恢复', {
       description: '已恢复到初始状态',
     })
   }
 
+  const handleDelete = (id: number) => {
+    setData((prev) => prev.filter((item) => item.id !== id))
+    setItemToDelete(null)
+    toast('删除成功', {
+      description: `已成功删除 (ID: ${id})`,
+    })
+  }
+
   return (
-    <div className='p-4 h-full mb-20'>
-      <div className='flex justify-between items-center gap-2'>
-        <Input placeholder='shadcn' type='' />
-        <div className='flex gap-2'>
-          <Button onClick={handleReset} className='my-4'>
-            <RefreshCcw className='mr-2 h-4 w-4' />
-            恢复数据
-          </Button>
-          <Button onClick={handleSaveAll} disabled={isSaving} className='my-4'>
-            {isSaving ? (
-              <>
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                保存中...
-              </>
-            ) : (
-              <>
-                <Save className='mr-2 h-4 w-4' />
-                保存
-              </>
-            )}
-          </Button>
-        </div>
+    <div className='container mx-auto p-4 space-y-6'>
+      <div className='flex justify-end'>
+        <Button onClick={handleReset} variant='outline'>
+          <RefreshCcw className='mr-2 h-4 w-4' />
+          恢复数据
+        </Button>
       </div>
 
-      <div className='flex flex-col gap-4'>
-        {mockData.map((item) => (
-          <Card key={item.id} className='w-full shadow-none'>
-            <CardContent className='p-2'>
-              <Checkbox
-                checked={selectedItems[item.id] || false}
-                onCheckedChange={(checked) =>
-                  handleCheckboxChange(item.id, checked as boolean)
-                }
-                className='mr-4'
-              />
-              <div className='flex-grow'>
-                <AudioPlayer
-                  audioState={{
-                    url: item.url,
-                    duration: item.duration,
-                    name: item.name,
-                  }}
-                />
+      <div className='space-y-4'>
+        {data.map((item) => (
+          <Card key={item.id} className='shadow-md'>
+            <CardContent className='p-6 space-y-4'>
+              <div className='flex items-center justify-between'>
+                <h3 className='text-lg font-semibold'>{item.name}</h3>
+                <span className='text-sm text-gray-500'>{item.duration}</span>
               </div>
-              <div className='w-full'>
-                <div className='text-gray-500 text-sm'>{item.name}</div>
-                <Textarea
-                  value={editedTexts[item.id] || item.text}
-                  onChange={(e) => handleTextChange(item.id, e.target.value)}
-                />
+              <AudioPlayer
+                audioState={{
+                  url: item.url,
+                  duration: item.duration,
+                  name: item.name,
+                }}
+              />
+              <Textarea
+                value={editedTexts[item.id] || item.text}
+                onChange={(e) => handleTextChange(item.id, e.target.value)}
+                className='mt-2'
+                rows={3}
+              />
+              <div className='flex justify-end space-x-2'>
+                <Button onClick={() => handleSave(item.id)} disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                      保存中...
+                    </>
+                  ) : (
+                    <>
+                      <Save className='mr-2 h-4 w-4' />
+                      保存
+                    </>
+                  )}
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant='destructive'
+                      onClick={() => setItemToDelete(item.id)}
+                    >
+                      <Trash2 className='mr-2 h-4 w-4' />
+                      删除
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogTitle>确认删除</DialogTitle>
+                    <DialogDescription>
+                      确定要删除这个项目吗？此操作无法撤销。
+                    </DialogDescription>
+                    <DialogFooter>
+                      <Button
+                        variant='outline'
+                        onClick={() => setItemToDelete(null)}
+                      >
+                        取消
+                      </Button>
+                      <Button
+                        variant='destructive'
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        删除
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </CardContent>
           </Card>
