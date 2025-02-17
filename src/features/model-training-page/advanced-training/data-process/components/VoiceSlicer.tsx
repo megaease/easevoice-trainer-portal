@@ -2,6 +2,8 @@ import { useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -25,6 +27,19 @@ import {
 import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
+
+type Session = {
+  task_name: string
+  status: string
+  error: string | null
+  pid: number
+  result: Record<string, unknown>
+}
+
+type StatusResponse = {
+  current_session: Session
+  last_session: Partial<Session>
+}
 
 const formSchema = z.object({
   source_dir: z.string(),
@@ -56,18 +71,35 @@ function MyForm() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      console.log(values)
-      toast(
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      )
-    } catch (error) {
-      console.error('Form submission error', error)
-      toast.error('Failed to submit the form. Please try again.')
-    }
+  const statusQuery = useQuery<StatusResponse>({
+    queryKey: ['VoiceSlicing', 'status'],
+    queryFn: async () => {
+      const response = await trainingApi.getVoiceSlicingStatus()
+      return response.data
+    },
+    refetchInterval: (data) => {
+      return data.state.data?.current_session?.status === 'running'
+        ? 5000
+        : false
+    },
+    refetchIntervalInBackground: false,
+  })
+
+  const startMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof formSchema>) => {
+      return toast.promise(trainingApi.startVoiceSlicing(data), {
+        loading: '正在启动语音切割...',
+        success: '开始语音切割',
+        error: '启动失败，请重试',
+      })
+    },
+    onSuccess: () => {
+      statusQuery.refetch()
+    },
+  })
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    await startMutation.mutateAsync(values)
   }
 
   return (
@@ -288,7 +320,13 @@ function MyForm() {
           <Button type='submit' className='h-full'>
             开始语音切割
           </Button>
-          <Textarea placeholder='输出信息' />
+          <Textarea
+            placeholder='输出信息'
+            rows={3}
+            value={statusQuery.data?.last_session?.output}
+            readOnly
+            className='w-full'
+          />
         </div>
       </form>
     </Form>

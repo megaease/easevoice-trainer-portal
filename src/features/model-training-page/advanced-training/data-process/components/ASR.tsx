@@ -3,6 +3,8 @@ import { useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -32,32 +34,70 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
+type Session = {
+  task_name: string
+  status: string
+  error: string | null
+  pid: number
+  result: Record<string, unknown>
+}
+
+type StatusResponse = {
+  current_session: Session
+  last_session: Partial<Session>
+}
+
 const formSchema = z.object({
-  name_6694599641: z.string(),
-  name_5263935907: z.string(),
-  name_8539428883: z.string(),
-  name_8349896515: z.string(),
-  name_6435468607: z.string(),
-  name_4000719979: z.string(),
+  source_dir: z.string(),
+  output_dir: z.string(),
+  asr_model: z.string(),
+  model_size: z.string(),
+  language: z.string(),
+  precision: z.string(),
 })
 
 function MyForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      source_dir: '',
+      output_dir: '',
+      asr_model: 'funasr',
+      model_size: 'large',
+      language: 'zh',
+      precision: 'float32',
+    },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      console.log(values)
-      toast(
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      )
-    } catch (error) {
-      console.error('Form submission error', error)
-      toast.error('Failed to submit the form. Please try again.')
-    }
+  const statusQuery = useQuery<StatusResponse>({
+    queryKey: ['ASR', 'status'],
+    queryFn: async () => {
+      const response = await trainingApi.getAudioTranscriptionStatus()
+      return response.data
+    },
+    refetchInterval: (data) => {
+      return data.state.data?.current_session?.status === 'running'
+        ? 5000
+        : false
+    },
+    refetchIntervalInBackground: false,
+  })
+
+  const startMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof formSchema>) => {
+      return toast.promise(trainingApi.startAudioTranscription(data), {
+        loading: '正在启动音频转文字...',
+        success: '音频转文字已启动',
+        error: '启动失败，请重试',
+      })
+    },
+    onSuccess: () => {
+      statusQuery.refetch()
+    },
+  })
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    await startMutation.mutateAsync(values)
   }
 
   return (
@@ -67,31 +107,35 @@ function MyForm() {
           <div className='col-span-6'>
             <FormField
               control={form.control}
-              name='name_6694599641'
+              name='source_dir'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>输入文件夹路径</FormLabel>
                   <FormControl>
-                    <Input placeholder='shadcn' type='' {...field} />
+                    <Input
+                      placeholder='输入文件夹路径'
+                      type='text'
+                      {...field}
+                    />
                   </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-
           <div className='col-span-6'>
             <FormField
               control={form.control}
-              name='name_5263935907'
+              name='output_dir'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>输出文件夹路径</FormLabel>
                   <FormControl>
-                    <Input placeholder='output/asr_opt' type='' {...field} />
+                    <Input
+                      placeholder='输出文件夹路径'
+                      type='text'
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
                     This is your public display name.
@@ -102,12 +146,11 @@ function MyForm() {
             />
           </div>
         </div>
-
         <div className='grid grid-cols-12 gap-4'>
           <div className='col-span-3'>
             <FormField
               control={form.control}
-              name='name_8539428883'
+              name='asr_model'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>ASR 模型</FormLabel>
@@ -117,17 +160,12 @@ function MyForm() {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Select a verified email to display' />
+                        <SelectValue placeholder='请选择 ASR 模型' />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='m@example.com'>
-                        m@example.com
-                      </SelectItem>
-                      <SelectItem value='m@google.com'>m@google.com</SelectItem>
-                      <SelectItem value='m@support.com'>
-                        m@support.com
-                      </SelectItem>
+                      <SelectItem value='funasr'>funasr</SelectItem>
+                      <SelectItem value='other_model'>other_model</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -135,11 +173,10 @@ function MyForm() {
               )}
             />
           </div>
-
           <div className='col-span-3'>
             <FormField
               control={form.control}
-              name='name_8349896515'
+              name='model_size'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>ASR 模型尺寸</FormLabel>
@@ -149,17 +186,12 @@ function MyForm() {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Select a verified email to display' />
+                        <SelectValue placeholder='请选择模型尺寸' />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='m@example.com'>
-                        m@example.com
-                      </SelectItem>
-                      <SelectItem value='m@google.com'>m@google.com</SelectItem>
-                      <SelectItem value='m@support.com'>
-                        m@support.com
-                      </SelectItem>
+                      <SelectItem value='large'>large</SelectItem>
+                      <SelectItem value='small'>small</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -167,11 +199,10 @@ function MyForm() {
               )}
             />
           </div>
-
           <div className='col-span-3'>
             <FormField
               control={form.control}
-              name='name_6435468607'
+              name='language'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>ASR 语言设置</FormLabel>
@@ -181,17 +212,12 @@ function MyForm() {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Select a verified email to display' />
+                        <SelectValue placeholder='请选择语言' />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='m@example.com'>
-                        m@example.com
-                      </SelectItem>
-                      <SelectItem value='m@google.com'>m@google.com</SelectItem>
-                      <SelectItem value='m@support.com'>
-                        m@support.com
-                      </SelectItem>
+                      <SelectItem value='zh'>中文</SelectItem>
+                      <SelectItem value='en'>英文</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -202,7 +228,7 @@ function MyForm() {
           <div className='col-span-3'>
             <FormField
               control={form.control}
-              name='name_4000719979'
+              name='precision'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>数据类型精度</FormLabel>
@@ -212,17 +238,12 @@ function MyForm() {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Select a verified email to display' />
+                        <SelectValue placeholder='请选择精度' />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='m@example.com'>
-                        m@example.com
-                      </SelectItem>
-                      <SelectItem value='m@google.com'>m@google.com</SelectItem>
-                      <SelectItem value='m@support.com'>
-                        m@support.com
-                      </SelectItem>
+                      <SelectItem value='float32'>float32</SelectItem>
+                      <SelectItem value='float16'>float16</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -235,7 +256,13 @@ function MyForm() {
           <Button type='submit' className='h-full'>
             开始语音切割
           </Button>
-          <Textarea placeholder='输出信息' />
+          <Textarea
+            placeholder='输出信息'
+            rows={3}
+            value={statusQuery.data?.last_session?.output}
+            readOnly
+            className='w-full'
+          />
         </div>
       </form>
     </Form>
@@ -246,7 +273,7 @@ export default function ASR() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>4. 中文批量ASR工具</CardTitle>
+        <CardTitle>4. 音频转文字</CardTitle>
         <CardDescription />
       </CardHeader>
       <CardContent>

@@ -30,7 +30,7 @@ class trainingApi {
     return await apiClient.post(`/audio/uvr5/stop`)
   }
 
-  async startAudioSlicing(data: {
+  async startVoiceSlicing(data: {
     source_dir: string
     output_dir: string
     threshold: number
@@ -45,8 +45,24 @@ class trainingApi {
     return await apiClient.post(`/audio/slicer/start`, data)
   }
 
+  async getVoiceSlicingStatus() {
+    return await apiClient.get(`/audio/slicer/status`)
+  }
+
+  async stopVoiceSlicingStatus() {
+    return await apiClient.post(`/audio/slicer/stop`)
+  }
+
   async startAudioDenoising(data: { source_dir: string; output_dir: string }) {
     return await apiClient.post(`/audio/denoise/start`, data)
+  }
+
+  async getAudioDenoisingStatus() {
+    return await apiClient.get(`/audio/denoise/status`)
+  }
+
+  async stopAudioDenoising() {
+    return await apiClient.post(`/audio/denoise/stop`)
   }
 
   async startAudioTranscription(data: {
@@ -58,6 +74,14 @@ class trainingApi {
     precision: string
   }) {
     return await apiClient.post(`/audio/asr/start`, data)
+  }
+
+  async getAudioTranscriptionStatus() {
+    return await apiClient.get(`/audio/asr/status`)
+  }
+
+  async stopAudioTranscription() {
+    return await apiClient.post(`/audio/asr/stop`)
   }
 
   async getRefinementList(query: { input_dir: string; output_dir: string }) {

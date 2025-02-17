@@ -2,7 +2,7 @@ import { useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -35,6 +35,19 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
+type Session = {
+  task_name: string
+  status: string
+  error: string | null
+  pid: number
+  result: Record<string, unknown>
+}
+
+type StatusResponse = {
+  current_session: Session
+  last_session: Partial<Session>
+}
+
 const formSchema = z.object({
   model_name: z.string(),
   source_dir: z.string(),
@@ -45,26 +58,45 @@ const formSchema = z.object({
 function MyForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      model_name: '',
+      source_dir: '',
+      output_dir: '',
+      audio_format: 'wav',
+    },
   })
-  const query = useQuery({
-    queryKey: ['taskStatus'],
+
+  const statusQuery = useQuery<StatusResponse>({
+    queryKey: ['VoiceExtraction', 'status'],
     queryFn: async () => {
       const response = await trainingApi.getVoiceExtractionStatus()
       return response.data
     },
-    refetchInterval: 5000,
+    refetchInterval: (data) => {
+      return data.state.data?.current_session?.status === 'running'
+        ? 5000
+        : false
+    },
+    refetchIntervalInBackground: false,
+  })
+
+  // 启动任务的 mutation
+  const startMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof formSchema>) => {
+      return toast.promise(trainingApi.startVoiceExtraction(data), {
+        loading: '正在启动主人声分离...',
+        success: '开始主人声分离',
+        error: '启动失败，请重试',
+      })
+    },
+    onSuccess: () => {
+      // 立即查询一次状态
+      statusQuery.refetch()
+    },
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const response = await trainingApi.startVoiceExtraction(values)
-      if (response.status === 200) {
-        toast.success('开始主人声提取')
-      }
-    } catch (error) {
-      console.error('Form submission error', error)
-      toast.error('Failed to submit the form. Please try again.')
-    }
+    await startMutation.mutateAsync(values)
   }
 
   return (
@@ -195,7 +227,7 @@ function MyForm() {
             <Textarea
               placeholder='输出信息'
               rows={3}
-              value={query.data?.last_session?.output}
+              value={statusQuery.data?.last_session?.output}
               readOnly
               className='w-full'
             />

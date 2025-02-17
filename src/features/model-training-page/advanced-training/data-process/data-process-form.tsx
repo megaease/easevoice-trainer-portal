@@ -1,6 +1,6 @@
 import ASR from './components/ASR'
+import AudioDenoising from './components/AudioDenoising'
 import URV5 from './components/URV5'
-import VoiceNoiseReduction from './components/VoiceNoiseReduction'
 import VoiceSlicer from './components/VoiceSlicer'
 import VoiceTextAnnotation from './components/VoiceTextAnnotation'
 
@@ -11,7 +11,7 @@ export default function DataProcessForm() {
 
       <VoiceSlicer />
 
-      <VoiceNoiseReduction />
+      <AudioDenoising />
 
       <ASR />
 
