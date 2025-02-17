@@ -110,6 +110,14 @@ class trainingApi {
     return await apiClient.post(`/normalize/start`, data)
   }
 
+  async getNormalizationStatus() {
+    return await apiClient.get(`/normalize/status`)
+  }
+
+  async stopNormalization() {
+    return await apiClient.post(`/normalize/stop`)
+  }
+
   async startSovitsTraining(data: {
     batch_size: number
     total_epochs: number
@@ -126,6 +134,14 @@ class trainingApi {
     return await apiClient.post(`/train/sovits`, data)
   }
 
+  async getSovitsTrainingStatus() {
+    return await apiClient.get(`/train/sovits/status`)
+  }
+
+  async stopSovitsTraining() {
+    return await apiClient.post(`/train/sovits/stop`)
+  }
+
   async startGptTraining(data: {
     batch_size: number
     total_epochs: number
@@ -140,6 +156,14 @@ class trainingApi {
     output_model_name: string
   }) {
     return await apiClient.post(`/train/gpt/start`, data)
+  }
+
+  async getGptTrainingStatus() {
+    return await apiClient.get(`/train/gpt/status`)
+  }
+
+  async stopGptTraining() {
+    return await apiClient.post(`/train/gpt/stop`)
   }
 }
 
