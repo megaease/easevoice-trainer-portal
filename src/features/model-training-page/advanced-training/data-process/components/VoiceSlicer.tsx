@@ -42,16 +42,25 @@ type StatusResponse = {
 }
 
 const formSchema = z.object({
-  source_dir: z.string(),
-  output_dir: z.string(),
-  threshold: z.number().min(-100).max(0),
-  min_length: z.number().min(0),
-  min_interval: z.number().min(0),
-  hop_size: z.number().min(0),
-  max_silent_kept: z.number().min(0),
-  normalize_max: z.number().min(0).max(1),
-  alpha_mix: z.number().min(0).max(1),
-  num_process: z.number().min(1).max(112),
+  source_dir: z.string().nonempty('请输入音频文件路径'),
+  output_dir: z.string().nonempty('请输入子音频输出目录'),
+  threshold: z.number().min(-100, '阈值不能小于-100').max(0, '阈值不能大于0'),
+  min_length: z.number().min(0, '最小长度不能小于0'),
+  min_interval: z.number().min(0, '最短切割间隔不能小于0'),
+  hop_size: z.number().min(0, 'hop_size不能小于0'),
+  max_silent_kept: z.number().min(0, '静音保留时间不能小于0'),
+  normalize_max: z
+    .number()
+    .min(0, '归一化最大值不能小于0')
+    .max(1, '归一化最大值不能大于1'),
+  alpha_mix: z
+    .number()
+    .min(0, 'alpha_mix不能小于0')
+    .max(1, 'alpha_mix不能大于1'),
+  num_process: z
+    .number()
+    .min(1, '进程数不能小于1')
+    .max(112, '进程数不能大于112'),
 })
 
 function MyForm() {

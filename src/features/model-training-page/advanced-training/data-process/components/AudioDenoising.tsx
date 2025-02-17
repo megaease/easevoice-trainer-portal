@@ -30,8 +30,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
 const formSchema = z.object({
-  source_dir: z.string(),
-  output_dir: z.string(),
+  source_dir: z.string().nonempty('音频文件夹路径不能为空'),
+  output_dir: z.string().nonempty('输出文件夹路径不能为空'),
 })
 
 function MyForm() {

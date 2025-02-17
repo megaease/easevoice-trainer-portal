@@ -1,12 +1,9 @@
-import React from 'react'
-import { useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -48,12 +45,12 @@ type StatusResponse = {
 }
 
 const formSchema = z.object({
-  source_dir: z.string(),
-  output_dir: z.string(),
-  asr_model: z.string(),
-  model_size: z.string(),
-  language: z.string(),
-  precision: z.string(),
+  source_dir: z.string().nonempty('输入文件夹路径不能为空'),
+  output_dir: z.string().nonempty('输出文件夹路径不能为空'),
+  asr_model: z.string().nonempty('请选择 ASR 模型'),
+  model_size: z.string().nonempty('请选择模型尺寸'),
+  language: z.string().nonempty('请选择语言'),
+  precision: z.string().nonempty('请选择精度'),
 })
 
 function MyForm() {
@@ -76,7 +73,7 @@ function MyForm() {
       return response.data
     },
     refetchInterval: (data) => {
-      return data.state.data?.current_session?.status === 'running'
+      return data.state.data?.current_session?.status === 'Running'
         ? 5000
         : false
     },
@@ -96,9 +93,29 @@ function MyForm() {
     },
   })
 
+  const stopMutation = useMutation({
+    mutationFn: async () => {
+      return toast.promise(trainingApi.stopAudioTranscription(), {
+        loading: '正在停止音频转文字...',
+        success: '音频转文字已停止',
+        error: '停止失败，请重试',
+      })
+    },
+    onSuccess: () => {
+      statusQuery.refetch()
+    },
+  })
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
   }
+
+  async function handleStop() {
+    await stopMutation.mutateAsync()
+  }
+
+  const isRunning = statusQuery.data?.current_session?.status === 'Running'
+  const outputMessage = statusQuery.data?.current_session?.result?.state
 
   return (
     <Form {...form}>
@@ -137,9 +154,6 @@ function MyForm() {
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -253,13 +267,19 @@ function MyForm() {
           </div>
         </div>
         <div className='grid grid-cols-2 gap-4'>
-          <Button type='submit' className='h-full'>
-            开始语音切割
-          </Button>
+          {isRunning ? (
+            <Button type='button' onClick={handleStop} className='h-full'>
+              停止 ASR
+            </Button>
+          ) : (
+            <Button type='submit' className='h-full'>
+              开始 ASR
+            </Button>
+          )}
           <Textarea
             placeholder='输出信息'
             rows={3}
-            value={statusQuery.data?.last_session?.output}
+            value={outputMessage}
             readOnly
             className='w-full'
           />

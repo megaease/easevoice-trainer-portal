@@ -49,17 +49,29 @@ type StatusResponse = {
 }
 
 const formSchema = z.object({
-  model_name: z.string(),
-  source_dir: z.string(),
-  output_dir: z.string(),
-  audio_format: z.string(),
+  model_name: z.string().nonempty('模型不能为空'),
+  source_dir: z.string().nonempty('音频文件夹路径不能为空'),
+  output_dir: z.string().nonempty('输出文件夹路径不能为空'),
+  audio_format: z.string().nonempty('导出文件格式不能为空'),
 })
+
+const models = [
+  'HP5_only_main_vocal',
+  'Onnx_dereverb_By_FoxJoy',
+  'HP2-人声vocals+非人声instrumentals',
+  'HP2_all_vocals',
+  'HP3_all_vocals',
+  'HP5-主旋律人声vocals+其他instrumentals',
+  'VR-DeEchoAggressive',
+  'VR-DeEchoDeReverb',
+  'VR-DeEchoNormal',
+]
 
 function MyForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      model_name: '',
+      model_name: 'HP5_only_main_vocal',
       source_dir: '',
       output_dir: '',
       audio_format: 'wav',
@@ -73,14 +85,13 @@ function MyForm() {
       return response.data
     },
     refetchInterval: (data) => {
-      return data.state.data?.current_session?.status === 'running'
+      return data.state.data?.current_session?.status === 'Running'
         ? 5000
         : false
     },
     refetchIntervalInBackground: false,
   })
 
-  // 启动任务的 mutation
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       return toast.promise(trainingApi.startVoiceExtraction(data), {
@@ -90,7 +101,19 @@ function MyForm() {
       })
     },
     onSuccess: () => {
-      // 立即查询一次状态
+      statusQuery.refetch()
+    },
+  })
+
+  const stopMutation = useMutation({
+    mutationFn: async () => {
+      return toast.promise(trainingApi.stopVoiceExtraction(), {
+        loading: '正在停止主人声分离...',
+        success: '已停止主人声分离',
+        error: '停止失败，请重试',
+      })
+    },
+    onSuccess: () => {
       statusQuery.refetch()
     },
   })
@@ -98,6 +121,12 @@ function MyForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
   }
+
+  async function onStop() {
+    await stopMutation.mutateAsync()
+  }
+
+  const outputMessage = statusQuery.data?.last_session?.result?.status
 
   return (
     <Form {...form}>
@@ -120,16 +149,13 @@ function MyForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='m@example.com'>
-                        m@example.com
-                      </SelectItem>
-                      <SelectItem value='m@google.com'>m@google.com</SelectItem>
-                      <SelectItem value='m@support.com'>
-                        m@support.com
-                      </SelectItem>
+                      {models.map((model) => (
+                        <SelectItem key={model} value={model}>
+                          {model}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -221,13 +247,19 @@ function MyForm() {
             />
           </div>
           <div className='col-span-12 flex gap-4'>
-            <Button type='submit' className='w-full h-full'>
-              开始分离
-            </Button>
+            {statusQuery.data?.current_session?.status === 'Running' ? (
+              <Button type='button' onClick={onStop} className='w-full h-full'>
+                停止分离
+              </Button>
+            ) : (
+              <Button type='submit' className='w-full h-full'>
+                开始分离
+              </Button>
+            )}
             <Textarea
               placeholder='输出信息'
               rows={3}
-              value={statusQuery.data?.last_session?.output}
+              value={outputMessage}
               readOnly
               className='w-full'
             />

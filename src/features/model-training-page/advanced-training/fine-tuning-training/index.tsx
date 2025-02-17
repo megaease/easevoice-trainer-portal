@@ -43,7 +43,7 @@ export default function FineTuningTraining() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className='space-y-8 max-w-3xl mx-auto py-10'
+        className='space-y-8 max-w-3xl mx-auto px-4 py-10'
       >
         <FormField
           control={form.control}
@@ -92,9 +92,6 @@ export default function FineTuningTraining() {
                   {...field}
                 />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

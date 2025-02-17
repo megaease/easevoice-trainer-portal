@@ -28,7 +28,7 @@ import { Textarea } from '@/components/ui/textarea'
 import AudioTextListEditor from './AudioTextListEditor'
 
 const formSchema = z.object({
-  input_dir: z.string(),
+  input_dir: z.string().nonempty('输入文件夹路径不能为空'),
 })
 
 function MyForm() {
