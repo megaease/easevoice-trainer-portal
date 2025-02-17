@@ -2,6 +2,8 @@ import { useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQuery } from '@tanstack/react-query'
+import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -34,26 +36,31 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 
 const formSchema = z.object({
-  model: z.string(),
-  folderPath: z.string(),
-  name_7045055503: z.string(),
-  name_4798549065: z.string(),
-  type: z.string(),
+  model_name: z.string(),
+  source_dir: z.string(),
+  output_dir: z.string(),
+  audio_format: z.string(),
 })
 
 function MyForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
+  const query = useQuery({
+    queryKey: ['taskStatus'],
+    queryFn: async () => {
+      const response = await trainingApi.getVoiceExtractionStatus()
+      return response.data
+    },
+    refetchInterval: 5000,
+  })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      console.log(values)
-      toast(
-        <pre className='mt-2 w-[340px] rounded-md bg-slate-950 p-4'>
-          <code className='text-white'>{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      )
+      const response = await trainingApi.startVoiceExtraction(values)
+      if (response.status === 200) {
+        toast.success('开始主人声提取')
+      }
     } catch (error) {
       console.error('Form submission error', error)
       toast.error('Failed to submit the form. Please try again.')
@@ -67,7 +74,7 @@ function MyForm() {
           <div className='col-span-6'>
             <FormField
               control={form.control}
-              name='model'
+              name='model_name'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>模型</FormLabel>
@@ -99,7 +106,7 @@ function MyForm() {
           <div className='col-span-6'>
             <FormField
               control={form.control}
-              name='folderPath'
+              name='source_dir'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>音频文件夹路径</FormLabel>
@@ -121,16 +128,17 @@ function MyForm() {
           <div className='col-span-6'>
             <FormField
               control={form.control}
-              name='name_7045055503'
+              name='output_dir'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>指定人声输出文件夹</FormLabel>
+                  <FormLabel>输出文件夹路径</FormLabel>
                   <FormControl>
-                    <Input placeholder='shadcn' type='' {...field} />
+                    <Input
+                      placeholder='输出文件夹路径'
+                      type='text'
+                      {...field}
+                    />
                   </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -139,27 +147,7 @@ function MyForm() {
           <div className='col-span-6'>
             <FormField
               control={form.control}
-              name='name_4798549065'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>指定伴奏的输出文件夹：</FormLabel>
-                  <FormControl>
-                    <Input placeholder='shadcn' type='' {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
-        <div className='grid grid-cols-12 gap-4'>
-          <div className='col-span-6'>
-            <FormField
-              control={form.control}
-              name='type'
+              name='audio_format'
               render={({ field }) => (
                 <FormItem className='space-y-3'>
                   <FormLabel>导出文件格式</FormLabel>
@@ -171,25 +159,25 @@ function MyForm() {
                     >
                       <FormItem className='flex items-center space-x-3 space-y-0'>
                         <FormControl>
-                          <RadioGroupItem value='all' />
+                          <RadioGroupItem value='wav' />
                         </FormControl>
                         <FormLabel className='font-normal'>wav</FormLabel>
                       </FormItem>
                       <FormItem className='flex items-center space-x-3 space-y-0'>
                         <FormControl>
-                          <RadioGroupItem value='mentions' />
+                          <RadioGroupItem value='flac' />
                         </FormControl>
                         <FormLabel className='font-normal'>flac</FormLabel>
                       </FormItem>
                       <FormItem className='flex items-center space-x-3 space-y-0'>
                         <FormControl>
-                          <RadioGroupItem value='none' />
+                          <RadioGroupItem value='mp3' />
                         </FormControl>
                         <FormLabel className='font-normal'>mp3</FormLabel>
                       </FormItem>
                       <FormItem className='flex items-center space-x-3 space-y-0'>
                         <FormControl>
-                          <RadioGroupItem value='none' />
+                          <RadioGroupItem value='m4a' />
                         </FormControl>
                         <FormLabel className='font-normal'>m4a</FormLabel>
                       </FormItem>
@@ -200,11 +188,17 @@ function MyForm() {
               )}
             />
           </div>
-          <div className='col-span-6 flex flex-col gap-4'>
-            <Button type='submit' className='w-full h-full' size='lg'>
+          <div className='col-span-12 flex gap-4'>
+            <Button type='submit' className='w-full h-full'>
               开始分离
             </Button>
-            <Textarea placeholder='输出信息' rows={3} />
+            <Textarea
+              placeholder='输出信息'
+              rows={3}
+              value={query.data?.last_session?.output}
+              readOnly
+              className='w-full'
+            />
           </div>
         </div>
       </form>
@@ -216,7 +210,7 @@ export default function URV5() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>1. UVR5人声伴奏分离&去混响去延迟工具</CardTitle>
+        <CardTitle>1. 主人声提取</CardTitle>
         <CardDescription />
       </CardHeader>
       <CardContent>

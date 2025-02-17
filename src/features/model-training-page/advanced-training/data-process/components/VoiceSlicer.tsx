@@ -27,21 +27,33 @@ import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 
 const formSchema = z.object({
-  name_4549257098: z.string(),
-  name_0908675173: z.string(),
-  name_6719714593: z.string(),
-  name_1346033664: z.string(),
-  name_5086367083: z.string(),
-  name_9393977446: z.string(),
-  name_9287274561: z.string(),
-  name_2476791895: z.number().min(0).max(1),
-  name_9470475002: z.number().min(0).max(1),
-  name_0978053114: z.number().min(1).max(112),
+  source_dir: z.string(),
+  output_dir: z.string(),
+  threshold: z.number().min(-100).max(0),
+  min_length: z.number().min(0),
+  min_interval: z.number().min(0),
+  hop_size: z.number().min(0),
+  max_silent_kept: z.number().min(0),
+  normalize_max: z.number().min(0).max(1),
+  alpha_mix: z.number().min(0).max(1),
+  num_process: z.number().min(1).max(112),
 })
 
 function MyForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      source_dir: '',
+      output_dir: '',
+      threshold: -34,
+      min_length: 4000,
+      min_interval: 300,
+      hop_size: 10,
+      max_silent_kept: 500,
+      normalize_max: 0.9,
+      alpha_mix: 0.25,
+      num_process: 4,
+    },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -65,30 +77,34 @@ function MyForm() {
           <div className='col-span-6 space-y-4 '>
             <FormField
               control={form.control}
-              name='name_4549257098'
+              name='source_dir'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>音频自动切分输入路径，可文件可文件夹</FormLabel>
                   <FormControl>
-                    <Input placeholder='shadcn' type='' {...field} />
+                    <Input
+                      placeholder='请输入音频文件路径'
+                      type=''
+                      {...field}
+                    />
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name='name_0908675173'
+              name='output_dir'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel> 切分后的子音频的输出根目录</FormLabel>
                   <FormControl>
-                    <Input placeholder='shadcn' type='' {...field} />
+                    <Input
+                      placeholder='请输入子音频输出目录'
+                      type=''
+                      {...field}
+                    />
                   </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -96,7 +112,7 @@ function MyForm() {
             <div className='col-span-6'>
               <FormField
                 control={form.control}
-                name='name_2476791895'
+                name='normalize_max'
                 render={({ field: { value, onChange } }) => (
                   <FormItem>
                     <FormLabel className='flex justify-between'>
@@ -108,7 +124,7 @@ function MyForm() {
                         min={0}
                         max={1}
                         step={0.1}
-                        defaultValue={[5]}
+                        defaultValue={[0.9]}
                         onValueChange={(vals) => {
                           onChange(vals[0])
                         }}
@@ -120,11 +136,10 @@ function MyForm() {
                 )}
               />
             </div>
-
             <div className='col-span-6'>
               <FormField
                 control={form.control}
-                name='name_9470475002'
+                name='alpha_mix'
                 render={({ field: { value, onChange } }) => (
                   <FormItem>
                     <FormLabel className='flex justify-between'>
@@ -136,7 +151,7 @@ function MyForm() {
                         min={0}
                         max={1}
                         step={0.1}
-                        defaultValue={[5]}
+                        defaultValue={[0.25]}
                         onValueChange={(vals) => {
                           onChange(vals[0])
                         }}
@@ -150,11 +165,10 @@ function MyForm() {
                 )}
               />
             </div>
-
             <div className='col-span-6'>
               <FormField
                 control={form.control}
-                name='name_0978053114'
+                name='num_process'
                 render={({ field: { value, onChange } }) => (
                   <FormItem>
                     <FormLabel className='flex justify-between'>
@@ -166,7 +180,7 @@ function MyForm() {
                         min={1}
                         max={112}
                         step={1}
-                        defaultValue={[5]}
+                        defaultValue={[4]}
                         onValueChange={(vals) => {
                           onChange(vals[0])
                         }}
@@ -184,7 +198,7 @@ function MyForm() {
               <div className='col-span-6'>
                 <FormField
                   control={form.control}
-                  name='name_6719714593'
+                  name='threshold'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>threshold</FormLabel>
@@ -199,11 +213,10 @@ function MyForm() {
                   )}
                 />
               </div>
-
               <div className='col-span-6'>
                 <FormField
                   control={form.control}
-                  name='name_1346033664'
+                  name='min_length'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>min_length</FormLabel>
@@ -218,11 +231,10 @@ function MyForm() {
                   )}
                 />
               </div>
-
               <div className='col-span-6'>
                 <FormField
                   control={form.control}
-                  name='name_5086367083'
+                  name='min_interval'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>min_interval</FormLabel>
@@ -235,11 +247,10 @@ function MyForm() {
                   )}
                 />
               </div>
-
               <div className='col-span-6'>
                 <FormField
                   control={form.control}
-                  name='name_9393977446'
+                  name='hop_size'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>hop_size</FormLabel>
@@ -257,10 +268,10 @@ function MyForm() {
               <div className='col-span-6'>
                 <FormField
                   control={form.control}
-                  name='name_9287274561'
+                  name='max_silent_kept'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>max_sil_kept</FormLabel>
+                      <FormLabel>max_silent_kept</FormLabel>
                       <FormControl>
                         <Input placeholder='shadcn' type='' {...field} />
                       </FormControl>
@@ -284,11 +295,11 @@ function MyForm() {
   )
 }
 
-export default function VoiceSeparation() {
+export default function VoiceSlicer() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>2. 语音切分工具</CardTitle>
+        <CardTitle>2. 音频文件切割</CardTitle>
         <CardDescription />
       </CardHeader>
       <CardContent>

@@ -1,7 +1,7 @@
 import ASR from './components/ASR'
 import URV5 from './components/URV5'
 import VoiceNoiseReduction from './components/VoiceNoiseReduction'
-import VoiceSeparation from './components/VoiceSeparation'
+import VoiceSlicer from './components/VoiceSlicer'
 import VoiceTextAnnotation from './components/VoiceTextAnnotation'
 
 export default function DataProcessForm() {
@@ -9,7 +9,7 @@ export default function DataProcessForm() {
     <div className='flex flex-col gap-4 w-full p-4'>
       <URV5 />
 
-      <VoiceSeparation />
+      <VoiceSlicer />
 
       <VoiceNoiseReduction />
 
