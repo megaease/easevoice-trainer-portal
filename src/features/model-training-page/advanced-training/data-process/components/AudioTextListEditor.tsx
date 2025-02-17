@@ -96,7 +96,7 @@ export default function AudioTextListEditor() {
   }
 
   return (
-    <div className='container mx-auto p-4 space-y-6'>
+    <div className='container mx-auto space-y-4 mt-4'>
       <div className='flex justify-end'>
         <Button onClick={handleReset} variant='outline'>
           <RefreshCcw className='mr-2 h-4 w-4' />
@@ -106,11 +106,10 @@ export default function AudioTextListEditor() {
 
       <div className='space-y-4'>
         {data.map((item) => (
-          <Card key={item.id} className='shadow-md'>
+          <Card key={item.id} className='shadow-none'>
             <CardContent className='p-6 space-y-4'>
               <div className='flex items-center justify-between'>
                 <h3 className='text-lg font-semibold'>{item.name}</h3>
-                <span className='text-sm text-gray-500'>{item.duration}</span>
               </div>
               <AudioPlayer
                 audioState={{

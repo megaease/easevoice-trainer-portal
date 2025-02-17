@@ -142,7 +142,7 @@ class trainingApi {
     return await apiClient.post(`/train/sovits/stop`)
   }
 
-  async startGptTraining(data: {
+  async startGPTTraining(data: {
     batch_size: number
     total_epochs: number
     save_every_epoch: number
@@ -158,11 +158,11 @@ class trainingApi {
     return await apiClient.post(`/train/gpt/start`, data)
   }
 
-  async getGptTrainingStatus() {
+  async getGPTTrainingStatus() {
     return await apiClient.get(`/train/gpt/status`)
   }
 
-  async stopGptTraining() {
+  async stopGPTTraining() {
     return await apiClient.post(`/train/gpt/stop`)
   }
 }

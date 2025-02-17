@@ -85,9 +85,7 @@ function MyForm() {
       return response.data
     },
     refetchInterval: (data) => {
-      return data.state.data?.current_session?.status === 'Running'
-        ? 5000
-        : false
+      return data.state.data?.current_session ? 1000 : false
     },
     refetchIntervalInBackground: false,
   })

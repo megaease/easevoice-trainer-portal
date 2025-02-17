@@ -1,0 +1,349 @@
+import * as z from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import trainingApi from '@/apis/training'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { FormDescription } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+
+type Session = {
+  task_name: string
+  status: string
+  error: string | null
+  pid: number
+  result: Record<string, unknown>
+}
+
+type StatusResponse = {
+  current_session: Session
+  last_session: Partial<Session>
+}
+
+const formSchema = z.object({
+  output_model_name: z.string().nonempty('模型名称不能为空'),
+  model_path: z.string().nonempty('预训练模型路径不能为空'),
+  batch_size: z.number().min(1, 'Batch size must be at least 1'),
+  total_epochs: z.number().min(1, 'Total epochs must be at least 1'),
+  save_every_epoch: z.number().min(1, 'Save every epoch must be at least 1'),
+  if_dpo: z.boolean(),
+  if_save_latest: z.boolean(),
+  if_save_every_weights: z.boolean(),
+  gpu_ids: z.string().nonempty('GPU IDs不能为空'),
+  train_input_dir: z.string().nonempty('训练输入目录不能为空'),
+  normalize_path: z.string().nonempty('标准化路径不能为空'),
+})
+
+function MyForm() {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      output_model_name: 'gpt',
+      model_path: '',
+      batch_size: 12,
+      total_epochs: 15,
+      save_every_epoch: 5,
+      if_dpo: false,
+      if_save_latest: true,
+      if_save_every_weights: true,
+      gpu_ids: '0',
+      train_input_dir: '',
+      normalize_path: '',
+    },
+  })
+
+  const statusQuery = useQuery<StatusResponse>({
+    queryKey: ['GPTTraining', 'status'],
+    queryFn: async () => {
+      const response = await trainingApi.getGPTTrainingStatus()
+      return response.data
+    },
+    refetchInterval: (data) => {
+      return data?.current_session?.status === 'Running' ? 5000 : false
+    },
+    refetchIntervalInBackground: false,
+  })
+
+  const startMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof formSchema>) => {
+      return toast.promise(trainingApi.startGPTTraining(data), {
+        loading: '正在启动 GPT 训练...',
+        success: '开始 GPT 训练',
+        error: '启动失败，请重试',
+      })
+    },
+    onSuccess: () => {
+      statusQuery.refetch()
+    },
+  })
+
+  const stopMutation = useMutation({
+    mutationFn: async () => {
+      return toast.promise(trainingApi.stopGPTTraining(), {
+        loading: '正在停止 GPT 训练...',
+        success: '已停止 GPT 训练',
+        error: '停止失败，请重试',
+      })
+    },
+    onSuccess: () => {
+      statusQuery.refetch()
+    },
+  })
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    await startMutation.mutateAsync(values)
+  }
+
+  async function onStop() {
+    await stopMutation.mutateAsync()
+  }
+
+  const outputMessage = statusQuery.data?.last_session?.result?.status
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+          <FormField
+            control={form.control}
+            name='output_model_name'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>模型名称</FormLabel>
+                <FormControl>
+                  <Input placeholder='请输入模型名称' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='model_path'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>预训练模型路径</FormLabel>
+                <FormControl>
+                  <Input placeholder='请输入预训练模型路径' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='batch_size'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Batch Size</FormLabel>
+                <FormControl>
+                  <Input
+                    type='number'
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='total_epochs'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Total Epochs</FormLabel>
+                <FormControl>
+                  <Input
+                    type='number'
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='save_every_epoch'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Save Every Epoch</FormLabel>
+                <FormControl>
+                  <Input
+                    type='number'
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='gpu_ids'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>GPU IDs</FormLabel>
+                <FormControl>
+                  <Input placeholder='请输入 GPU IDs' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <FormField
+            control={form.control}
+            name='train_input_dir'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>训练输入目录</FormLabel>
+                <FormControl>
+                  <Input placeholder='与音频处理保持一致' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='normalize_path'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>标准化路径</FormLabel>
+                <FormControl>
+                  <Input placeholder='一键三联的输出结果中获取' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className='flex flex-col space-y-2'>
+          <FormField
+            control={form.control}
+            name='if_dpo'
+            render={({ field }) => (
+              <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className='space-y-1 leading-none'>
+                  <FormLabel>DPO</FormLabel>
+                  <FormDescription>
+                    Enable DPO (Direct Preference Optimization)
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='if_save_latest'
+            render={({ field }) => (
+              <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className='space-y-1 leading-none'>
+                  <FormLabel>Save Latest</FormLabel>
+                  <FormDescription>
+                    Save the latest model during training
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='if_save_every_weights'
+            render={({ field }) => (
+              <FormItem className='flex flex-row items-start space-x-3 space-y-0'>
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className='space-y-1 leading-none'>
+                  <FormLabel>Save Every Weights</FormLabel>
+                  <FormDescription>
+                    Save weights at every specified epoch
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className='grid gap-4 grid-cols-1 md:grid-cols-2'>
+          {statusQuery.data?.current_session?.status === 'Running' ? (
+            <Button
+              type='button'
+              onClick={onStop}
+              variant='destructive'
+              className='h-full'
+            >
+              停止训练
+            </Button>
+          ) : (
+            <Button type='submit' className='h-full'>
+              开始训练
+            </Button>
+          )}
+          <Textarea
+            placeholder='输出信息'
+            rows={3}
+            value={outputMessage + ''}
+            readOnly
+            className='w-full'
+          />
+        </div>
+      </form>
+    </Form>
+  )
+}
+
+export default function GptTraining() {
+  return (
+    <Card className='w-full'>
+      <CardHeader>
+        <CardTitle>3. GPT 模型训练</CardTitle>
+        <CardDescription>配置并管理 GPT 模型训练参数</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <MyForm />
+      </CardContent>
+    </Card>
+  )
+}

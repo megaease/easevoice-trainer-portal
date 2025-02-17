@@ -34,8 +34,10 @@ export default function AdvancedTraining({ className, ...props }: Props) {
         </ScrollArea>
       </TabsContent>
 
-      <TabsContent value='modelTraining'>
-        <FineTuningTraining />
+      <TabsContent value='modelTraining' className='h-full'>
+        <ScrollArea className='h-full'>
+          <FineTuningTraining />
+        </ScrollArea>
       </TabsContent>
     </Tabs>
   )
