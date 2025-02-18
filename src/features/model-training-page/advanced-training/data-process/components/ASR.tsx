@@ -305,7 +305,7 @@ export default function ASR() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>4d. 音频转文字</CardTitle>
+        <CardTitle>1d. 音频转文字</CardTitle>
         <CardDescription />
       </CardHeader>
       <CardContent>

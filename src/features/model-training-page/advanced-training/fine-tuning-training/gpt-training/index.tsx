@@ -338,7 +338,7 @@ export default function GptTraining() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>3c. GPT 模型训练</CardTitle>
+        <CardTitle>2c. GPT 模型训练</CardTitle>
         <CardDescription>配置并管理 GPT 模型训练参数</CardDescription>
       </CardHeader>
       <CardContent>

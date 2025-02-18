@@ -138,7 +138,7 @@ export default function AudioDenoising() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>3c. 语音降噪工具</CardTitle>
+        <CardTitle>1c. 语音降噪工具</CardTitle>
         <CardDescription />
       </CardHeader>
       <CardContent>
