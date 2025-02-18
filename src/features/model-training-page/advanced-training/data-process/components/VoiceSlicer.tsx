@@ -87,9 +87,7 @@ function MyForm() {
       return response.data
     },
     refetchInterval: (data) => {
-      return data.state.data?.current_session?.status === 'running'
-        ? 5000
-        : false
+      return data.state.data?.current_session ? 5000 : false
     },
     refetchIntervalInBackground: false,
   })
@@ -98,7 +96,7 @@ function MyForm() {
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       return toast.promise(trainingApi.startVoiceSlicing(data), {
         loading: '正在启动语音切割...',
-        success: '开始语音切割',
+        success: '开始音频切割',
         error: '启动失败，请重试',
       })
     },
@@ -106,6 +104,23 @@ function MyForm() {
       statusQuery.refetch()
     },
   })
+
+  const stopMutation = useMutation({
+    mutationFn: async () => {
+      return toast.promise(trainingApi.stopVoiceSlicing(), {
+        loading: '正在停止语音切割...',
+        success: '已停止语音切割',
+        error: '停止失败，请重试',
+      })
+    },
+    onSuccess: () => {
+      statusQuery.refetch()
+    },
+  })
+
+  const onStop = async () => {
+    await stopMutation.mutateAsync()
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
@@ -326,9 +341,15 @@ function MyForm() {
           </div>
         </div>
         <div className='grid grid-cols-2 gap-4'>
-          <Button type='submit' className='h-full'>
-            开始语音切割
-          </Button>
+          {statusQuery.data?.current_session?.status === 'Running' ? (
+            <Button type='button' onClick={onStop} className='h-full'>
+              停止语音切割
+            </Button>
+          ) : (
+            <Button type='submit' className='h-full'>
+              开始音频切割
+            </Button>
+          )}
           <Textarea
             placeholder='输出信息'
             rows={3}
@@ -346,7 +367,7 @@ export default function VoiceSlicer() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>2. 音频文件切割</CardTitle>
+        <CardTitle>1b. 音频文件切割</CardTitle>
         <CardDescription />
       </CardHeader>
       <CardContent>

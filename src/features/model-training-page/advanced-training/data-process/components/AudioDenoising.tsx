@@ -50,9 +50,7 @@ function MyForm() {
       return response.data
     },
     refetchInterval: (data) => {
-      return data.state.data?.current_session?.status === 'running'
-        ? 5000
-        : false
+      return data.state.data?.current_session ? 5000 : false
     },
     refetchIntervalInBackground: false,
   })
@@ -129,7 +127,7 @@ export default function AudioDenoising() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>3. 语音降噪工具</CardTitle>
+        <CardTitle>3c. 语音降噪工具</CardTitle>
         <CardDescription />
       </CardHeader>
       <CardContent>

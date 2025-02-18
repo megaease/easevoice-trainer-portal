@@ -22,8 +22,8 @@ export default function AdvancedTraining({ className, ...props }: Props) {
           {...props}
         >
           <TabsList>
-            <TabsTrigger value='dataProcess'>前置数据处理</TabsTrigger>
-            <TabsTrigger value='modelTraining'>训练模型</TabsTrigger>
+            <TabsTrigger value='dataProcess'>1. 前置数据处理</TabsTrigger>
+            <TabsTrigger value='modelTraining'>2. 训练模型</TabsTrigger>
           </TabsList>
         </nav>
       </div>

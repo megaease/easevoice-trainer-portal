@@ -116,7 +116,7 @@ export default function VoiceTextAnnotation() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>5. 语音文本校对标注工具</CardTitle>
+        <CardTitle>5e. 语音文本校对标注工具</CardTitle>
         <CardDescription />
       </CardHeader>
       <CardContent>

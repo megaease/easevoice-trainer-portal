@@ -336,7 +336,7 @@ export default function SovitsTraining() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>2. So-VITS 模型训练</CardTitle>
+        <CardTitle>2b. So-VITS 模型训练</CardTitle>
         <CardDescription>配置并管理 So-VITS 模型训练参数</CardDescription>
       </CardHeader>
       <CardContent>

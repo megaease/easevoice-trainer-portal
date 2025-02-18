@@ -93,8 +93,8 @@ function MyForm() {
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       return toast.promise(trainingApi.startVoiceExtraction(data), {
-        loading: '正在启动主人声分离...',
-        success: '开始主人声分离',
+        loading: '正在启动主人声提取...',
+        success: '开始主人声提取',
         error: '启动失败，请重试',
       })
     },
@@ -247,17 +247,17 @@ function MyForm() {
           <div className='col-span-12 flex gap-4'>
             {statusQuery.data?.current_session?.status === 'Running' ? (
               <Button type='button' onClick={onStop} className='w-full h-full'>
-                停止分离
+                停止提取
               </Button>
             ) : (
               <Button type='submit' className='w-full h-full'>
-                开始分离
+                开始提取
               </Button>
             )}
             <Textarea
               placeholder='输出信息'
               rows={3}
-              value={outputMessage}
+              value={outputMessage + ''}
               readOnly
               className='w-full'
             />
@@ -272,7 +272,7 @@ export default function URV5() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>1. 主人声提取</CardTitle>
+        <CardTitle>1a. 主人声提取</CardTitle>
         <CardDescription />
       </CardHeader>
       <CardContent>

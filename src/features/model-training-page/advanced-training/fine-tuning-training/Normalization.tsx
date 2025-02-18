@@ -143,7 +143,7 @@ export default function Normalization() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>1. 音频归一化</CardTitle>
+        <CardTitle>2a. 音频归一化</CardTitle>
       </CardHeader>
       <CardContent>
         <NormalizationForm />
