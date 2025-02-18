@@ -140,11 +140,11 @@ function MyForm() {
             name='batch_size'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>批量大小</FormLabel>
+                <FormLabel>每张显卡的batch_size</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
-                    placeholder='请输入批量大小'
+                    placeholder='请输入每张显卡的batch_size'
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
@@ -158,11 +158,11 @@ function MyForm() {
             name='total_epochs'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>总Epoch数</FormLabel>
+                <FormLabel>总训练轮数total_epoch</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
-                    placeholder='请输入总Epoch数'
+                    placeholder='请输入总训练轮数total_epoch'
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
@@ -176,12 +176,12 @@ function MyForm() {
             name='text_low_lr_rate'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Text低学习率</FormLabel>
+                <FormLabel>文本模块学习率权重</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
                     step='0.01'
-                    placeholder='请输入学习率'
+                    placeholder='请输入文本模块学习率权重'
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
@@ -234,19 +234,7 @@ function MyForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name='gpu_ids'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>GPU IDs</FormLabel>
-                <FormControl>
-                  <Input placeholder='请输入GPU IDs' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
           <FormField
             control={form.control}
             name='train_input_dir'
@@ -275,8 +263,7 @@ function MyForm() {
                   />
                 </FormControl>
                 <div className='space-y-1 leading-none'>
-                  <FormLabel>保存最新模型</FormLabel>
-                  <FormDescription>每次训练后保存最新的模型</FormDescription>
+                  <FormLabel>是否仅保存最新的ckpt文件以节省硬盘空间</FormLabel>
                 </div>
               </FormItem>
             )}
@@ -293,10 +280,9 @@ function MyForm() {
                   />
                 </FormControl>
                 <div className='space-y-1 leading-none'>
-                  <FormLabel>每次保存权重</FormLabel>
-                  <FormDescription>
-                    在每个指定的epoch保存模型权重
-                  </FormDescription>
+                  <FormLabel>
+                    是否在每次保存时间点将最终小模型保存至weights文件夹
+                  </FormLabel>
                 </div>
               </FormItem>
             )}

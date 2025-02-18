@@ -153,7 +153,7 @@ function MyForm() {
             name='batch_size'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Batch Size</FormLabel>
+                <FormLabel>每张显卡的batch_size</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
@@ -170,7 +170,7 @@ function MyForm() {
             name='total_epochs'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Total Epochs</FormLabel>
+                <FormLabel>总训练轮数total_epoch</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
@@ -187,26 +187,13 @@ function MyForm() {
             name='save_every_epoch'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Save Every Epoch</FormLabel>
+                <FormLabel>保存频率save_every_epoch</FormLabel>
                 <FormControl>
                   <Input
                     type='number'
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='gpu_ids'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>GPU IDs</FormLabel>
-                <FormControl>
-                  <Input placeholder='请输入 GPU IDs' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -256,10 +243,7 @@ function MyForm() {
                   />
                 </FormControl>
                 <div className='space-y-1 leading-none'>
-                  <FormLabel>DPO</FormLabel>
-                  <FormDescription>
-                    Enable DPO (Direct Preference Optimization)
-                  </FormDescription>
+                  <FormLabel>是否开启dpo训练选项(实验性)</FormLabel>
                 </div>
               </FormItem>
             )}
@@ -276,10 +260,7 @@ function MyForm() {
                   />
                 </FormControl>
                 <div className='space-y-1 leading-none'>
-                  <FormLabel>Save Latest</FormLabel>
-                  <FormDescription>
-                    Save the latest model during training
-                  </FormDescription>
+                  <FormLabel>是否仅保存最新的ckpt文件以节省硬盘空间</FormLabel>
                 </div>
               </FormItem>
             )}
@@ -296,10 +277,9 @@ function MyForm() {
                   />
                 </FormControl>
                 <div className='space-y-1 leading-none'>
-                  <FormLabel>Save Every Weights</FormLabel>
-                  <FormDescription>
-                    Save weights at every specified epoch
-                  </FormDescription>
+                  <FormLabel>
+                    是否在每次保存时间点将最终小模型保存至weights文件夹
+                  </FormLabel>
                 </div>
               </FormItem>
             )}
