@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 
 type Session = {
@@ -58,7 +59,7 @@ function MyForm() {
     defaultValues: {
       output_model_name: 'gpt',
       model_path: '',
-      batch_size: 12,
+      batch_size: 8,
       total_epochs: 15,
       save_every_epoch: 5,
       if_dpo: false,
@@ -121,7 +122,7 @@ function MyForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+        <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
             name='output_model_name'
@@ -143,57 +144,6 @@ function MyForm() {
                 <FormLabel>预训练模型路径</FormLabel>
                 <FormControl>
                   <Input placeholder='请输入预训练模型路径' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='batch_size'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>每张显卡的batch_size</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='total_epochs'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>总训练轮数total_epoch</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='save_every_epoch'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>保存频率save_every_epoch</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -229,7 +179,80 @@ function MyForm() {
             )}
           />
         </div>
-
+        <div className='grid grid-cols-3 gap-4'>
+          <FormField
+            control={form.control}
+            name='batch_size'
+            render={({ field: { value, onChange } }) => (
+              <FormItem className='flex flex-col gap-4'>
+                <FormLabel className='flex justify-between'>
+                  每张显卡的batch_size
+                  <span>{value}</span>
+                </FormLabel>
+                <FormControl>
+                  <Slider
+                    min={1}
+                    max={40}
+                    step={1}
+                    defaultValue={[8]}
+                    onValueChange={(vals) => {
+                      onChange(vals[0])
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='total_epochs'
+            render={({ field: { value, onChange } }) => (
+              <FormItem className='flex flex-col gap-4'>
+                <FormLabel className='flex justify-between'>
+                  总训练轮数total_epoch
+                  <span>{value}</span>
+                </FormLabel>
+                <FormControl>
+                  <Slider
+                    min={1}
+                    max={25}
+                    step={1}
+                    defaultValue={[15]}
+                    onValueChange={(vals) => {
+                      onChange(vals[0])
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='save_every_epoch'
+            render={({ field: { value, onChange } }) => (
+              <FormItem className='flex flex-col gap-4'>
+                <FormLabel className='flex justify-between'>
+                  保存频率save_every_epoch
+                  <span>{value}</span>
+                </FormLabel>
+                <FormControl>
+                  <Slider
+                    min={1}
+                    max={50}
+                    step={1}
+                    defaultValue={[5]}
+                    onValueChange={(vals) => {
+                      onChange(vals[0])
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <div className='flex flex-col space-y-2'>
           <FormField
             control={form.control}

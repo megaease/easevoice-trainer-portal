@@ -23,6 +23,7 @@ import {
   FormDescription,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 
 type Session = {
@@ -56,15 +57,15 @@ function MyForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      batch_size: 1,
-      total_epochs: 1,
-      text_low_lr_rate: 0.0,
-      pretrained_s2G: '',
-      pretrained_s2D: '',
+      batch_size: 8,
+      total_epochs: 8,
+      text_low_lr_rate: 0.4,
+      save_every_epoch: 4,
       if_save_latest: false,
       if_save_every_weights: false,
-      save_every_epoch: 1,
-      gpu_ids: '',
+      gpu_ids: '0',
+      pretrained_s2G: '',
+      pretrained_s2D: '',
       train_input_dir: '',
       output_model_name: 'sovits',
     },
@@ -121,7 +122,7 @@ function MyForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+        <div className='grid grid-cols-2 gap-4'>
           <FormField
             control={form.control}
             name='output_model_name'
@@ -135,61 +136,7 @@ function MyForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name='batch_size'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>每张显卡的batch_size</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    placeholder='请输入每张显卡的batch_size'
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='total_epochs'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>总训练轮数total_epoch</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    placeholder='请输入总训练轮数total_epoch'
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name='text_low_lr_rate'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>文本模块学习率权重</FormLabel>
-                <FormControl>
-                  <Input
-                    type='number'
-                    step='0.01'
-                    placeholder='请输入文本模块学习率权重'
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
           <FormField
             control={form.control}
             name='pretrained_s2G'
@@ -216,18 +163,64 @@ function MyForm() {
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
-            name='save_every_epoch'
+            name='train_input_dir'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>保存每次Epoch</FormLabel>
+                <FormLabel>训练输入目录</FormLabel>
                 <FormControl>
-                  <Input
-                    type='number'
-                    placeholder='请输入每次保存的Epoch数'
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  <Input placeholder='与音频处理保持一致' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className='grid grid-cols-2 gap-4'>
+          <FormField
+            control={form.control}
+            name='batch_size'
+            render={({ field: { value, onChange } }) => (
+              <FormItem className='flex flex-col gap-4'>
+                <FormLabel className='flex justify-between'>
+                  每张显卡的batch_size
+                  <span>{value}</span>
+                </FormLabel>
+                <FormControl>
+                  <Slider
+                    min={1}
+                    max={40}
+                    step={1}
+                    defaultValue={[8]}
+                    onValueChange={(vals) => {
+                      onChange(vals[0])
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='total_epochs'
+            render={({ field: { value, onChange } }) => (
+              <FormItem className='flex flex-col gap-4'>
+                <FormLabel className='flex justify-between'>
+                  总训练轮数total_epoch
+                  <span>{value}</span>
+                </FormLabel>
+                <FormControl>
+                  <Slider
+                    min={1}
+                    max={25}
+                    step={1}
+                    defaultValue={[8]}
+                    onValueChange={(vals) => {
+                      onChange(vals[0])
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -237,19 +230,53 @@ function MyForm() {
 
           <FormField
             control={form.control}
-            name='train_input_dir'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>训练输入目录</FormLabel>
+            name='text_low_lr_rate'
+            render={({ field: { value, onChange } }) => (
+              <FormItem className='flex flex-col gap-4'>
+                <FormLabel className='flex justify-between'>
+                  文本模块学习率权重
+                  <span>{value}</span>
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder='请输入训练输入目录' {...field} />
+                  <Slider
+                    min={0.2}
+                    max={0.6}
+                    step={0.05}
+                    defaultValue={[0.4]}
+                    onValueChange={(vals) => {
+                      onChange(vals[0])
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='save_every_epoch'
+            render={({ field: { value, onChange } }) => (
+              <FormItem className='flex flex-col gap-4'>
+                <FormLabel className='flex justify-between'>
+                  保存频率save_every_epoch
+                  <span>{value}</span>
+                </FormLabel>
+                <FormControl>
+                  <Slider
+                    min={1}
+                    max={25}
+                    step={1}
+                    defaultValue={[4]}
+                    onValueChange={(vals) => {
+                      onChange(vals[0])
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-
         <div className='space-y-2'>
           <FormField
             control={form.control}
