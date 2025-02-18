@@ -120,11 +120,11 @@ export const FolderList: React.FC<FolderListProps> = ({
         <ContextMenuContent>
           <ContextMenuItem onClick={() => onOpen(folder)}>
             <Eye className='mr-2 h-4 w-4' />
-            Open
+            打开
           </ContextMenuItem>
           <ContextMenuItem onClick={() => handleCopyPath(folder.directoryName)}>
             <Copy className='mr-2 h-4 w-4' />
-            Copy Path
+            复制路径
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem
@@ -132,7 +132,7 @@ export const FolderList: React.FC<FolderListProps> = ({
             className='text-red-600 focus:text-red-600'
           >
             <Trash className='mr-2 h-4 w-4' />
-            Delete
+            删除
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>

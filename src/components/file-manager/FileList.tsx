@@ -135,11 +135,11 @@ export const FileList: React.FC<FileListProps> = ({
         <ContextMenuContent>
           <ContextMenuItem onClick={() => onOpen(file)}>
             <Eye className='mr-2 h-4 w-4' />
-            Preview
+            查看
           </ContextMenuItem>
           <ContextMenuItem onClick={() => handleCopyPath(file.fileName)}>
             <Copy className='mr-2 h-4 w-4' />
-            Copy Path
+            复制路径
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem
@@ -147,7 +147,7 @@ export const FileList: React.FC<FileListProps> = ({
             className='text-red-600 focus:text-red-600'
           >
             <Trash className='mr-2 h-4 w-4' />
-            Delete
+            删除
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
