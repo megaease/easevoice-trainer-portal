@@ -1,11 +1,10 @@
-import { useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
+import { usePathStore } from '@/stores/pathStore'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -34,6 +33,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+
+// Import the new store
 
 type Session = {
   task_name: string
@@ -116,8 +117,14 @@ function MyForm() {
     },
   })
 
+  const setPaths = usePathStore((state) => state.setPaths) // Get the store function
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
+    setPaths('fb', {
+      sourceDir: values.source_dir,
+      outputDir: values.output_dir,
+    })
   }
 
   async function onStop() {

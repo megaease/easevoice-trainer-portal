@@ -1,9 +1,11 @@
+import { useEffect } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
+import { usePathStore } from '@/stores/pathStore'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -65,6 +67,16 @@ function MyForm() {
       precision: 'float32',
     },
   })
+  const sourceDir: string = usePathStore((state) => state.sourceDir)
+  const outputDir: string = usePathStore((state) => state.outputDir)
+
+  useEffect(() => {
+    form.setValue('source_dir', sourceDir)
+  }, [sourceDir, form])
+
+  useEffect(() => {
+    form.setValue('output_dir', outputDir)
+  }, [outputDir, form])
 
   const statusQuery = useQuery<StatusResponse>({
     queryKey: ['ASR', 'status'],

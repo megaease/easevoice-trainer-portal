@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
+import { UseFormSetValue } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
+import { usePathStore } from '@/stores/pathStore'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +29,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
+import { useSyncPath } from '@/features/model-training-page/useSyncPath'
+
+// Import the new store
 
 type Session = {
   task_name: string
@@ -79,6 +84,14 @@ function MyForm() {
       num_process: 4,
     },
   })
+  const fb = usePathStore((state) => state.fb)
+  const setPaths = usePathStore((state) => state.setPaths)
+
+  useEffect(() => {
+    const { sourceDir, outputDir } = fb
+    form.setValue('source_dir', sourceDir)
+    form.setValue('output_dir', outputDir)
+  }, [fb, form])
 
   const statusQuery = useQuery<StatusResponse>({
     queryKey: ['VoiceSlicing', 'status'],
@@ -124,6 +137,10 @@ function MyForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
+    setPaths('fc', {
+      sourceDir: values.source_dir,
+      outputDir: values.output_dir,
+    })
   }
 
   return (
@@ -216,7 +233,6 @@ function MyForm() {
                     <FormDescription>
                       混多少比例归一化后音频进来
                     </FormDescription>
-                    <FormMessage />
                   </FormItem>
                 )}
               />

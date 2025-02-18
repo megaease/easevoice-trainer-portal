@@ -49,7 +49,7 @@ class trainingApi {
     return await apiClient.get(`/audio/slicer/status`)
   }
 
-  async stopVoiceSlicingStatus() {
+  async stopVoiceSlicing() {
     return await apiClient.post(`/audio/slicer/stop`)
   }
 

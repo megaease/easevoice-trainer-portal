@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
+import { usePathStore } from '@/stores/pathStore'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -35,6 +36,11 @@ function MyForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
+  const sourceDir: string = usePathStore((state) => state.sourceDir)
+
+  useEffect(() => {
+    form.setValue('input_dir', sourceDir)
+  }, [sourceDir, form])
 
   const statusQuery = useQuery({
     queryKey: ['VoiceTextAnnotation', 'status'],
