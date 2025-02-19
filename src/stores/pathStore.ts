@@ -1,50 +1,54 @@
 import { create } from 'zustand'
 
-export interface PathState {
-  fa: {
-    sourceDir: string
-    outputDir: string
-  }
-  fb: {
-    sourceDir: string
-    outputDir: string
-  }
-  fc: {
-    sourceDir: string
-    outputDir: string
-  }
-  fd: {
-    sourceDir: string
-    outputDir: string
-  }
-  fe: {
-    sourceDir: string
-    outputDir: string
-  }
+interface Path {
+  sourceDir: string
+  outputDir: string
+}
+
+interface PathState {
+  urv5: Path
+  slicer: Path
+  denoise: Path
+  asr: Path
+  refinement: Path
+  normalize: Path
+  sovits: Path
+  gpt: Path
   setPaths: (
     key: keyof PathState,
     value: Partial<PathState[keyof PathState]>
   ) => void
 }
-
 export const usePathStore = create<PathState>((set) => ({
-  fa: {
+  urv5: {
     sourceDir: '',
     outputDir: '',
   },
-  fb: {
+  slicer: {
     sourceDir: '',
     outputDir: '',
   },
-  fc: {
+  denoise: {
     sourceDir: '',
     outputDir: '',
   },
-  fd: {
+  asr: {
     sourceDir: '',
     outputDir: '',
   },
-  fe: {
+  refinement: {
+    sourceDir: '',
+    outputDir: '',
+  },
+  normalize: {
+    sourceDir: '',
+    outputDir: '',
+  },
+  sovits: {
+    sourceDir: '',
+    outputDir: '',
+  },
+  gpt: {
     sourceDir: '',
     outputDir: '',
   },

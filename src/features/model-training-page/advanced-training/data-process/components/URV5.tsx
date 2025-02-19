@@ -34,21 +34,6 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 
-// Import the new store
-
-type Session = {
-  task_name: string
-  status: string
-  error: string | null
-  pid: number
-  result: Record<string, unknown>
-}
-
-type StatusResponse = {
-  current_session: Session
-  last_session: Partial<Session>
-}
-
 const formSchema = z.object({
   model_name: z.string().nonempty('模型不能为空'),
   source_dir: z.string().nonempty('音频文件夹路径不能为空'),
@@ -105,10 +90,6 @@ function MyForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
-    setPaths('fb', {
-      sourceDir: values.source_dir,
-      outputDir: values.output_dir,
-    })
   }
 
   async function onStop() {
