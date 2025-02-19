@@ -7,7 +7,9 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
-import { cn } from '@/lib/utils'
+import { useUUIDStore } from '@/stores/uuidStore'
+import { cn, getDisabledSubmit, getSessionMessage } from '@/lib/utils'
+import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -84,65 +86,61 @@ function MyForm() {
       num_process: 4,
     },
   })
-  const fb = usePathStore((state) => state.fb)
+  const session = useSession()
+  const uuid = useUUIDStore((state) => state.slicer)
+  const setUUID = useUUIDStore((state) => state.setUUID)
+  const slicer = usePathStore((state) => state.slicer)
   const setPaths = usePathStore((state) => state.setPaths)
 
   useEffect(() => {
-    const { sourceDir, outputDir } = fb
+    const { sourceDir } = slicer
     form.setValue('source_dir', sourceDir)
-    form.setValue('output_dir', outputDir)
-  }, [fb, form])
+  }, [slicer, form])
 
-  const statusQuery = useQuery<StatusResponse>({
-    queryKey: ['VoiceSlicing', 'status'],
-    queryFn: async () => {
-      const response = await trainingApi.getVoiceSlicingStatus()
-      return response.data
-    },
-    refetchInterval: (data) => {
-      return data.state.data?.current_session ? 5000 : false
-    },
-    refetchIntervalInBackground: false,
-  })
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'source_dir' && value.source_dir) {
+        form.setValue('output_dir', `${value.source_dir}/output`)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
-      return toast.promise(trainingApi.startVoiceSlicing(data), {
-        loading: '正在启动语音切割...',
-        success: '开始音频切割',
-        error: '启动失败，请重试',
-      })
+      const res = await trainingApi.startVoiceSlicing(data)
+      return res.data
     },
-    onSuccess: () => {
-      statusQuery.refetch()
+    onSuccess: (data) => {
+      toast.success('已开始音频切割')
+      setUUID('slicer', data.uuid)
+      session.refetch()
+      setPaths('denoise', {
+        sourceDir: form.getValues('source_dir'),
+      })
     },
   })
 
-  const stopMutation = useMutation({
-    mutationFn: async () => {
-      return toast.promise(trainingApi.stopVoiceSlicing(), {
-        loading: '正在停止语音切割...',
-        success: '已停止语音切割',
-        error: '停止失败，请重试',
-      })
-    },
-    onSuccess: () => {
-      statusQuery.refetch()
-    },
-  })
+  // const stopMutation = useMutation({
+  //   mutationFn: async () => {
+  //     return toast.promise(trainingApi.stopVoiceSlicing(), {
+  //       loading: '正在停止语音切割...',
+  //       success: '已停止语音切割',
+  //       error: '停止失败，请重试',
+  //     })
+  //   },
+  //   onSuccess: () => {},
+  // })
 
-  const onStop = async () => {
-    await stopMutation.mutateAsync()
-  }
+  // const onStop = async () => {
+  //   await stopMutation.mutateAsync()
+  // }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
-    setPaths('fc', {
-      sourceDir: values.source_dir,
-      outputDir: values.output_dir,
-    })
   }
 
+  const message = getSessionMessage(uuid, session.data)
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 '>
@@ -357,21 +355,19 @@ function MyForm() {
           </div>
         </div>
         <div className='grid grid-cols-2 gap-4'>
-          {statusQuery.data?.current_session?.status === 'Running' ? (
-            <Button type='button' onClick={onStop} className='h-full'>
-              停止语音切割
-            </Button>
-          ) : (
-            <Button type='submit' className='h-full'>
-              开始音频切割
-            </Button>
-          )}
+          <Button
+            type='submit'
+            className='h-full'
+            disabled={getDisabledSubmit(uuid, session.data)}
+          >
+            开始音频切割
+          </Button>
           <Textarea
             placeholder='输出信息'
             rows={3}
-            value={statusQuery.data?.last_session?.output}
             readOnly
             className='w-full'
+            value={message}
           />
         </div>
       </form>

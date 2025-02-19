@@ -3,7 +3,7 @@ import sessionApi from '@/apis/session'
 
 type TaskStatus = 'Completed' | 'Running' | 'Failed'
 
-interface Task {
+export interface Task {
   uuid: string
   task_name: string
   status: TaskStatus
@@ -12,7 +12,7 @@ interface Task {
   data: Record<string, any> // 处理过程的详细数据
 }
 
-interface Tasks {
+export interface Tasks {
   [uuid: string]: Task
 }
 export function useSession() {

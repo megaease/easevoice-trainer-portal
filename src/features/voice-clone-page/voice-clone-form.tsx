@@ -155,7 +155,7 @@ export default function VoiceCloneForm() {
   if (isLoading) {
     return (
       <div className='p-4 space-y-8'>
-        <Skeleton className='h-[400px] w-full bg-gray-100' />
+        <Skeleton className='h-[400px] w-full bg-slate-100' />
       </div>
     )
   }

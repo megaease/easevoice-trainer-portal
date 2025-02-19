@@ -6,6 +6,13 @@ import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
+import { useUUIDStore } from '@/stores/uuidStore'
+import {
+  getDisabledSubmit,
+  getErrorMessage,
+  getSessionMessage,
+} from '@/lib/utils'
+import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -17,7 +24,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,19 +38,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-
-type Session = {
-  task_name: string
-  status: string
-  error: string | null
-  pid: number
-  result: Record<string, unknown>
-}
-
-type StatusResponse = {
-  current_session: Session
-  last_session: Partial<Session>
-}
 
 const formSchema = z.object({
   source_dir: z.string().nonempty('输入文件夹路径不能为空'),
@@ -67,47 +60,48 @@ function MyForm() {
       precision: 'float32',
     },
   })
-  const sourceDir: string = usePathStore((state) => state.sourceDir)
-  const outputDir: string = usePathStore((state) => state.outputDir)
-
-  useEffect(() => {
-    form.setValue('source_dir', sourceDir)
-  }, [sourceDir, form])
-
-  useEffect(() => {
-    form.setValue('output_dir', outputDir)
-  }, [outputDir, form])
+  const session = useSession()
+  const uuid = useUUIDStore((state) => state.asr)
+  const setUUID = useUUIDStore((state) => state.setUUID)
+  const asr = usePathStore((state) => state.asr)
+  const setPaths = usePathStore((state) => state.setPaths)
 
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
-      return toast.promise(trainingApi.startAudioTranscription(data), {
-        loading: '正在启动音频转文字...',
-        success: '音频转文字已启动',
-        error: '启动失败，请重试',
+      const res = await trainingApi.startAudioTranscription(data)
+      return res.data
+    },
+    onSuccess: (data) => {
+      toast.success('音频转文字已启动')
+      setUUID('asr', data.uuid)
+      session.refetch()
+      setPaths('refinement', {
+        sourceDir: form.getValues('source_dir'),
       })
     },
-    onSuccess: () => {},
-  })
-
-  const stopMutation = useMutation({
-    mutationFn: async () => {
-      return toast.promise(trainingApi.stopAudioTranscription(), {
-        loading: '正在停止音频转文字...',
-        success: '音频转文字已停止',
-        error: '停止失败，请重试',
-      })
+    onError: (error: any) => {
+      console.log(error)
+      toast.error(getErrorMessage(error) || '启动失败，请重试')
     },
-    onSuccess: () => {},
   })
+  useEffect(() => {
+    const { sourceDir } = asr
+    form.setValue('source_dir', sourceDir)
+  }, [asr, form])
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'source_dir' && value.source_dir) {
+        form.setValue('output_dir', `${value.source_dir}/output`)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
   }
 
-  async function handleStop() {
-    await stopMutation.mutateAsync()
-  }
-
+  const message = getSessionMessage(uuid, session.data)
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
@@ -258,7 +252,11 @@ function MyForm() {
           </div>
         </div>
         <div className='grid grid-cols-2 gap-4'>
-          <Button type='submit' className='h-full'>
+          <Button
+            type='submit'
+            className='h-full'
+            disabled={getDisabledSubmit(uuid, session.data)}
+          >
             开始 ASR
           </Button>
           <Textarea
@@ -266,6 +264,7 @@ function MyForm() {
             rows={3}
             readOnly
             className='w-full'
+            value={message}
           />
         </div>
       </form>

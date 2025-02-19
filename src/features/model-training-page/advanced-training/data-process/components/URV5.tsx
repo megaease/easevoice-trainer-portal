@@ -1,10 +1,19 @@
+import { useEffect } from 'react'
 import * as z from 'zod'
+import { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
+import { useUUIDStore } from '@/stores/uuidStore'
+import {
+  getDisabledSubmit,
+  getErrorMessage,
+  getSessionMessage,
+} from '@/lib/utils'
+import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -63,39 +72,57 @@ function MyForm() {
       audio_format: 'wav',
     },
   })
-
+  const session = useSession()
+  const uuid = useUUIDStore((state) => state.urv5)
+  const setUUID = useUUIDStore((state) => state.setUUID)
+  const setPaths = usePathStore((state) => state.setPaths)
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
-      return toast.promise(trainingApi.startVoiceExtraction(data), {
-        loading: '正在启动主人声提取...',
-        success: '开始主人声提取',
-        error: '启动失败，请重试',
+      const res = await trainingApi.startVoiceExtraction(data)
+      return res.data
+    },
+    onSuccess: (data) => {
+      toast.success('已开始主人声分离')
+      setUUID('urv5', data.uuid)
+      session.refetch()
+      setPaths('slicer', {
+        sourceDir: form.getValues('source_dir'),
       })
     },
-    onSuccess: () => {},
-  })
-
-  const stopMutation = useMutation({
-    mutationFn: async () => {
-      return toast.promise(trainingApi.stopVoiceExtraction(), {
-        loading: '正在停止主人声分离...',
-        success: '已停止主人声分离',
-        error: '停止失败，请重试',
-      })
+    onError: (error: any) => {
+      console.log(error)
+      toast.error(getErrorMessage(error) || '启动失败，请重试')
     },
-    onSuccess: () => {},
   })
 
-  const setPaths = usePathStore((state) => state.setPaths) // Get the store function
+  // const stopMutation = useMutation({
+  //   mutationFn: async () => {
+  //     return toast.promise(trainingApi.stopVoiceExtraction(), {
+  //       loading: '正在停止主人声分离...',
+  //       success: '已停止主人声分离',
+  //       error: '停止失败，请重试',
+  //     })
+  //   },
+  //   onSuccess: () => {},
+  // })
+  // async function onStop() {
+  //   await stopMutation.mutateAsync()
+  // }
+
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'source_dir' && value.source_dir) {
+        form.setValue('output_dir', `${value.source_dir}/output`)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
   }
 
-  async function onStop() {
-    await stopMutation.mutateAsync()
-  }
-
+  const message = getSessionMessage(uuid, session.data)
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 w-full'>
@@ -135,7 +162,7 @@ function MyForm() {
               name='source_dir'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>音频文件夹路径</FormLabel>
+                  <FormLabel>音频输入文件夹路径</FormLabel>
                   <FormControl>
                     <Input
                       placeholder='音频文件夹路径'
@@ -166,6 +193,9 @@ function MyForm() {
                     />
                   </FormControl>
                   <FormMessage />
+                  <FormDescription>
+                    自动填写，默认为输入文件夹路径下的 output 文件夹
+                  </FormDescription>
                 </FormItem>
               )}
             />
@@ -215,7 +245,11 @@ function MyForm() {
             />
           </div>
           <div className='col-span-12 flex gap-4'>
-            <Button type='submit' className='w-full h-full'>
+            <Button
+              type='submit'
+              className='w-full h-full'
+              disabled={getDisabledSubmit(uuid, session.data)}
+            >
               开始提取
             </Button>
             <Textarea
@@ -223,6 +257,7 @@ function MyForm() {
               rows={3}
               readOnly
               className='w-full'
+              value={message}
             />
           </div>
         </div>

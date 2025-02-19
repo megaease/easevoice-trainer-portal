@@ -1,14 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
-import { cn } from '@/lib/utils'
+import { useUUIDStore } from '@/stores/uuidStore'
+import {
+  getDisabledSubmit,
+  getErrorMessage,
+  getSessionMessage,
+} from '@/lib/utils'
+import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -16,12 +22,10 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from '@/components/ui/card'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -43,49 +47,51 @@ function MyForm() {
       output_dir: '',
     },
   })
-  const sourceDir: string = usePathStore((state) => state.sourceDir)
-  const outputDir: string = usePathStore((state) => state.outputDir)
-
-  useEffect(() => {
-    form.setValue('source_dir', sourceDir)
-  }, [sourceDir, form])
-
-  useEffect(() => {
-    form.setValue('output_dir', outputDir)
-  }, [outputDir, form])
-
-  const statusQuery = useQuery({
-    queryKey: ['AudioDenoising', 'status'],
-    queryFn: async () => {
-      const response = await trainingApi.getAudioDenoisingStatus()
-      return response.data
-    },
-    refetchInterval: (data) => {
-      return data.state.data?.current_session ? 5000 : false
-    },
-    refetchIntervalInBackground: false,
-  })
+  const session = useSession()
+  const uuid = useUUIDStore((state) => state.asr)
+  const setUUID = useUUIDStore((state) => state.setUUID)
+  const denoise = usePathStore((state) => state.denoise)
+  const setPaths = usePathStore((state) => state.setPaths)
 
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
-      return toast.promise(trainingApi.startAudioDenoising(data), {
-        loading: '正在启动语音降噪...',
-        success: '开始语音降噪',
-        error: '启动失败，请重试',
+      const res = await trainingApi.startAudioDenoising(data)
+      return res.data
+    },
+    onSuccess: (data) => {
+      toast.success('开始语音降噪')
+      setUUID('denoise', data.uuid)
+      session.refetch()
+      setPaths('asr', {
+        sourceDir: form.getValues('source_dir'),
       })
     },
-    onSuccess: () => {
-      statusQuery.refetch()
+    onError: (error: any) => {
+      console.log(error)
+      toast.error(getErrorMessage(error) || '启动失败，请重试')
     },
   })
+  useEffect(() => {
+    const { sourceDir } = denoise
+    form.setValue('source_dir', sourceDir)
+  }, [denoise, form])
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'source_dir' && value.source_dir) {
+        form.setValue('output_dir', `${value.source_dir}/output`)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
   }
 
+  const message = getSessionMessage(uuid, session.data)
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 w-full'>
         <div>
           <FormField
             control={form.control}
@@ -116,17 +122,20 @@ function MyForm() {
             )}
           />
         </div>
-
         <div className='grid grid-cols-2 gap-4'>
-          <Button type='submit' className='h-full'>
+          <Button
+            type='submit'
+            className='h-full'
+            disabled={getDisabledSubmit(uuid, session.data)}
+          >
             开始语音降噪
           </Button>
           <Textarea
             placeholder='输出信息'
             rows={3}
-            value={statusQuery.data?.last_session?.output}
             readOnly
             className='w-full'
+            value={message}
           />
         </div>
       </form>

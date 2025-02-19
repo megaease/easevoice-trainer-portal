@@ -6,7 +6,8 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
-import { cn } from '@/lib/utils'
+import { useUUIDStore } from '@/stores/uuidStore'
+import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -30,49 +31,43 @@ import AudioTextListEditor from './AudioTextListEditor'
 
 const formSchema = z.object({
   input_dir: z.string().nonempty('输入文件夹路径不能为空'),
+  output_dir: z.string().nonempty('输出文件夹路径不能为空'),
 })
 
 function MyForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
-  const sourceDir: string = usePathStore((state) => state.sourceDir)
+  const session = useSession()
+  const uuid = useUUIDStore((state) => state.refinement)
+  const setUUID = useUUIDStore((state) => state.setUUID)
+  const refinement = usePathStore((state) => state.refinement)
+  const setPaths = usePathStore((state) => state.setPaths)
 
   useEffect(() => {
+    const { sourceDir } = refinement
     form.setValue('input_dir', sourceDir)
-  }, [sourceDir, form])
-
-  const statusQuery = useQuery({
-    queryKey: ['VoiceTextAnnotation', 'status'],
-    queryFn: async () => {
-      const response = await trainingApi.getVoiceExtractionStatus()
-      return response.data
-    },
-    refetchInterval: (data) => {
-      return data.state.data?.current_session?.status === 'running'
-        ? 5000
-        : false
-    },
-    refetchIntervalInBackground: false,
-  })
-
+  }, [refinement, form])
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'input_dir' && value.input_dir) {
+        form.setValue('output_dir', `${value.input_dir}/output`)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
-      return toast.promise(
-        () =>
-          trainingApi.getRefinementList({
-            input_dir: data.input_dir,
-            output_dir: data.input_dir,
-          }),
-        {
-          loading: '正在启动...',
-          success: '获取打标列表',
-          error: '启动失败，请重试',
-        }
-      )
+      const res = await trainingApi.getRefinementList(data)
+      return res.data
     },
-    onSuccess: () => {
-      statusQuery.refetch()
+    onSuccess: (data) => {
+      toast.success('正在启动语音文本校对标注工具')
+      setUUID('refinement', data.uuid)
+      session.refetch()
+      // setPaths('refinement', {
+      //   sourceDir: form.getValues('source_dir'),
+      // })
     },
   })
 
@@ -105,11 +100,7 @@ function MyForm() {
             <Button type='submit' className='h-full'>
               开始标注
             </Button>
-            <Textarea
-              placeholder='输出信息'
-              readOnly
-              value={statusQuery.data?.last_session?.output}
-            />
+            <Textarea placeholder='输出信息' readOnly />
           </div>
         </form>
       </Form>
@@ -118,7 +109,7 @@ function MyForm() {
   )
 }
 
-export default function VoiceTextAnnotation() {
+export default function VoiceRefinement() {
   return (
     <Card className='w-full'>
       <CardHeader>
