@@ -1,7 +1,7 @@
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
@@ -79,18 +79,6 @@ function MyForm() {
     },
   })
 
-  const statusQuery = useQuery<StatusResponse>({
-    queryKey: ['VoiceExtraction', 'status'],
-    queryFn: async () => {
-      const response = await trainingApi.getVoiceExtractionStatus()
-      return response.data
-    },
-    refetchInterval: (data) => {
-      return data.state.data?.current_session ? 1000 : false
-    },
-    refetchIntervalInBackground: false,
-  })
-
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       return toast.promise(trainingApi.startVoiceExtraction(data), {
@@ -99,9 +87,7 @@ function MyForm() {
         error: '启动失败，请重试',
       })
     },
-    onSuccess: () => {
-      statusQuery.refetch()
-    },
+    onSuccess: () => {},
   })
 
   const stopMutation = useMutation({
@@ -112,9 +98,7 @@ function MyForm() {
         error: '停止失败，请重试',
       })
     },
-    onSuccess: () => {
-      statusQuery.refetch()
-    },
+    onSuccess: () => {},
   })
 
   const setPaths = usePathStore((state) => state.setPaths) // Get the store function
@@ -130,8 +114,6 @@ function MyForm() {
   async function onStop() {
     await stopMutation.mutateAsync()
   }
-
-  const outputMessage = statusQuery.data?.last_session?.result?.status
 
   return (
     <Form {...form}>
@@ -252,19 +234,12 @@ function MyForm() {
             />
           </div>
           <div className='col-span-12 flex gap-4'>
-            {statusQuery.data?.current_session?.status === 'Running' ? (
-              <Button type='button' onClick={onStop} className='w-full h-full'>
-                停止提取
-              </Button>
-            ) : (
-              <Button type='submit' className='w-full h-full'>
-                开始提取
-              </Button>
-            )}
+            <Button type='submit' className='w-full h-full'>
+              开始提取
+            </Button>
             <Textarea
               placeholder='输出信息'
               rows={3}
-              value={outputMessage + ''}
               readOnly
               className='w-full'
             />

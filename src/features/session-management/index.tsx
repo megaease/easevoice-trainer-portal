@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import sessionApi from '@/apis/session'
 import { AlertCircle, Loader2 } from 'lucide-react'
+import { useSession } from '@/hooks/use-session'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -20,22 +21,9 @@ type LastSessionData = {
   current_step_description?: string
 }
 
-type CurrentSessionData = LastSessionData
-
-interface SessionData {
-  current_session: CurrentSessionData
-  last_session: LastSessionData
-}
-
 const SessionManagement: React.FC = () => {
   const [showLastSession, setShowLastSession] = useState(false)
-  const { data, isLoading, isError } = useQuery<SessionData>({
-    queryKey: ['session'],
-    queryFn: () => {
-      return sessionApi.getSessionInfo().then((response) => response.data)
-    },
-    refetchInterval: 5000,
-  })
+  const { data, isLoading, isError } = useSession()
 
   if (isLoading) {
     return (

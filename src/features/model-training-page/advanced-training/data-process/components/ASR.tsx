@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
@@ -78,20 +78,6 @@ function MyForm() {
     form.setValue('output_dir', outputDir)
   }, [outputDir, form])
 
-  const statusQuery = useQuery<StatusResponse>({
-    queryKey: ['ASR', 'status'],
-    queryFn: async () => {
-      const response = await trainingApi.getAudioTranscriptionStatus()
-      return response.data
-    },
-    refetchInterval: (data) => {
-      return data.state.data?.current_session?.status === 'Running'
-        ? 5000
-        : false
-    },
-    refetchIntervalInBackground: false,
-  })
-
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       return toast.promise(trainingApi.startAudioTranscription(data), {
@@ -100,9 +86,7 @@ function MyForm() {
         error: '启动失败，请重试',
       })
     },
-    onSuccess: () => {
-      statusQuery.refetch()
-    },
+    onSuccess: () => {},
   })
 
   const stopMutation = useMutation({
@@ -113,9 +97,7 @@ function MyForm() {
         error: '停止失败，请重试',
       })
     },
-    onSuccess: () => {
-      statusQuery.refetch()
-    },
+    onSuccess: () => {},
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -125,9 +107,6 @@ function MyForm() {
   async function handleStop() {
     await stopMutation.mutateAsync()
   }
-
-  const isRunning = statusQuery.data?.current_session?.status === 'Running'
-  const outputMessage = statusQuery.data?.current_session?.result?.state
 
   return (
     <Form {...form}>
@@ -279,19 +258,12 @@ function MyForm() {
           </div>
         </div>
         <div className='grid grid-cols-2 gap-4'>
-          {isRunning ? (
-            <Button type='button' onClick={handleStop} className='h-full'>
-              停止 ASR
-            </Button>
-          ) : (
-            <Button type='submit' className='h-full'>
-              开始 ASR
-            </Button>
-          )}
+          <Button type='submit' className='h-full'>
+            开始 ASR
+          </Button>
           <Textarea
             placeholder='输出信息'
             rows={3}
-            value={outputMessage}
             readOnly
             className='w-full'
           />

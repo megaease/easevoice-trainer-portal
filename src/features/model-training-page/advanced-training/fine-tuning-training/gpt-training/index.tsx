@@ -1,7 +1,7 @@
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -71,18 +71,6 @@ function MyForm() {
     },
   })
 
-  const statusQuery = useQuery<StatusResponse>({
-    queryKey: ['GPTTraining', 'status'],
-    queryFn: async () => {
-      const response = await trainingApi.getGPTTrainingStatus()
-      return response.data
-    },
-    refetchInterval: (data) => {
-      return data?.current_session?.status === 'Running' ? 5000 : false
-    },
-    refetchIntervalInBackground: false,
-  })
-
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       return toast.promise(trainingApi.startGPTTraining(data), {
@@ -91,9 +79,7 @@ function MyForm() {
         error: '启动失败，请重试',
       })
     },
-    onSuccess: () => {
-      statusQuery.refetch()
-    },
+    onSuccess: () => {},
   })
 
   const stopMutation = useMutation({
@@ -104,9 +90,7 @@ function MyForm() {
         error: '停止失败，请重试',
       })
     },
-    onSuccess: () => {
-      statusQuery.refetch()
-    },
+    onSuccess: () => {},
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -116,8 +100,6 @@ function MyForm() {
   async function onStop() {
     await stopMutation.mutateAsync()
   }
-
-  const outputMessage = statusQuery.data?.last_session?.result?.status
 
   return (
     <Form {...form}>
@@ -310,24 +292,12 @@ function MyForm() {
         </div>
 
         <div className='grid gap-4 grid-cols-1 md:grid-cols-2'>
-          {statusQuery.data?.current_session?.status === 'Running' ? (
-            <Button
-              type='button'
-              onClick={onStop}
-              variant='destructive'
-              className='h-full'
-            >
-              停止训练
-            </Button>
-          ) : (
-            <Button type='submit' className='h-full'>
-              开始训练
-            </Button>
-          )}
+          <Button type='submit' className='h-full'>
+            开始训练
+          </Button>
           <Textarea
             placeholder='输出信息'
             rows={3}
-            value={outputMessage + ''}
             readOnly
             className='w-full'
           />
