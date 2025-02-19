@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
@@ -35,18 +35,26 @@ const formSchema = z.object({
 })
 
 function MyForm() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-  })
+  const [start, setStart] = useState(false)
   const session = useSession()
   const uuid = useUUIDStore((state) => state.refinement)
   const setUUID = useUUIDStore((state) => state.setUUID)
   const refinement = usePathStore((state) => state.refinement)
   const setPaths = usePathStore((state) => state.setPaths)
+  const refinementPath = usePathStore((state) => state.refinement)
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      input_dir: refinementPath.sourceDir,
+      output_dir: refinementPath.outputDir,
+    },
+  })
 
   useEffect(() => {
     const { sourceDir } = refinement
-    form.setValue('input_dir', sourceDir)
+    if (sourceDir) {
+      form.setValue('input_dir', sourceDir)
+    }
   }, [refinement, form])
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
@@ -56,25 +64,34 @@ function MyForm() {
     })
     return () => subscription.unsubscribe()
   }, [form])
-  const startMutation = useMutation({
-    mutationFn: async (data: z.infer<typeof formSchema>) => {
+  const query = useQueryClient()
+  const startQuery = useQuery({
+    queryKey: ['refinementList'],
+    queryFn: async () => {
+      const data = form.getValues()
       const res = await trainingApi.getRefinementList(data)
       return res.data
     },
-    onSuccess: (data) => {
-      toast.success('正在启动语音文本校对标注工具')
-      setUUID('refinement', data.uuid)
-      session.refetch()
-      // setPaths('refinement', {
-      //   sourceDir: form.getValues('source_dir'),
-      // })
-    },
+    enabled: false,
+    staleTime: 0,
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    await startMutation.mutateAsync(values)
-  }
+  useEffect(() => {
+    return () => {
+      console.log('cleanup')
+      query.resetQueries({ queryKey: 'refinementList', exact: true })
+    }
+  }, [])
 
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    await startQuery.refetch()
+    toast.success('正在启动语音文本校对标注工具')
+    session.refetch()
+    setPaths('normalize', {
+      outputDir: form.getValues('output_dir'),
+    })
+    setStart(true)
+  }
   return (
     <>
       <Form {...form}>
@@ -100,11 +117,19 @@ function MyForm() {
             <Button type='submit' className='h-full'>
               开始标注
             </Button>
-            <Textarea placeholder='输出信息' readOnly />
+            <Textarea
+              placeholder='输出信息'
+              readOnly
+              disabled
+              rows={3}
+              value={start ? '请在下方列表进行语音文本校对' : ''}
+            />
           </div>
         </form>
       </Form>
-      <AudioTextListEditor />
+      {start ? (
+        <AudioTextListEditor data={startQuery.data?.data || {}} />
+      ) : null}
     </>
   )
 }

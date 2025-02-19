@@ -1,9 +1,14 @@
+import { useEffect } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
+import { usePathStore } from '@/stores/pathStore'
+import { useUUIDStore } from '@/stores/uuidStore'
+import { getSessionMessage } from '@/lib/utils'
+import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -35,52 +40,46 @@ type StatusResponse = {
 }
 
 function NormalizationForm() {
+  const normalize = usePathStore((state) => state.normalize)
+  const session = useSession()
+  const uuid = useUUIDStore((state) => state.normalize)
+  const setUUID = useUUIDStore((state) => state.setUUID)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      output_dir: '',
+      output_dir: normalize.outputDir,
     },
   })
 
-  const statusQuery = useQuery<StatusResponse>({
-    queryKey: ['Normalize', 'status'],
-    queryFn: async () => {
-      const response = await trainingApi.getNormalizationStatus()
-      return response.data
-    },
-    refetchInterval: (data) => {
-      return data.state.data?.current_session?.status === 'Running'
-        ? 5000
-        : false
-    },
-    refetchIntervalInBackground: false,
-  })
+  useEffect(() => {
+    const { outputDir } = normalize
+    if (outputDir) {
+      form.setValue('output_dir', outputDir)
+    }
+  }, [normalize, form])
 
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
-      return toast.promise(trainingApi.startNormalize(data), {
-        loading: '正在启动音频归一化...',
-        success: '开始音频归一化',
-        error: '启动失败，请重试',
-      })
+      const res = await trainingApi.startNormalization(data)
+      return res.data
     },
-    onSuccess: () => {
-      statusQuery.refetch()
+    onSuccess: (data) => {
+      toast.success('音频归一化已启动')
+      setUUID('normalize', data.uuid)
+      session.refetch()
     },
   })
 
-  const stopMutation = useMutation({
-    mutationFn: async () => {
-      return toast.promise(trainingApi.stopNormalize(), {
-        loading: '正在停止音频归一化...',
-        success: '已停止音频归一化',
-        error: '停止失败，请重试',
-      })
-    },
-    onSuccess: () => {
-      statusQuery.refetch()
-    },
-  })
+  // const stopMutation = useMutation({
+  //   mutationFn: async () => {
+  //     return toast.promise(trainingApi.stopNormalize(), {
+  //       loading: '正在停止音频归一化...',
+  //       success: '已停止音频归一化',
+  //       error: '停止失败，请重试',
+  //     })
+  //   },
+  //   onSuccess: () => {},
+  // })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
@@ -90,8 +89,7 @@ function NormalizationForm() {
     await stopMutation.mutateAsync()
   }
 
-  const outputMessage = statusQuery.data?.last_session?.result?.status
-
+  const message = getSessionMessage(uuid, session.data)
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 w-full'>
@@ -116,21 +114,15 @@ function NormalizationForm() {
             />
           </div>
           <div className='col-span-12 flex gap-4'>
-            {statusQuery.data?.current_session?.status === 'Running' ? (
-              <Button type='button' onClick={onStop} className='w-full h-full'>
-                停止归一化
-              </Button>
-            ) : (
-              <Button type='submit' className='w-full h-full'>
-                开始归一化
-              </Button>
-            )}
+            <Button type='submit' className='w-full h-full'>
+              开始归一化
+            </Button>
             <Textarea
               placeholder='输出信息'
               rows={3}
-              value={outputMessage}
               readOnly
               className='w-full'
+              value={message}
             />
           </div>
         </div>
