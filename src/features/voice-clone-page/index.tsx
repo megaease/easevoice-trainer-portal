@@ -42,12 +42,12 @@ export default function VoiceClone() {
                     <FileManager />
                   </div>
                 </ResizablePanel>
-                <ResizableHandle withHandle />
+                {/* <ResizableHandle withHandle />
                 <ResizablePanel>
                   <ScrollArea className='h-full'>
                     <SessionManagement />
                   </ScrollArea>
-                </ResizablePanel>
+                </ResizablePanel> */}
               </ResizablePanelGroup>
             </ResizablePanel>
           </ResizablePanelGroup>
