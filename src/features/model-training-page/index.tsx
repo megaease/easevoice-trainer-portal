@@ -36,12 +36,12 @@ export default function ModelTraining() {
           <div className='flex items-center gap-3 sm:gap-4 w-full'>
             <div className='flex-1'>
               <TabsList>
-                <TabsTrigger value='easeMode'>
-                  <Link to='/model-training/ease-mode'>基础模式</Link>
-                </TabsTrigger>
-                <TabsTrigger value='advancedMode'>
-                  <Link to='/model-training/advanced-mode'>高级模式</Link>
-                </TabsTrigger>
+                <Link to='/model-training/ease-mode'>
+                  <TabsTrigger value='easeMode'>基础模式</TabsTrigger>
+                </Link>
+                <Link to='/model-training/advanced-mode'>
+                  <TabsTrigger value='advancedMode'>高级模式</TabsTrigger>
+                </Link>
               </TabsList>
             </div>
             <ModeToggle />
@@ -67,12 +67,12 @@ export default function ModelTraining() {
                       <FileManager />
                     </div>
                   </ResizablePanel>
-                  <ResizableHandle withHandle />
+                  {/* <ResizableHandle withHandle />
                   <ResizablePanel>
                     <ScrollArea className='h-full w-full'>
                       <SessionManagement />
                     </ScrollArea>
-                  </ResizablePanel>
+                  </ResizablePanel> */}
                 </ResizablePanelGroup>
               </ResizablePanel>
             </ResizablePanelGroup>
