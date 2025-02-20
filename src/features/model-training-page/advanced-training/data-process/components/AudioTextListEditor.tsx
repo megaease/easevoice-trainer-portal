@@ -3,16 +3,21 @@ import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { Loader2, RefreshCcw, Save, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { usePathStore } from '@/stores/pathStore'
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from '@/components/ui/alert-dialog'
+import {
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogFooter,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import AudioPlayerWithFetchData from './AudioPlayerWithFetchData'
 
@@ -28,14 +33,16 @@ type AudioFiles = {
 
 type AudioTextListEditorProps = {
   data: AudioFiles
-  onSave?: (filePath: string, text: string) => void
+  sourceDir: string
+  outputDir: string
+  refresh: () => void
 }
 
 type AudioTextItemProps = {
   filePath: string
   data: AudioFileData
   onDelete: (filePath: string) => void
-  onSave?: (filePath: string, text: string) => void
+  onSave?: (data: AudioFileData) => Promise<any>
 }
 
 function AudioTextItem({
@@ -47,41 +54,15 @@ function AudioTextItem({
   const [editedText, setEditedText] = useState(data.text_content)
   const [isSaving, setIsSaving] = useState(false)
 
-  const saveMutation = useMutation({
-    mutationFn: async ({
-      filePath,
-      text,
-    }: {
-      filePath: string
-      text: string
-    }) => {
-      const res = await trainingApi.saveAudioText({ filePath, text })
-      return res.data
-    },
-    onSuccess: () => {
-      toast('保存成功', {
-        description: `已成功保存更改 (File: ${filePath})`,
-      })
-      if (onSave) {
-        onSave(filePath, editedText)
-      }
-    },
-    onError: () => {
-      toast('保存失败', {
-        description: '保存更改时出错，请稍后再试',
-      })
-    },
-    onSettled: () => {
-      setIsSaving(false)
-    },
-  })
-
   const handleSave = () => {
     setIsSaving(true)
-    saveMutation.mutate({
-      filePath,
-      text: editedText,
-    })
+    onSave &&
+      onSave({
+        ...data,
+        text_content: editedText,
+      }).finally(() => {
+        setIsSaving(false)
+      })
   }
 
   return (
@@ -94,7 +75,7 @@ function AudioTextItem({
         </div>
         <AudioPlayerWithFetchData
           filePath={data.source_file_path}
-          name={data.source_file_path.split('/').pop()}
+          name={data.source_file_path.split('/').pop() || ''}
         />
         <Textarea
           value={editedText}
@@ -116,31 +97,30 @@ function AudioTextItem({
               </>
             )}
           </Button>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant='destructive' onClick={() => onDelete(filePath)}>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant='destructive'>
                 <Trash2 className='mr-2 h-4 w-4' />
                 删除
               </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogTitle>确认删除</DialogTitle>
-              <DialogDescription>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogTitle>确认删除</AlertDialogTitle>
+              <AlertDialogDescription>
                 确定要删除这个项目吗？此操作无法撤销。
-              </DialogDescription>
-              <DialogFooter>
-                <Button variant='outline' onClick={() => onDelete(null)}>
-                  取消
-                </Button>
-                <Button
-                  variant='destructive'
-                  onClick={() => onDelete(filePath)}
+              </AlertDialogDescription>
+              <AlertDialogFooter>
+                <AlertDialogCancel>取消</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    onDelete(filePath)
+                  }}
                 >
                   删除
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardContent>
     </Card>
@@ -149,18 +129,50 @@ function AudioTextItem({
 
 export default function AudioTextListEditor({
   data = {},
-  onSave,
+  sourceDir,
+  outputDir,
+  refresh,
 }: AudioTextListEditorProps) {
-  const [itemToDelete, setItemToDelete] = useState<string | null>(null)
-
   const handleDelete = (filePath: string) => {
-    delete data[filePath]
-    setItemToDelete(null)
-    toast('删除成功', {
-      description: `已成功删除 (File: ${filePath})`,
-    })
+    deleteMutation.mutate(filePath)
   }
-
+  const deleteMutation = useMutation({
+    mutationFn: async (filePath: string) => {
+      const res = await trainingApi.deleteRefinement({
+        source_dir: sourceDir,
+        output_dir: outputDir,
+        source_file_path: filePath,
+      })
+      return res.data
+    },
+    onSuccess: () => {
+      toast('删除成功', {
+        description: `已成功删除项目`,
+      })
+    },
+  })
+  const saveMutation = useMutation({
+    mutationFn: async (data: AudioFileData) => {
+      const res = await trainingApi.updateRefinement({
+        ...data,
+        source_dir: sourceDir,
+        output_dir: outputDir,
+      })
+      return res.data
+    },
+    onSuccess: (data) => {
+      console.log('data', data)
+      toast('保存成功', {
+        description: `已成功保存更改`,
+      })
+      refresh()
+    },
+    onError: () => {
+      toast('保存失败', {
+        description: '保存更改时出错，请稍后再试',
+      })
+    },
+  })
   return (
     <div className='container mx-auto space-y-4 mt-4'>
       <div className='space-y-4'>
@@ -171,7 +183,7 @@ export default function AudioTextListEditor({
               filePath={filePath}
               data={data[filePath]}
               onDelete={handleDelete}
-              onSave={onSave}
+              onSave={saveMutation.mutateAsync}
             />
           ))}
       </div>

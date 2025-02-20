@@ -1,9 +1,14 @@
+import { useEffect } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
+import { usePathStore } from '@/stores/pathStore'
+import { useUUIDStore } from '@/stores/uuidStore'
+import { getSessionMessage } from '@/lib/utils'
+import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -13,10 +18,10 @@ import {
   CardDescription,
 } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
-import { FormDescription } from '@/components/ui/form'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -26,24 +31,11 @@ import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 
-type Session = {
-  task_name: string
-  status: string
-  error: string | null
-  pid: number
-  result: Record<string, unknown>
-}
-
-type StatusResponse = {
-  current_session: Session
-  last_session: Partial<Session>
-}
-
 const formSchema = z.object({
-  output_model_name: z.string().nonempty('模型名称不能为空'),
+  output_model_name: z.string(),
   model_path: z.string().nonempty('预训练模型路径不能为空'),
-  batch_size: z.number().min(1, 'Batch size must be at least 1'),
-  total_epochs: z.number().min(1, 'Total epochs must be at least 1'),
+  batch_size: z.number().min(1, 'Batch size must be at least 1').max(40),
+  total_epochs: z.number().min(1, 'Total epochs must be at least 1').max(25),
   save_every_epoch: z.number().min(1, 'Save every epoch must be at least 1'),
   if_dpo: z.boolean(),
   if_save_latest: z.boolean(),
@@ -54,11 +46,16 @@ const formSchema = z.object({
 })
 
 function MyForm() {
+  const session = useSession()
+  const uuid = useUUIDStore((state) => state.gpt)
+  const setUUID = useUUIDStore((state) => state.setUUID)
+  const gpt = usePathStore((state) => state.gpt)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      output_model_name: 'gpt',
-      model_path: '',
+      output_model_name: '',
+      model_path:
+        '/root/workspace/easevoice-trainer/models/pretrained/gsv-v2final-pretrained/s1bert25hz-5kh-longer-epoch=12-step=369668.ckpt',
       batch_size: 8,
       total_epochs: 15,
       save_every_epoch: 5,
@@ -70,36 +67,34 @@ function MyForm() {
       normalize_path: '',
     },
   })
+  console.log('gpt', gpt)
+  useEffect(() => {
+    const { outputDir, sourceDir } = gpt
+    if (outputDir) {
+      // normalize path
+      form.setValue('normalize_path', outputDir)
+    }
+    if (sourceDir) {
+      form.setValue('train_input_dir', sourceDir)
+    }
+  }, [gpt, form])
 
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
-      return toast.promise(trainingApi.startGPTTraining(data), {
-        loading: '正在启动 GPT 训练...',
-        success: '开始 GPT 训练',
-        error: '启动失败，请重试',
-      })
+      const res = await trainingApi.startGPTTraining(data)
+      return res.data
     },
-    onSuccess: () => {},
-  })
-
-  const stopMutation = useMutation({
-    mutationFn: async () => {
-      return toast.promise(trainingApi.stopGPTTraining(), {
-        loading: '正在停止 GPT 训练...',
-        success: '已停止 GPT 训练',
-        error: '停止失败，请重试',
-      })
+    onSuccess: (data) => {
+      toast.success('开始 GPT 训练')
+      setUUID('gpt', data.uuid)
+      session.refetch()
     },
-    onSuccess: () => {},
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
   }
-
-  async function onStop() {
-    await stopMutation.mutateAsync()
-  }
+  const message = getSessionMessage(uuid, session.data)
 
   return (
     <Form {...form}>
@@ -115,6 +110,9 @@ function MyForm() {
                   <Input placeholder='请输入模型名称' {...field} />
                 </FormControl>
                 <FormMessage />
+                <FormDescription>
+                  可选, 不填则会按照时间戳生成模型名称
+                </FormDescription>
               </FormItem>
             )}
           />
@@ -154,15 +152,15 @@ function MyForm() {
               <FormItem>
                 <FormLabel>标准化路径</FormLabel>
                 <FormControl>
-                  <Input placeholder='一键三联的输出结果中获取' {...field} />
+                  <Input placeholder='音频归一化的路径' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        <div className='grid grid-cols-3 gap-4'>
-          <FormField
+        <div className='grid grid-cols-2 gap-4'>
+          {/* <FormField
             control={form.control}
             name='batch_size'
             render={({ field: { value, onChange } }) => (
@@ -185,7 +183,7 @@ function MyForm() {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
           <FormField
             control={form.control}
             name='total_epochs'
@@ -236,7 +234,7 @@ function MyForm() {
           />
         </div>
         <div className='flex flex-col space-y-2'>
-          <FormField
+          {/* <FormField
             control={form.control}
             name='if_dpo'
             render={({ field }) => (
@@ -252,8 +250,8 @@ function MyForm() {
                 </div>
               </FormItem>
             )}
-          />
-          <FormField
+          /> */}
+          {/* <FormField
             control={form.control}
             name='if_save_latest'
             render={({ field }) => (
@@ -269,8 +267,8 @@ function MyForm() {
                 </div>
               </FormItem>
             )}
-          />
-          <FormField
+          /> */}
+          {/* <FormField
             control={form.control}
             name='if_save_every_weights'
             render={({ field }) => (
@@ -288,7 +286,7 @@ function MyForm() {
                 </div>
               </FormItem>
             )}
-          />
+          /> */}
         </div>
 
         <div className='grid gap-4 grid-cols-1 md:grid-cols-2'>
@@ -300,6 +298,7 @@ function MyForm() {
             rows={3}
             readOnly
             className='w-full'
+            value={message}
           />
         </div>
       </form>

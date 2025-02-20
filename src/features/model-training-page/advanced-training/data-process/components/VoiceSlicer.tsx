@@ -31,22 +31,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
-import { useSyncPath } from '@/features/model-training-page/useSyncPath'
-
-// Import the new store
-
-type Session = {
-  task_name: string
-  status: string
-  error: string | null
-  pid: number
-  result: Record<string, unknown>
-}
-
-type StatusResponse = {
-  current_session: Session
-  last_session: Partial<Session>
-}
 
 const formSchema = z.object({
   source_dir: z.string().nonempty('请输入音频文件路径'),
@@ -93,8 +77,9 @@ function MyForm() {
   const setPaths = usePathStore((state) => state.setPaths)
 
   useEffect(() => {
-    const { sourceDir } = slicer
+    const { sourceDir, outputDir } = slicer
     form.setValue('source_dir', sourceDir)
+    form.setValue('output_dir', outputDir)
   }, [slicer, form])
 
   useEffect(() => {
@@ -117,6 +102,7 @@ function MyForm() {
       session.refetch()
       setPaths('denoise', {
         sourceDir: form.getValues('source_dir'),
+        outputDir: form.getValues('output_dir'),
       })
     },
   })

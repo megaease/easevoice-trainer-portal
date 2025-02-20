@@ -7,11 +7,7 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import {
-  getDisabledSubmit,
-  getErrorMessage,
-  getSessionMessage,
-} from '@/lib/utils'
+import { getDisabledSubmit, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -77,16 +73,14 @@ function MyForm() {
       session.refetch()
       setPaths('refinement', {
         sourceDir: form.getValues('source_dir'),
+        outputDir: form.getValues('output_dir'),
       })
-    },
-    onError: (error: any) => {
-      console.log(error)
-      toast.error(getErrorMessage(error) || '启动失败，请重试')
     },
   })
   useEffect(() => {
     const { sourceDir } = asr
     form.setValue('source_dir', sourceDir)
+    form.setValue('output_dir', `${sourceDir}/output`)
   }, [asr, form])
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {

@@ -26,24 +26,13 @@ const formSchema = z.object({
   output_dir: z.string().nonempty('输出文件夹路径不能为空'),
 })
 
-type Session = {
-  task_name: string
-  status: string
-  error: string | null
-  pid: number
-  result: Record<string, unknown>
-}
-
-type StatusResponse = {
-  current_session: Session
-  last_session: Partial<Session>
-}
-
 function NormalizationForm() {
-  const normalize = usePathStore((state) => state.normalize)
   const session = useSession()
   const uuid = useUUIDStore((state) => state.normalize)
   const setUUID = useUUIDStore((state) => state.setUUID)
+  const normalize = usePathStore((state) => state.normalize)
+  const setPaths = usePathStore((state) => state.setPaths)
+  const { sourceDir } = normalize
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,30 +52,24 @@ function NormalizationForm() {
       const res = await trainingApi.startNormalization(data)
       return res.data
     },
-    onSuccess: (data) => {
-      toast.success('音频归一化已启动')
+    onSuccess: async (data) => {
+      toast.success('文本归一化已启动')
       setUUID('normalize', data.uuid)
-      session.refetch()
+      const sessionResp = await session.refetch()
+      const currentSession = sessionResp.data
+      const currentSessionData = currentSession?.[data.uuid]
+      const normalizePath = currentSessionData?.data?.normalize_path || ''
+      console.log('session', currentSession, currentSessionData)
+      setPaths('gpt', {
+        sourceDir: sourceDir,
+        outputDir: normalizePath,
+      })
+      //todo sovits
     },
   })
 
-  // const stopMutation = useMutation({
-  //   mutationFn: async () => {
-  //     return toast.promise(trainingApi.stopNormalize(), {
-  //       loading: '正在停止音频归一化...',
-  //       success: '已停止音频归一化',
-  //       error: '停止失败，请重试',
-  //     })
-  //   },
-  //   onSuccess: () => {},
-  // })
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
-  }
-
-  async function onStop() {
-    await stopMutation.mutateAsync()
   }
 
   const message = getSessionMessage(uuid, session.data)
@@ -135,7 +118,7 @@ export default function Normalization() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>2a. 音频归一化</CardTitle>
+        <CardTitle>2a. 文本归一化</CardTitle>
       </CardHeader>
       <CardContent>
         <NormalizationForm />

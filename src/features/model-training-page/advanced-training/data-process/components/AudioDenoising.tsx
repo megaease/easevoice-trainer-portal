@@ -9,11 +9,7 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import {
-  getDisabledSubmit,
-  getErrorMessage,
-  getSessionMessage,
-} from '@/lib/utils'
+import { getDisabledSubmit, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -48,11 +44,10 @@ function MyForm() {
     },
   })
   const session = useSession()
-  const uuid = useUUIDStore((state) => state.asr)
+  const uuid = useUUIDStore((state) => state.denoise)
   const setUUID = useUUIDStore((state) => state.setUUID)
   const denoise = usePathStore((state) => state.denoise)
   const setPaths = usePathStore((state) => state.setPaths)
-
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       const res = await trainingApi.startAudioDenoising(data)
@@ -64,16 +59,14 @@ function MyForm() {
       session.refetch()
       setPaths('asr', {
         sourceDir: form.getValues('source_dir'),
+        outputDir: form.getValues('output_dir'),
       })
-    },
-    onError: (error: any) => {
-      console.log(error)
-      toast.error(getErrorMessage(error) || '启动失败，请重试')
     },
   })
   useEffect(() => {
     const { sourceDir } = denoise
     form.setValue('source_dir', sourceDir)
+    form.setValue('output_dir', `${sourceDir}/output`)
   }, [denoise, form])
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {

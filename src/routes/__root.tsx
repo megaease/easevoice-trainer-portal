@@ -12,7 +12,7 @@ export const Route = createRootRouteWithContext<{
 }>()({
   component: RootComponent,
   notFoundComponent: NotFoundError,
-  errorComponent: GeneralError,
+  // errorComponent: GeneralError,
 })
 
 function RootComponent() {

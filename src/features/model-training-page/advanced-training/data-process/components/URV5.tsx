@@ -87,11 +87,8 @@ function MyForm() {
       session.refetch()
       setPaths('slicer', {
         sourceDir: form.getValues('source_dir'),
+        outputDir: form.getValues('output_dir'),
       })
-    },
-    onError: (error: any) => {
-      console.log(error)
-      toast.error(getErrorMessage(error) || '启动失败，请重试')
     },
   })
 
@@ -123,6 +120,7 @@ function MyForm() {
   }
 
   const message = getSessionMessage(uuid, session.data)
+  console.log('message', message)
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 w-full'>
