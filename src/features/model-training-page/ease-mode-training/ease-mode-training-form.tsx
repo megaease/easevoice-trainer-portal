@@ -4,9 +4,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import trainingAPi from '@/apis/training'
-import voicecloneApi from '@/apis/voiceclone'
 import { toast } from 'sonner'
 import { useSession } from '@/hooks/use-session'
+import { Task } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -18,22 +18,12 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 
 const formSchema = z.object({
   source_dir: z.string(),
 })
 
-interface Task {
-  uuid: string
-  task_name: string
-  status: TaskStatus
-  error: string | null
-  message: string
-  data: Record<string, any>
-}
-
-export default function BasicTrainingForm() {
+export default function EaseModeTrainingForm() {
   const queryClient = useQueryClient()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

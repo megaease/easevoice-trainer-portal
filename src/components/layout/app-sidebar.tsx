@@ -54,6 +54,13 @@ const items: {
 ]
 const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
   const { setOpenMobile } = useSidebar()
+  const handleClick = () => {
+    setOpenMobile(false)
+    if (item.url === '/model-training') {
+      return '/model-training/ease-mode'
+    }
+    return item.url
+  }
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
@@ -61,7 +68,7 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
         isActive={checkIsActive(href, item)}
         tooltip={item.title}
       >
-        <Link to={item.url} onClick={() => setOpenMobile(false)}>
+        <Link to={handleClick()}>
           {item.icon && <item.icon />}
           <span>{item.title}</span>
         </Link>
@@ -117,12 +124,16 @@ export function AppSidebar() {
   )
 }
 function checkIsActive(href: string, item: NavItem, mainNav = false) {
+  const cleanHref = href.split('?')[0].split('#')[0]
+  const cleanItemUrl = item.url ? item.url.split('?')[0].split('#')[0] : ''
   return (
-    href === item.url || // /endpint?search=param
-    href.split('?')[0] === item.url || // endpoint
-    !!item?.items?.filter((i) => i.url === href).length || // if child nav is active
+    cleanHref === cleanItemUrl || // endpoint
+    cleanHref.startsWith(cleanItemUrl) || // highlight for ease-mode
+    !!item?.items?.filter(
+      (i) => i.url && i.url.split('?')[0].split('#')[0] === cleanHref
+    ).length || // if child nav is active
     (mainNav &&
-      href.split('/')[1] !== '' &&
-      href.split('/')[1] === item?.url?.split('/')[1])
+      cleanHref.split('/')[1] !== '' &&
+      cleanHref.split('/')[1] === cleanItemUrl.split('/')[1])
   )
 }

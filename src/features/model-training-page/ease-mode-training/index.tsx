@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import BasicTrainingForm from './basic-training-form'
+import EaseModeTrainingForm from './ease-mode-training-form'
 
-export default function BasicTraining() {
+export default function EaseModeTraining() {
   return (
     <div className='p-4'>
       <Card className='w-full'>
@@ -9,7 +9,7 @@ export default function BasicTraining() {
           <CardTitle>基础模式</CardTitle>
         </CardHeader>
         <CardContent>
-          <BasicTrainingForm />
+          <EaseModeTrainingForm />
         </CardContent>
       </Card>
     </div>

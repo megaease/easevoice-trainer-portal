@@ -1,4 +1,10 @@
 import {
+  Link,
+  Outlet,
+  useMatchRoute,
+  useNavigate,
+} from '@tanstack/react-router'
+import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
@@ -11,18 +17,31 @@ import { ModeToggle } from '@/components/mode-toggle'
 import FileManager from '../../components/file-manager'
 import SessionManagement from '../session-management'
 import AdvancedTraining from './advanced-training'
-import BasicTraining from './basic-training'
 
 export default function ModelTraining() {
+  const navigate = useNavigate()
+  const matchRoute = useMatchRoute()
+
   return (
     <>
-      <Tabs defaultValue='basicMode' className='h-full flex flex-col'>
+      <Tabs
+        className='h-full flex flex-col'
+        defaultValue={
+          matchRoute({ to: '/model-training/advanced-mode' })
+            ? 'advancedMode'
+            : 'easeMode'
+        }
+      >
         <Header>
           <div className='flex items-center gap-3 sm:gap-4 w-full'>
             <div className='flex-1'>
               <TabsList>
-                <TabsTrigger value='basicMode'>基础模式</TabsTrigger>
-                <TabsTrigger value='advancedMode'>高级模式</TabsTrigger>
+                <TabsTrigger value='easeMode'>
+                  <Link to='/model-training/ease-mode'>基础模式</Link>
+                </TabsTrigger>
+                <TabsTrigger value='advancedMode'>
+                  <Link to='/model-training/advanced-mode'>高级模式</Link>
+                </TabsTrigger>
               </TabsList>
             </div>
             <ModeToggle />
@@ -35,12 +54,7 @@ export default function ModelTraining() {
               className='h-full items-stretch border rounded'
             >
               <ResizablePanel minSize={20} maxSize={70} defaultSize={70}>
-                <TabsContent value='basicMode' className='h-full'>
-                  <BasicTraining />
-                </TabsContent>
-                <TabsContent value='advancedMode' className='h-full'>
-                  <AdvancedTraining />
-                </TabsContent>
+                <Outlet />
               </ResizablePanel>
               <ResizableHandle withHandle />
               <ResizablePanel>
