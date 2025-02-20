@@ -56,9 +56,6 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
   const { setOpenMobile } = useSidebar()
   const handleClick = () => {
     setOpenMobile(false)
-    if (item.url === '/model-training') {
-      return '/model-training/ease-mode'
-    }
     return item.url
   }
   return (
