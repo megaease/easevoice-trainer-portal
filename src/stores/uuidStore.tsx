@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 
 interface UUIDState {
+  clone: string
   urv5: string
   slicer: string
   denoise: string
@@ -12,6 +13,7 @@ interface UUIDState {
   setUUID: (key: keyof UUIDState, value: string) => void
 }
 export const useUUIDStore = create<UUIDState>((set) => ({
+  clone: '',
   urv5: '',
   slicer: '',
   denoise: '',

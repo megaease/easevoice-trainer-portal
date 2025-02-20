@@ -29,18 +29,6 @@ class VoiceCloneApi {
     return await apiClient.get('/voiceclone/models')
   }
 
-  async startVoiceCloneService() {
-    return await apiClient.post('/voiceclone/start')
-  }
-
-  async stopVoiceCloneService() {
-    return await apiClient.post('/voiceclone/stop')
-  }
-
-  async getVoiceCloneServiceStatus() {
-    return await apiClient.get('/voiceclone/status')
-  }
-
   async cloneVoice(data: VoiceCloneBodyType) {
     return await apiClient.post('/voiceclone/clone', data)
   }

@@ -37,7 +37,7 @@ export default function VoiceClone() {
                 direction='vertical'
                 className='h-full items-stretch'
               >
-                <ResizablePanel minSize={40} maxSize={80} defaultSize={60}>
+                <ResizablePanel>
                   <div className='h-full'>
                     <FileManager />
                   </div>

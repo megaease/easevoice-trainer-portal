@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from 'clsx'
+import dayjs from 'dayjs'
 import { twMerge } from 'tailwind-merge'
 import { Tasks } from '@/hooks/use-session'
 
@@ -37,4 +38,18 @@ export function getDisabledSubmit(
   // disable submit button when the task is running
   if (!uuid || !session || !session[uuid]) return false
   return session[uuid].status === 'Running'
+}
+
+export const getAudio = (uuid: string, session: Tasks | undefined) => {
+  if (!uuid || !session || !session[uuid]) return ''
+  const audio = session[uuid]?.data?.audio
+  if (!audio) return ''
+  const base64Url = `data:audio/wav;base64,${audio}`
+  const result = {
+    url: base64Url,
+    duration: '',
+    name: 'result_' + dayjs().format() + '.wav',
+  }
+  result.name = result.name.replace(/ /g, '_')
+  return result
 }

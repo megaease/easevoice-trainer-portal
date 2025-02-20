@@ -2,11 +2,13 @@ import { useCallback, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import voicecloneApi from '@/apis/voiceclone'
 import dayjs from 'dayjs'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
+import { useUUIDStore } from '@/stores/uuidStore'
+import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -65,9 +67,35 @@ const splitMethods = [
   'by_english_period',
   'by_punctuation',
 ]
+const defaultValues = {
+  text: '',
+  text_lang: 'zh',
+  ref_audio_path: '',
+  prompt_text: '',
+  prompt_lang: 'auto',
+  text_split_method: 'by_4_sentences',
+  aux_ref_audio_paths: [],
+  // seed: -1,
+  top_k: 5,
+  top_p: 1,
+  temperature: 1,
+  batch_size: 20,
+  speed_factor: 1.0,
+  ref_text_free: false,
+  split_bucket: true,
+  fragment_interval: 0.3,
+  keep_random: true,
+  parallel_infer: true,
+  repetition_penalty: 1.3,
+  sovits_path: 'default',
+  gpt_path: 'default',
+}
 export default function VoiceCloneForm() {
+  const uuid = useUUIDStore((state) => state.clone)
+  const setUUID = useUUIDStore((state) => state.setUUID)
+
   const { currentNamespace } = useNamespaceStore()
-  const { cloneResults, setCloneResults } = useResultStore()
+
   const { data: voiceCloneModels, isLoading } = useQuery({
     queryKey: ['voiceCloneModels'],
     queryFn: voicecloneApi.getVoiceCloneModels,
@@ -85,29 +113,7 @@ export default function VoiceCloneForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      text: '',
-      text_lang: 'zh',
-      ref_audio_path: '',
-      prompt_text: '',
-      prompt_lang: 'auto',
-      text_split_method: 'by_4_sentences',
-      aux_ref_audio_paths: [],
-      // seed: -1,
-      top_k: 5,
-      top_p: 1,
-      temperature: 1,
-      batch_size: 20,
-      speed_factor: 1.0,
-      ref_text_free: false,
-      split_bucket: true,
-      fragment_interval: 0.3,
-      keep_random: true,
-      parallel_infer: true,
-      repetition_penalty: 1.3,
-      sovits_path: 'default',
-      gpt_path: 'default',
-    },
+    defaultValues,
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -120,37 +126,27 @@ export default function VoiceCloneForm() {
       return
     }
     const audioPath = currentNamespace?.homePath + '/voices/' + audioState.name
-    try {
-      setCloneLoading(true)
-      toast.loading('正在合成声音...', { id: 'clone-loading' })
-      await voicecloneApi.startVoiceCloneService()
-      const res = await voicecloneApi.cloneVoice({
-        ...values,
-        ref_audio_path: audioPath,
-      })
-      const audio = res.data.data?.audio // base64
-      const base64Url = `data:audio/wav;base64,${audio}`
-      const result = {
-        url: base64Url,
-        duration: '',
-        name: 'result_' + dayjs().format() + '.wav',
-      }
-      result.name = result.name.replace(/ /g, '_')
-      setCloneResults([...cloneResults, result])
-      toast.success('合成成功', { id: 'clone-loading' })
-    } catch (error) {
-      console.error('Form submission error', error)
-      toast.error(
-        '合成失败:' + (error as any).response?.data?.detail?.error ||
-          '请检查参数是否正确',
-        {
-          id: 'clone-loading',
-        }
-      )
-    } finally {
-      setCloneLoading(false)
+    const data = {
+      ...values,
+      ref_audio_path: audioPath,
     }
+    setCloneLoading(true)
+    await cloneMutation.mutateAsync(data)
   }
+
+  const cloneMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof formSchema>) => {
+      const res = await voicecloneApi.cloneVoice(data)
+      return res.data
+    },
+    onSuccess: (data) => {
+      toast.success('正在合成声音...')
+      setUUID('clone', data.uuid)
+    },
+    onSettled: () => {
+      setCloneLoading(false)
+    },
+  })
 
   if (isLoading) {
     return (
@@ -161,6 +157,7 @@ export default function VoiceCloneForm() {
   }
   const gptList = voiceCloneModels?.data?.gpts || []
   const sovitsList = voiceCloneModels?.data?.sovits || []
+
   return (
     <>
       <Form {...form}>
@@ -493,7 +490,7 @@ export default function VoiceCloneForm() {
           </Button>
         </form>
       </Form>
-      <CloneResult />
+      <CloneResult uuid={uuid} />
     </>
   )
 }

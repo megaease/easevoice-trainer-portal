@@ -29,12 +29,14 @@ export function handleServerError(error: unknown) {
   }
 
   if (error instanceof AxiosError) {
-    errMsg = error.response?.data.title || error.message
+    if (error?.status === 409) {
+      errMsg = '当前有其他任务正在执行，请稍后再试。'
+    } else {
+      errMsg = error.response?.data.detail || error.message
+    }
   }
 
-  toast('error', {
-    description: errMsg,
-  })
+  toast.error('Error', { description: errMsg })
 }
 
 const queryClient = new QueryClient({
