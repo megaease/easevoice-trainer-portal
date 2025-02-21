@@ -53,3 +53,20 @@ export const getAudio = (uuid: string, session: Tasks | undefined) => {
   result.name = result.name.replace(/ /g, '_')
   return result
 }
+
+export const isRunningVoiceClone = (session: Tasks | undefined) => {
+  if (!session) return false
+  return Object.values(session).some((task) => task.status === 'Running')
+}
+
+export const audioProcesses: string[] = [
+  'voice_clone',
+  'train_sovits',
+  'train_gpt',
+  'ease_voice',
+  'normalize',
+  'audio_uvr5',
+  'audio_slicer',
+  'audio_denoise',
+  'audio_asr',
+]

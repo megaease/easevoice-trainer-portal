@@ -1,22 +1,10 @@
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import fileApi, { RequestBody } from '@/apis/files'
-import sessionApi from '@/apis/session'
 import { Download, CloudUpload, Trash2, Bird } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
-import { getAudio } from '@/lib/utils'
+import { getAudio, isRunningVoiceClone } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import {
@@ -25,12 +13,10 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import AudioPlayer from '@/components/audio-player'
-import useResultStore from './useResultStore'
 
 export function CloneResult({ uuid }: { uuid: string }) {
   const session = useSession()
   const { currentNamespace } = useNamespaceStore()
-  const { setCloneResults, cloneResults } = useResultStore()
   const path = currentNamespace?.homePath + '/outputs'
 
   const queryClient = useQueryClient()
@@ -66,6 +52,7 @@ export function CloneResult({ uuid }: { uuid: string }) {
     },
   })
   const result = getAudio(uuid, session.data)
+
   return (
     <section className='space-y-8 max-w-3xl mx-auto h-full p-4 '>
       <Card className=''>
@@ -128,36 +115,6 @@ export function CloneResult({ uuid }: { uuid: string }) {
                     <p>保存到云端</p>
                   </TooltipContent>
                 </Tooltip>
-
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button size={'icon'} variant={'destructive'}>
-                      <Trash2 />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        你确定要删除当前音频吗？
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        该操作无法撤销，请谨慎操作
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>取消</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => {
-                          setCloneResults(
-                            cloneResults.filter((_, i) => i !== index)
-                          )
-                        }}
-                      >
-                        删除
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
               </div>
               <AudioPlayer audioState={result} />
             </div>

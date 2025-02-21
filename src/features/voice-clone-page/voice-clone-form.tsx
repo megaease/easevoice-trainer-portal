@@ -5,10 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import voicecloneApi from '@/apis/voiceclone'
 import dayjs from 'dayjs'
+import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { useUUIDStore } from '@/stores/uuidStore'
+import { isRunningVoiceClone } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
+import { Spinner } from '@/components/ui/Spinner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -33,7 +36,6 @@ import { Textarea } from '@/components/ui/textarea'
 import AudioRecordPlayer from '@/components/audio-record-player'
 import { AudioState } from '@/components/audio-record-player/type'
 import { CloneResult } from './CloneResult'
-import useResultStore from './useResultStore'
 
 const formSchema = z.object({
   text: z.string(),
@@ -91,6 +93,7 @@ const defaultValues = {
   gpt_path: 'default',
 }
 export default function VoiceCloneForm() {
+  const session = useSession()
   const uuid = useUUIDStore((state) => state.clone)
   const setUUID = useUUIDStore((state) => state.setUUID)
 
@@ -106,7 +109,7 @@ export default function VoiceCloneForm() {
     duration: '',
     name: 'recording.wav',
   })
-  const [cloneLoading, setCloneLoading] = useState(false)
+
   const handleAudioStateChange = useCallback((audioState: AudioState) => {
     setAudioState(audioState)
   }, [])
@@ -130,7 +133,7 @@ export default function VoiceCloneForm() {
       ...values,
       ref_audio_path: audioPath,
     }
-    setCloneLoading(true)
+
     await cloneMutation.mutateAsync(data)
   }
 
@@ -139,12 +142,10 @@ export default function VoiceCloneForm() {
       const res = await voicecloneApi.cloneVoice(data)
       return res.data
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      await session.refetch()
       toast.success('正在合成声音...')
       setUUID('clone', data.uuid)
-    },
-    onSettled: () => {
-      setCloneLoading(false)
     },
   })
 
@@ -157,7 +158,7 @@ export default function VoiceCloneForm() {
   }
   const gptList = voiceCloneModels?.data?.gpts || []
   const sovitsList = voiceCloneModels?.data?.sovits || []
-
+  const isRunning = isRunningVoiceClone(session.data) || cloneMutation.isPending
   return (
     <>
       <Form {...form}>
@@ -485,8 +486,10 @@ export default function VoiceCloneForm() {
             type='submit'
             className='w-full hover:shadow-md hover:shadow-blue-200 transition-shadow dark:hover:shadow-blue-800'
             size={'lg'}
+            disabled={isRunning}
           >
-            {cloneLoading ? '正在合成声音...' : '开始合成'}
+            {isRunning ? <Loader2 className='animate-spin' /> : null}
+            {isRunning ? '正在合成声音...' : '开始合成'}
           </Button>
         </form>
       </Form>
