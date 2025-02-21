@@ -12,11 +12,11 @@ export interface Task {
   data: Record<string, any> // 处理过程的详细数据
 }
 
-export interface monitorMetrics {
+export interface MonitorMetrics {
   [uuid: string]: string
 }
 export interface Tasks {
-  [uuid: string]: Task | monitorMetrics
+  [uuid: string]: Task | MonitorMetrics
 }
 export function useSession() {
   const query = useQuery<Tasks>({

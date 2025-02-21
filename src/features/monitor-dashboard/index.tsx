@@ -1,19 +1,13 @@
 import { Cpu, HardDrive, Zap } from 'lucide-react'
-import { useSession } from '@/hooks/use-session'
+import { useSession, MonitorMetrics } from '@/hooks/use-session'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
-interface MonitoringData {
-  gpu_percentage: string
-  memory_allocated_percentage: string
-  cpu_percentage: string
-}
 
 export default function MonitoringDashboard() {
   const session = useSession()
   if (session.isLoading) {
     return null
   }
-  const data = session?.data?.monitor_metrics || {
+  const data = (session?.data?.monitor_metrics as MonitorMetrics) || {
     gpu_percentage: '0%',
     memory_allocated_percentage: '0.00%',
     cpu_percentage: '0%',
