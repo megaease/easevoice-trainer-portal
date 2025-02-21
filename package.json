@@ -7,6 +7,7 @@
     "dev": "vite --mode development",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "preview": "vite preview",
     "knip": "knip",
     "format": "prettier --write ."
@@ -72,6 +73,7 @@
     "eslint": "^9.17.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
+    "eslint-plugin-unused-imports": "^4.1.4",
     "globals": "^15.14.0",
     "knip": "^5.42.0",
     "postcss": "^8.4.49",

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,7 +17,6 @@ import {
   CardContent,
   CardDescription,
 } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Form,
   FormControl,
@@ -63,6 +62,7 @@ function MyForm() {
   const uuid = useUUIDStore((state) => state.gpt)
   const setUUID = useUUIDStore((state) => state.setUUID)
   const gpt = usePathStore((state) => state.gpt)
+  const [modelPath, setModelPath] = useState('')
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -81,10 +81,11 @@ function MyForm() {
       const res = await trainingApi.startGPTTraining(data)
       return res.data
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      await session.refetch()
       toast.success('开始 GPT 训练')
       setUUID('gpt', data.uuid)
-      session.refetch()
+      setModelPath(data.data.model_path)
     },
   })
 
@@ -271,7 +272,7 @@ function MyForm() {
           /> */}
         </div>
 
-        <div className='grid gap-4 grid-cols-1 md:grid-cols-2'>
+        <div className='grid gap-4 grid-cols-2'>
           <Button type='submit' className='h-full'>
             开始训练
           </Button>
@@ -282,6 +283,16 @@ function MyForm() {
             className='w-full'
             value={message}
           />
+
+          {modelPath && (
+            <Textarea
+              placeholder='模型路径'
+              rows={1}
+              readOnly
+              className='w-full col-span-2'
+              value={'模型路径：' + modelPath}
+            />
+          )}
         </div>
       </form>
     </Form>

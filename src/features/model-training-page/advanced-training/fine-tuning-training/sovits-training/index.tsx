@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -30,19 +30,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
-
-type Session = {
-  task_name: string
-  status: string
-  error: string | null
-  pid: number
-  result: Record<string, unknown>
-}
-
-type StatusResponse = {
-  current_session: Session
-  last_session: Partial<Session>
-}
 
 const formSchema = z.object({
   batch_size: z.number().min(1, '批量大小必须大于0'),
@@ -77,7 +64,7 @@ function MyForm() {
   const sovits = usePathStore((state) => state.sovits)
   const uuid = useUUIDStore((state) => state.sovits)
   const setUUID = useUUIDStore((state) => state.setUUID)
-
+  const [modelPath, setModelPath] = useState('')
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -100,6 +87,7 @@ function MyForm() {
       await session.refetch()
       toast.success('So-VITS 训练已启动')
       setUUID('sovits', data.uuid)
+      setModelPath(data.data.model_path)
     },
   })
 
@@ -317,7 +305,17 @@ function MyForm() {
             rows={3}
             readOnly
             className='w-full'
+            value={message}
           />
+          {modelPath && (
+            <Textarea
+              placeholder='模型路径'
+              rows={1}
+              readOnly
+              className='w-full col-span-2'
+              value={'模型路径：' + modelPath}
+            />
+          )}
         </div>
       </form>
     </Form>

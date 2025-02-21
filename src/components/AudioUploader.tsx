@@ -2,17 +2,12 @@ import React, { useState, useRef, useEffect } from 'react'
 import {
   Play,
   Pause,
-  Volume2,
   Mic,
   Upload,
-  RotateCcw,
-  FastForward,
   X,
-  Scissors,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Slider } from '@/components/ui/slider'
 
 interface AudioFile {
   file: File

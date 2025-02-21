@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
-import { Loader2, RefreshCcw, Save, Trash2 } from 'lucide-react'
+import { Loader2, Save, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { usePathStore } from '@/stores/pathStore'
 import {
   AlertDialog,
   AlertDialogTrigger,

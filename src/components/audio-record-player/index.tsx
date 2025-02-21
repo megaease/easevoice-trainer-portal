@@ -1,17 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import fileApi, { RequestBody } from '@/apis/files'
-import voicecloneApi from '@/apis/voiceclone'
-import { CloudUpload, Paperclip, Upload } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
-import { useNamespaceList } from '@/hooks/use-namespace-list'
-import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import {
   FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
   FileInput,
 } from '../ui/file-uploader'
 import AudioPlayback from './AudioPlayback'

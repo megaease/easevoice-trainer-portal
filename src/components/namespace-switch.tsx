@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { set } from 'zod'
 import { useMutation } from '@tanstack/react-query'
 import namespaceApi from '@/apis/namespace'
 import { ChevronsUpDown, Plus, X } from 'lucide-react'
@@ -10,7 +9,6 @@ import { useNamespaceList } from '@/hooks/use-namespace-list'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -35,14 +33,12 @@ import {
 } from '@/components/ui/sidebar'
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from './ui/alert-dialog'
 
 export function NamespaceSwitch() {

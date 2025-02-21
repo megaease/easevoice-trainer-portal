@@ -1,21 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
-import { UseFormSetValue } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { cn, getDisabledSubmit, getSessionMessage } from '@/lib/utils'
+import { getDisabledSubmit, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'

@@ -7,7 +7,6 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useSession } from '@/hooks/use-session'
-import ActionButton from '@/components/ui/action-button'
 import { Button } from '@/components/ui/button'
 import {
   Card,

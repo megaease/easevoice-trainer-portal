@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import * as z from 'zod'
-import { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
@@ -10,7 +9,6 @@ import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import {
   getDisabledSubmit,
-  getErrorMessage,
   getSessionMessage,
 } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
@@ -19,7 +17,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'

@@ -1,10 +1,6 @@
 import React from 'react'
-import { FileInput, CloudUpload, Paperclip } from 'lucide-react'
-import {
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-} from '@/components/ui/file-uploader'
+
+
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'

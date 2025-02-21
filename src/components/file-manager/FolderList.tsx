@@ -1,8 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import {
   FolderIcon,
-  DocumentIcon,
-  MusicalNoteIcon,
 } from '@heroicons/react/24/outline'
 import { Eye, Copy, Trash } from 'lucide-react'
 import { cn } from '@/lib/utils'

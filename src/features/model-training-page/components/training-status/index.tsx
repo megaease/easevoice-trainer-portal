@@ -2,10 +2,8 @@ import type React from 'react'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
-import { AlertCircle, Loader2 } from 'lucide-react'
-import { Label } from '@/components/ui/label'
+import { AlertCircle } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
-import { Switch } from '@/components/ui/switch'
 
 interface SessionData {
   task_name: string

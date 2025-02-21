@@ -3,7 +3,6 @@ import { LinkProps } from '@tanstack/react-router'
 import {
   AudioLines,
   CircleGauge,
-  CalendarCheck,
   CircleHelp,
   Brain,
 } from 'lucide-react'
@@ -14,7 +13,6 @@ import {
   useSidebar,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,

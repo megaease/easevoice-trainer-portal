@@ -2,10 +2,8 @@ import React from 'react'
 import { RequestBody } from '@/apis/files'
 import {
   FolderPlus,
-  FilePlus,
   Trash,
   Upload,
-  Download,
   LayoutGrid,
   List,
   RefreshCw,

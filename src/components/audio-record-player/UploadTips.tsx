@@ -1,7 +1,4 @@
 import React from 'react'
-import { error } from 'console'
-import { FileAudio, X, Upload } from 'lucide-react'
-import { Button } from '../ui/button'
 
 export function UploadTips({ children }: { children: React.ReactNode }) {
   return (

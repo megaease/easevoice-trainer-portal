@@ -2,7 +2,6 @@ import {
   Link,
   Outlet,
   useMatchRoute,
-  useNavigate,
 } from '@tanstack/react-router'
 import {
   ResizableHandle,
@@ -10,7 +9,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'

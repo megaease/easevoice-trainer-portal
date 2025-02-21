@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { FileItem } from './types'
 
 interface DeleteDialogProps {
   deletePaths: string[]
