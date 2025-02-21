@@ -25,7 +25,17 @@ export default function AudioPlayerWithFetchData({
         const extension = filePath.split('.').pop()?.toLowerCase()
         if (!extension) return
         if (
-          ['mp3', 'wav', 'ogg', 'jpg', 'jpeg', 'png', 'gif'].includes(extension)
+          [
+            'mp3',
+            'wav',
+            'flac',
+            'm4a',
+            'ogg',
+            'jpg',
+            'jpeg',
+            'png',
+            'gif',
+          ].includes(extension)
         ) {
           const url = URL.createObjectURL(blob)
           setFileContent(url)

@@ -54,7 +54,17 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
         const extension = file?.fileName.split('.').pop()?.toLowerCase()
         if (!extension) return
         if (
-          ['mp3', 'wav', 'ogg', 'jpg', 'jpeg', 'png', 'gif'].includes(extension)
+          [
+            'mp3',
+            'wav',
+            'flac',
+            'm4a',
+            'ogg',
+            'jpg',
+            'jpeg',
+            'png',
+            'gif',
+          ].includes(extension)
         ) {
           const url = URL.createObjectURL(blob)
           setFileContent(url)
