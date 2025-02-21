@@ -1,9 +1,14 @@
+import { useEffect } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
+import { usePathStore } from '@/stores/pathStore'
+import { useUUIDStore } from '@/stores/uuidStore'
+import { getSessionMessage } from '@/lib/utils'
+import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -50,75 +55,63 @@ const formSchema = z.object({
   save_every_epoch: z.number().min(1, '保存频率必须大于0'),
   gpu_ids: z.string().nonempty('请输入GPU IDs'),
   train_input_dir: z.string().nonempty('请输入训练输入目录'),
-  output_model_name: z.string().nonempty('请输入输出模型名'),
+  output_model_name: z.string(),
 })
 
+const defaultValues = {
+  batch_size: 8,
+  total_epochs: 8,
+  text_low_lr_rate: 0.4,
+  save_every_epoch: 4,
+  if_save_latest: false,
+  if_save_every_weights: false,
+  gpu_ids: '0',
+  pretrained_s2G: 'pretrained/gsv-v2final-pretrained/s2G2333k.pth',
+  pretrained_s2D: 'pretrained/gsv-v2final-pretrained/s2D2333k.pth',
+  train_input_dir: '',
+  output_model_name: '',
+}
+
 function MyForm() {
+  const session = useSession()
+  const sovits = usePathStore((state) => state.sovits)
+  const uuid = useUUIDStore((state) => state.sovits)
+  const setUUID = useUUIDStore((state) => state.setUUID)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      batch_size: 8,
-      total_epochs: 8,
-      text_low_lr_rate: 0.4,
-      save_every_epoch: 4,
-      if_save_latest: false,
-      if_save_every_weights: false,
-      gpu_ids: '0',
-      pretrained_s2G: '',
-      pretrained_s2D: '',
-      train_input_dir: '',
-      output_model_name: 'sovits',
-    },
+    defaultValues,
   })
+
+  useEffect(() => {
+    const { sourceDir } = sovits
+    if (sourceDir) {
+      // normalize path
+      form.setValue('train_input_dir', sourceDir)
+    }
+  }, [sovits, form])
 
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
-      return toast.promise(trainingApi.startSovitsTraining(data), {
-        loading: '正在启动 So-VITS 训练...',
-        success: '开始 So-VITS 训练',
-        error: '启动失败，请重试',
-      })
+      const res = await trainingApi.startSovitsTraining(data)
+      return res.data
     },
-    onSuccess: () => {},
-  })
-
-  const stopMutation = useMutation({
-    mutationFn: async () => {
-      return toast.promise(trainingApi.stopSovitsTraining(), {
-        loading: '正在停止 So-VITS 训练...',
-        success: '已停止 So-VITS 训练',
-        error: '停止失败，请重试',
-      })
+    onSuccess: async (data) => {
+      await session.refetch()
+      toast.success('So-VITS 训练已启动')
+      setUUID('sovits', data.uuid)
     },
-    onSuccess: () => {},
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
   }
-
-  async function onStop() {
-    await stopMutation.mutateAsync()
-  }
+  const message = getSessionMessage(uuid, session.data)
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
         <div className='grid grid-cols-2 gap-4'>
-          <FormField
-            control={form.control}
-            name='output_model_name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>模型名称</FormLabel>
-                <FormControl>
-                  <Input placeholder='请输入模型名称' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <FormField
             control={form.control}
             name='pretrained_s2G'
@@ -153,9 +146,25 @@ function MyForm() {
               <FormItem>
                 <FormLabel>训练输入目录</FormLabel>
                 <FormControl>
-                  <Input placeholder='与音频处理保持一致' {...field} />
+                  <Input placeholder='使用文本归一化生成的目录' {...field} />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='output_model_name'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>模型名称</FormLabel>
+                <FormControl>
+                  <Input placeholder='请输入模型名称' {...field} />
+                </FormControl>
+                <FormMessage />
+                <FormDescription>
+                  可选, 不填则会按照时间戳生成模型名称
+                </FormDescription>
               </FormItem>
             )}
           />

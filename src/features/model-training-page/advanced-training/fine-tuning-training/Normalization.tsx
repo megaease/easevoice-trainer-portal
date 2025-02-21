@@ -32,7 +32,6 @@ function NormalizationForm() {
   const setUUID = useUUIDStore((state) => state.setUUID)
   const normalize = usePathStore((state) => state.normalize)
   const setPaths = usePathStore((state) => state.setPaths)
-  const { sourceDir } = normalize
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,14 +54,15 @@ function NormalizationForm() {
     onSuccess: async (data) => {
       toast.success('文本归一化已启动')
       setUUID('normalize', data.uuid)
-      const sessionResp = await session.refetch()
-      const currentSession = sessionResp.data
-      const currentSessionData = currentSession?.[data.uuid]
-      const normalizePath = currentSessionData?.data?.normalize_path || ''
-      console.log('session', currentSession, currentSessionData)
+      await session.refetch()
+      const normalizePath = data.data.normalize_path
+      setPaths('sovits', {
+        sourceDir: normalizePath,
+        outputDir: form.getValues('output_dir'),
+      })
       setPaths('gpt', {
-        sourceDir: sourceDir,
-        outputDir: normalizePath,
+        sourceDir: normalizePath,
+        outputDir: form.getValues('output_dir'),
       })
       //todo sovits
     },

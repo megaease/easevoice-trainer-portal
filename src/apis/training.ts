@@ -107,7 +107,7 @@ class trainingApi {
     train_input_dir: string
     output_model_name: string
   }) {
-    return await apiClient.post(`/train/sovits`, data)
+    return await apiClient.post(`/train/sovits/start`, data)
   }
 
   async stopSovitsTraining() {
@@ -124,7 +124,6 @@ class trainingApi {
     gpu_ids: string
     model_path: string
     train_input_dir: string
-    normalize_path: string
     output_model_name: string
   }) {
     return await apiClient.post(`/train/gpt/start`, data)

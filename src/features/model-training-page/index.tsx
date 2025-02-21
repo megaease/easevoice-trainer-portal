@@ -15,11 +15,9 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
 import FileManager from '../../components/file-manager'
-import SessionManagement from '../session-management'
-import AdvancedTraining from './advanced-training'
+import MonitoringDashboard from '../monitor-dashboard'
 
 export default function ModelTraining() {
-  const navigate = useNavigate()
   const matchRoute = useMatchRoute()
 
   return (
@@ -67,12 +65,12 @@ export default function ModelTraining() {
                       <FileManager />
                     </div>
                   </ResizablePanel>
-                  {/* <ResizableHandle withHandle />
+                  <ResizableHandle withHandle />
                   <ResizablePanel>
                     <ScrollArea className='h-full w-full'>
-                      <SessionManagement />
+                      <MonitoringDashboard />
                     </ScrollArea>
-                  </ResizablePanel> */}
+                  </ResizablePanel>
                 </ResizablePanelGroup>
               </ResizablePanel>
             </ResizablePanelGroup>

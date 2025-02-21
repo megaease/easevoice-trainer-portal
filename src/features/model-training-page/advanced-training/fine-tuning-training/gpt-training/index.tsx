@@ -42,8 +42,21 @@ const formSchema = z.object({
   if_save_every_weights: z.boolean(),
   gpu_ids: z.string().nonempty('GPU IDs不能为空'),
   train_input_dir: z.string().nonempty('训练输入目录不能为空'),
-  normalize_path: z.string().nonempty('标准化路径不能为空'),
 })
+
+const defaultValues = {
+  output_model_name: '',
+  model_path:
+    'pretrained/gsv-v2final-pretrained/s1bert25hz-5kh-longer-epoch=12-step=369668.ckpt',
+  batch_size: 8,
+  total_epochs: 15,
+  save_every_epoch: 5,
+  if_dpo: false,
+  if_save_latest: true,
+  if_save_every_weights: true,
+  gpu_ids: '0',
+  train_input_dir: '',
+}
 
 function MyForm() {
   const session = useSession()
@@ -52,29 +65,13 @@ function MyForm() {
   const gpt = usePathStore((state) => state.gpt)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      output_model_name: '',
-      model_path:
-        '/root/workspace/easevoice-trainer/models/pretrained/gsv-v2final-pretrained/s1bert25hz-5kh-longer-epoch=12-step=369668.ckpt',
-      batch_size: 8,
-      total_epochs: 15,
-      save_every_epoch: 5,
-      if_dpo: false,
-      if_save_latest: true,
-      if_save_every_weights: true,
-      gpu_ids: '0',
-      train_input_dir: '',
-      normalize_path: '',
-    },
+    defaultValues,
   })
   console.log('gpt', gpt)
   useEffect(() => {
-    const { outputDir, sourceDir } = gpt
-    if (outputDir) {
-      // normalize path
-      form.setValue('normalize_path', outputDir)
-    }
+    const { sourceDir } = gpt
     if (sourceDir) {
+      // normalize path
       form.setValue('train_input_dir', sourceDir)
     }
   }, [gpt, form])
@@ -99,23 +96,7 @@ function MyForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-        <div className='grid grid-cols-2 gap-4'>
-          <FormField
-            control={form.control}
-            name='output_model_name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>模型名称</FormLabel>
-                <FormControl>
-                  <Input placeholder='请输入模型名称' {...field} />
-                </FormControl>
-                <FormMessage />
-                <FormDescription>
-                  可选, 不填则会按照时间戳生成模型名称
-                </FormDescription>
-              </FormItem>
-            )}
-          />
+        <div className='grid grid-cols-1 gap-4'>
           <FormField
             control={form.control}
             name='model_path'
@@ -129,9 +110,7 @@ function MyForm() {
               </FormItem>
             )}
           />
-        </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <FormField
             control={form.control}
             name='train_input_dir'
@@ -139,7 +118,7 @@ function MyForm() {
               <FormItem>
                 <FormLabel>训练输入目录</FormLabel>
                 <FormControl>
-                  <Input placeholder='与音频处理保持一致' {...field} />
+                  <Input placeholder='使用文本归一化生成的目录' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -147,14 +126,17 @@ function MyForm() {
           />
           <FormField
             control={form.control}
-            name='normalize_path'
+            name='output_model_name'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>标准化路径</FormLabel>
+                <FormLabel>模型名称</FormLabel>
                 <FormControl>
-                  <Input placeholder='音频归一化的路径' {...field} />
+                  <Input placeholder='请输入模型名称' {...field} />
                 </FormControl>
                 <FormMessage />
+                <FormDescription>
+                  可选, 不填则会按照时间戳生成模型名称
+                </FormDescription>
               </FormItem>
             )}
           />
