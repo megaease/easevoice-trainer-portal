@@ -55,7 +55,12 @@ const models = [
   'VR-DeEchoDeReverb',
   'VR-DeEchoNormal',
 ]
-
+const defaultValues = {
+  model_name: 'HP5_only_main_vocal',
+  source_dir: '',
+  output_dir: '',
+  audio_format: 'wav',
+}
 function MyForm() {
   const session = useSession()
   const uuid = useUUIDStore((state) => state.urv5)
@@ -65,12 +70,7 @@ function MyForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: request || {
-      model_name: 'HP5_only_main_vocal',
-      source_dir: '',
-      output_dir: '',
-      audio_format: 'wav',
-    },
+    defaultValues: defaultValues,
   })
   useEffect(() => {
     if (request) {
@@ -245,22 +245,37 @@ function MyForm() {
               )}
             />
           </div>
-          <div className='col-span-12 flex gap-4'>
+        </div>
+        <div className='grid grid-cols-2 w-full gap-4'>
+          <div className='space-y-2 h-full'>
+            <Button
+              type='reset'
+              className='w-full '
+              onClick={() => {
+                setUUID('urv5', '')
+                form.reset()
+              }}
+              variant={'outline'}
+              disabled={getDisabledSubmit(uuid, session.data)}
+            >
+              重置
+            </Button>
             <Button
               type='submit'
-              className='w-full h-full'
+              className='w-full '
               disabled={getDisabledSubmit(uuid, session.data)}
             >
               开始提取
             </Button>
-            <Textarea
-              placeholder='输出信息'
-              rows={3}
-              readOnly
-              className='w-full'
-              value={message}
-            />
           </div>
+
+          <Textarea
+            placeholder='输出信息'
+            rows={3}
+            readOnly
+            className='w-full'
+            value={message}
+          />
         </div>
       </form>
     </Form>
