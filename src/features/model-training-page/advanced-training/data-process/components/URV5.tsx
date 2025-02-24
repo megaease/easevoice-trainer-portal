@@ -96,20 +96,6 @@ function MyForm() {
     },
   })
 
-  // const stopMutation = useMutation({
-  //   mutationFn: async () => {
-  //     return toast.promise(trainingApi.stopVoiceExtraction(), {
-  //       loading: '正在停止主人声分离...',
-  //       success: '已停止主人声分离',
-  //       error: '停止失败，请重试',
-  //     })
-  //   },
-  //   onSuccess: () => {},
-  // })
-  // async function onStop() {
-  //   await stopMutation.mutateAsync()
-  // }
-
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name === 'source_dir' && value.source_dir) {

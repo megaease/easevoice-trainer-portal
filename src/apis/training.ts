@@ -5,10 +5,6 @@ class trainingApi {
     return await apiClient.post(`/easevoice/start`, data)
   }
 
-  async stopTraining() {
-    return await apiClient.post(`/easevoice/stop`)
-  }
-
   async startVoiceExtraction(data: {
     source_dir: string
     output_dir: string
@@ -16,10 +12,6 @@ class trainingApi {
     audio_format: string
   }) {
     return await apiClient.post(`/audio/uvr5/start`, data)
-  }
-
-  async stopVoiceExtraction() {
-    return await apiClient.post(`/audio/uvr5/stop`)
   }
 
   async startVoiceSlicing(data: {
@@ -37,16 +29,8 @@ class trainingApi {
     return await apiClient.post(`/audio/slicer/start`, data)
   }
 
-  async stopVoiceSlicing() {
-    return await apiClient.post(`/audio/slicer/stop`)
-  }
-
   async startAudioDenoising(data: { source_dir: string; output_dir: string }) {
     return await apiClient.post(`/audio/denoise/start`, data)
-  }
-
-  async stopAudioDenoising() {
-    return await apiClient.post(`/audio/denoise/stop`)
   }
 
   async startAudioTranscription(data: {
@@ -58,10 +42,6 @@ class trainingApi {
     precision: string
   }) {
     return await apiClient.post(`/audio/asr/start`, data)
-  }
-
-  async stopAudioTranscription() {
-    return await apiClient.post(`/audio/asr/stop`)
   }
 
   async getRefinementList(query: { input_dir: string; output_dir: string }) {
@@ -90,10 +70,6 @@ class trainingApi {
     return await apiClient.post(`/normalize/start`, data)
   }
 
-  async stopNormalization() {
-    return await apiClient.post(`/normalize/stop`)
-  }
-
   async startSovitsTraining(data: {
     batch_size: number
     total_epochs: number
@@ -110,10 +86,6 @@ class trainingApi {
     return await apiClient.post(`/train/sovits/start`, data)
   }
 
-  async stopSovitsTraining() {
-    return await apiClient.post(`/train/sovits/stop`)
-  }
-
   async startGPTTraining(data: {
     batch_size: number
     total_epochs: number
@@ -127,10 +99,6 @@ class trainingApi {
     output_model_name: string
   }) {
     return await apiClient.post(`/train/gpt/start`, data)
-  }
-
-  async stopGPTTraining() {
-    return await apiClient.post(`/train/gpt/stop`)
   }
 }
 
