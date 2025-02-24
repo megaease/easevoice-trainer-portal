@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import ModelTrainingPage from '@/features/model-training-page'
 
-export const Route = createFileRoute('/easevoice/model-training')({
+export const Route = createFileRoute('/_layout/model-training')({
   component: RouteComponent,
 })
 

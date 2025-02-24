@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 
-export const Route = createFileRoute('/easevoice')({
+export const Route = createFileRoute('/_layout')({
   component: RouteComponent,
 })
 

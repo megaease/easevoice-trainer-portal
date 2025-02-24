@@ -26,22 +26,22 @@ const items: {
 }[] = [
   {
     title: '声音克隆',
-    url: '/easevoice/voice-clone',
+    url: '/voice-clone',
     icon: AudioLines,
   },
   {
     title: '模型训练',
-    url: '/easevoice/model-training',
+    url: '/model-training',
     icon: Brain,
   },
   {
     title: '控制台',
-    url: '/easevoice/dashboard',
+    url: '/dashboard',
     icon: CircleGauge,
   },
   {
     title: '关于',
-    url: '/easevoice/about',
+    url: '/about',
     icon: CircleHelp,
   },
 ]
@@ -70,7 +70,7 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
 function Logo() {
   const { state } = useSidebar()
   return (
-    <Link to='/easevoice'>
+    <Link to='/'>
       <div className='flex gap-1 items-center py-1'>
         <div
           className='flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground

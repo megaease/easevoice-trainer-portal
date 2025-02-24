@@ -7,7 +7,6 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 export default defineConfig(
   ({ command, mode }: { command: string; mode: string }) => {
     const config = {
-      base: '/easevoice',
       plugins: [TanStackRouterVite(), react()],
       resolve: {
         alias: {
