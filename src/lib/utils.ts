@@ -74,8 +74,7 @@ export const audioProcessesMap: Record<string, keyof UUIDState> = {
 }
 
 export const getRequest = (uuid: string, data: Tasks | undefined) => {
-  const request =
-    data?.[uuid]?.status === 'Running' ? data?.[uuid]?.request : null
+  const request = data?.[uuid]?.status ? data?.[uuid]?.request : null
 
   return request
 }

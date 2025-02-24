@@ -12,12 +12,29 @@ export interface Task {
   data: Record<string, any> // 处理过程的详细数据
   request: Record<string, any> // 请求的数据
 }
-
+export interface EaseModeTask {
+  uuid: string
+  task_name: string
+  request: {
+    source_dir: string
+  }
+  status: string
+  created_at: string
+  error: null | string
+  total_steps: number
+  current_step: number
+  progress: number
+  current_step_description: string
+  message: string
+  data: {
+    model_path: string
+  }
+}
 export interface MonitorMetrics {
   [uuid: string]: string
 }
 export interface Tasks {
-  [uuid: string]: Task | MonitorMetrics
+  [uuid: string]: Task | MonitorMetrics | EaseModeTask
 }
 export function useSession() {
   const query = useQuery<Tasks>({
