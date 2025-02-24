@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link, Outlet, useMatchRoute } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -10,14 +11,21 @@ type Props = {
 
 export default function AdvancedTraining({ className, ...props }: Props) {
   const matchRoute = useMatchRoute()
+  const [currentTab, setCurrentTab] = useState('dataProcess')
+
+  useEffect(() => {
+    if (matchRoute({ to: '/model-training/advanced-mode/step1' })) {
+      setCurrentTab('dataProcess')
+    } else if (matchRoute({ to: '/model-training/advanced-mode/step2' })) {
+      setCurrentTab('modelTraining')
+    }
+  })
+
   return (
     <Tabs
       className='h-full py-2'
-      defaultValue={
-        matchRoute({ to: '/model-training/advanced-mode/step2' })
-          ? 'modelTraining'
-          : 'dataProcess'
-      }
+      value={currentTab}
+      onValueChange={setCurrentTab}
     >
       <div className='flex justify-between items-center gap-2  px-4 '>
         <h2 className='text-lg font-semibold'>高级模式</h2>

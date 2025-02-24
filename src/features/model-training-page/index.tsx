@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, Outlet, useMatchRoute } from '@tanstack/react-router'
 import { useCurrentSession } from '@/hooks/useCurrentSession'
+import { Spinner } from '@/components/ui/Spinner'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -27,10 +28,14 @@ export default function ModelTraining() {
     ) {
       setCurrentTab('advancedMode')
     }
-  }, [matchRoute])
+  })
 
   if (currentSession && currentSession.isFetching) {
-    return null
+    return (
+      <div className='h-full flex justify-center items-center'>
+        <Spinner />
+      </div>
+    )
   }
 
   return (
