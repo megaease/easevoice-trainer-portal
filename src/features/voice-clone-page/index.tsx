@@ -1,15 +1,18 @@
+import React, { Suspense } from 'react'
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
-import FileManager from '../../components/file-manager'
 import MonitoringDashboard from '../monitor-dashboard'
 import VoiceCloneForm from './voice-clone-form'
+
+const FileManager = React.lazy(() => import('@/components/file-manager'))
 
 export default function VoiceClone() {
   return (
@@ -39,7 +42,15 @@ export default function VoiceClone() {
               >
                 <ResizablePanel defaultSize={70} minSize={50} maxSize={90}>
                   <div className='h-full'>
-                    <FileManager />
+                    <Suspense
+                      fallback={
+                        <div className='p-4 h-full w-full'>
+                          <Skeleton className='h-full w-full bg-slate-100 dark:bg-gray-700' />
+                        </div>
+                      }
+                    >
+                      <FileManager />
+                    </Suspense>
                   </div>
                 </ResizablePanel>
                 <ResizableHandle withHandle />

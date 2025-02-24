@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { Link, Outlet, useMatchRoute } from '@tanstack/react-router'
 import { useCurrentSession } from '@/hooks/useCurrentSession'
 import { Spinner } from '@/components/ui/Spinner'
@@ -8,12 +8,14 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
-import FileManager from '../../components/file-manager'
 import MonitoringDashboard from '../monitor-dashboard'
+
+const FileManager = React.lazy(() => import('@/components/file-manager'))
 
 export default function ModelTraining() {
   const matchRoute = useMatchRoute()
@@ -77,7 +79,15 @@ export default function ModelTraining() {
                 >
                   <ResizablePanel defaultSize={70} minSize={50} maxSize={90}>
                     <div className='h-full'>
-                      <FileManager />
+                      <Suspense
+                        fallback={
+                          <div className='p-4 h-full w-full'>
+                            <Skeleton className='h-full w-full bg-slate-100 dark:bg-gray-700' />
+                          </div>
+                        }
+                      >
+                        <FileManager />
+                      </Suspense>
                     </div>
                   </ResizablePanel>
                   <ResizableHandle withHandle />
