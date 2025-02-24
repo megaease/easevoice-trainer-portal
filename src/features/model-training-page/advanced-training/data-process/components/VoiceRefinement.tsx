@@ -150,7 +150,6 @@ function VoiceRefinementForm() {
           <Textarea
             placeholder='输出信息'
             readOnly
-            disabled
             rows={3}
             value={start ? '请在下方列表进行语音文本校对' : ''}
           />
