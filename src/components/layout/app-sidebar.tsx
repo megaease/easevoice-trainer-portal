@@ -1,11 +1,6 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import { LinkProps } from '@tanstack/react-router'
-import {
-  AudioLines,
-  CircleGauge,
-  CircleHelp,
-  Brain,
-} from 'lucide-react'
+import { AudioLines, CircleGauge, CircleHelp, Brain } from 'lucide-react'
 import logoSvg from '@/assets/logo.svg'
 import {
   Sidebar,
@@ -31,22 +26,22 @@ const items: {
 }[] = [
   {
     title: '声音克隆',
-    url: '/voice-clone',
+    url: '/easevoice/voice-clone',
     icon: AudioLines,
   },
   {
     title: '模型训练',
-    url: '/model-training',
+    url: '/easevoice/model-training',
     icon: Brain,
   },
   {
     title: '控制台',
-    url: '/dashboard',
+    url: '/easevoice/dashboard',
     icon: CircleGauge,
   },
   {
     title: '关于',
-    url: '/about',
+    url: '/easevoice/about',
     icon: CircleHelp,
   },
 ]

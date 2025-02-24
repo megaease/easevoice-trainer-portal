@@ -24,7 +24,7 @@ export default function ModelTraining() {
       <Tabs
         className='h-full flex flex-col'
         defaultValue={
-          matchRoute({ to: '/model-training/advanced-mode' })
+          matchRoute({ to: '/easevoice/model-training/advanced-mode' })
             ? 'advancedMode'
             : 'easeMode'
         }
@@ -33,10 +33,10 @@ export default function ModelTraining() {
           <div className='flex items-center gap-3 sm:gap-4 w-full'>
             <div className='flex-1'>
               <TabsList>
-                <Link to='/model-training/ease-mode'>
+                <Link to='/easevoice/model-training/ease-mode'>
                   <TabsTrigger value='easeMode'>基础模式</TabsTrigger>
                 </Link>
-                <Link to='/model-training/advanced-mode'>
+                <Link to='/easevoice/model-training/advanced-mode'>
                   <TabsTrigger value='advancedMode'>高级模式</TabsTrigger>
                 </Link>
               </TabsList>
