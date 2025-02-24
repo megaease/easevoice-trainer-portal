@@ -25,7 +25,9 @@ import ResultStatus from './ResultStatus'
 const formSchema = z.object({
   source_dir: z.string(),
 })
-
+const defaultValues = {
+  source_dir: '',
+}
 export default function EaseModeTrainingForm() {
   const queryClient = useQueryClient()
   const session = useSession()
@@ -37,9 +39,7 @@ export default function EaseModeTrainingForm() {
   > | null
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: request || {
-      source_dir: '',
-    },
+    defaultValues,
   })
   useEffect(() => {
     if (request) {
@@ -104,7 +104,7 @@ export default function EaseModeTrainingForm() {
               className='w-full'
               onClick={() => {
                 setUUID('ease_voice', '')
-                form.reset()
+                form.reset(defaultValues)
               }}
               variant={'outline'}
             >

@@ -70,7 +70,7 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
 function Logo() {
   const { state } = useSidebar()
   return (
-    <Link to='/'>
+    <Link to='/easevoice'>
       <div className='flex gap-1 items-center py-1'>
         <div
           className='flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground
