@@ -7,7 +7,7 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { getDisabledSubmit, getRequest, getSessionMessage } from '@/lib/utils'
+import { getRequest, getSessionMessage, isTaskRunning } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -20,12 +20,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { LoadingButton } from '@/components/ui/loading-button'
 import { Textarea } from '@/components/ui/textarea'
 
 const formSchema = z.object({
   output_dir: z.string().nonempty('输出文件夹路径不能为空'),
 })
-
+const defaultValues = { output_dir: '' }
 function NormalizationForm() {
   const session = useSession()
   const uuid = useUUIDStore((state) => state.normalize)
@@ -37,9 +38,7 @@ function NormalizationForm() {
   > | null
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: request || {
-      output_dir: normalize.outputDir,
-    },
+    defaultValues,
   })
   useEffect(() => {
     if (request) {
@@ -81,6 +80,8 @@ function NormalizationForm() {
   }
 
   const message = getSessionMessage(uuid, session.data)
+  const isTaskRunningValue = isTaskRunning(uuid, session.data)
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 w-full'>
@@ -104,22 +105,36 @@ function NormalizationForm() {
               )}
             />
           </div>
-          <div className='col-span-12 flex gap-4'>
+        </div>
+        <div className='grid grid-cols-2 gap-4'>
+          <div className='space-y-2 h-full'>
             <Button
-              type='submit'
-              className='w-full h-full'
-              disabled={getDisabledSubmit(uuid, session.data)}
-            >
-              开始归一化
-            </Button>
-            <Textarea
-              placeholder='输出信息'
-              rows={3}
-              readOnly
+              type='reset'
               className='w-full'
-              value={message}
-            />
+              onClick={() => {
+                setUUID('normalize', '')
+                form.reset(defaultValues)
+              }}
+              variant={'outline'}
+              disabled={isTaskRunningValue}
+            >
+              重置
+            </Button>
+            <LoadingButton
+              type='submit'
+              className='w-full'
+              loading={isTaskRunning(uuid, session.data)}
+            >
+              {isTaskRunningValue ? '任务进行中' : '开始归一化'}
+            </LoadingButton>
           </div>
+          <Textarea
+            placeholder='输出信息'
+            rows={3}
+            readOnly
+            className='w-full'
+            value={message}
+          />
         </div>
       </form>
     </Form>

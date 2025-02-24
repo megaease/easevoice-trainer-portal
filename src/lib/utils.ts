@@ -32,7 +32,7 @@ export function getErrorMessage(error: any) {
   )
 }
 
-export function getDisabledSubmit(
+export function isTaskRunning(
   uuid: string,
   session: Tasks | undefined
 ): boolean {
@@ -77,4 +77,12 @@ export const getRequest = (uuid: string, data: Tasks | undefined) => {
   const request = data?.[uuid]?.status ? data?.[uuid]?.request : null
 
   return request
+}
+
+export const getModelPath = (uuid: string, session: Tasks | undefined) => {
+  if (!uuid || !session || !session[uuid]) return ''
+  const data = session[uuid]?.data
+  const modelPath =
+    typeof data === 'object' && data !== null ? data.model_path : ''
+  return modelPath
 }

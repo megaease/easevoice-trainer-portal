@@ -7,7 +7,12 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { getDisabledSubmit, getRequest, getSessionMessage } from '@/lib/utils'
+import {
+  getModelPath,
+  getRequest,
+  getSessionMessage,
+  isTaskRunning,
+} from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -28,6 +33,7 @@ import {
   FormDescription,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { LoadingButton } from '@/components/ui/loading-button'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -68,7 +74,6 @@ function MyForm() {
     typeof formSchema
   > | null
 
-  const [modelPath, setModelPath] = useState('')
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -95,7 +100,6 @@ function MyForm() {
       await session.refetch()
       toast.success('So-VITS 训练已启动')
       setUUID('sovits', data.uuid)
-      setModelPath(data.data.model_path)
     },
   })
 
@@ -103,6 +107,8 @@ function MyForm() {
     await startMutation.mutateAsync(values)
   }
   const message = getSessionMessage(uuid, session.data)
+  const isTaskRunningValue = isTaskRunning(uuid, session.data)
+  const modelPath = getModelPath(uuid, session.data)
 
   return (
     <Form {...form}>
@@ -304,13 +310,27 @@ function MyForm() {
         </div>
 
         <div className='grid gap-4 grid-cols-2'>
-          <Button
-            type='submit'
-            className='h-full'
-            disabled={getDisabledSubmit(uuid, session.data)}
-          >
-            开始训练
-          </Button>
+          <div className='space-y-2 h-full'>
+            <Button
+              type='reset'
+              className='w-full '
+              onClick={() => {
+                setUUID('sovits', '')
+                form.reset(defaultValues)
+              }}
+              variant={'outline'}
+              disabled={isTaskRunningValue}
+            >
+              重置
+            </Button>
+            <LoadingButton
+              type='submit'
+              className='w-full'
+              loading={isTaskRunning(uuid, session.data)}
+            >
+              {isTaskRunningValue ? '任务进行中' : '开始训练'}
+            </LoadingButton>
+          </div>
 
           <Textarea
             placeholder='输出信息'
@@ -321,11 +341,11 @@ function MyForm() {
           />
           {modelPath && (
             <Textarea
-              placeholder='模型路径'
+              placeholder='模型输出路径'
               rows={1}
               readOnly
               className='w-full col-span-2'
-              value={'模型路径：' + modelPath}
+              value={'模型输出路径：' + modelPath}
             />
           )}
         </div>

@@ -7,7 +7,7 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { getDisabledSubmit, getRequest, getSessionMessage } from '@/lib/utils'
+import { getRequest, getSessionMessage, isTaskRunning } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +27,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { LoadingButton } from '@/components/ui/loading-button'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -51,6 +52,18 @@ const formSchema = z.object({
     .min(1, '进程数不能小于1')
     .max(112, '进程数不能大于112'),
 })
+const defaultValues = {
+  source_dir: '',
+  output_dir: '',
+  threshold: -34,
+  min_length: 4000,
+  min_interval: 300,
+  hop_size: 10,
+  max_silent_kept: 500,
+  normalize_max: 0.9,
+  alpha_mix: 0.25,
+  num_process: 4,
+}
 
 function MyForm() {
   const session = useSession()
@@ -61,18 +74,7 @@ function MyForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: request || {
-      source_dir: '',
-      output_dir: '',
-      threshold: -34,
-      min_length: 4000,
-      min_interval: 300,
-      hop_size: 10,
-      max_silent_kept: 500,
-      normalize_max: 0.9,
-      alpha_mix: 0.25,
-      num_process: 4,
-    },
+    defaultValues: defaultValues,
   })
   useEffect(() => {
     if (request) {
@@ -119,6 +121,8 @@ function MyForm() {
   }
 
   const message = getSessionMessage(uuid, session.data)
+  const isTaskRunningValue = isTaskRunning(uuid, session.data)
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 '>
@@ -333,13 +337,27 @@ function MyForm() {
           </div>
         </div>
         <div className='grid grid-cols-2 gap-4'>
-          <Button
-            type='submit'
-            className='h-full'
-            disabled={getDisabledSubmit(uuid, session.data)}
-          >
-            开始音频切割
-          </Button>
+          <div className='space-y-2 h-full'>
+            <Button
+              type='reset'
+              className='w-full'
+              onClick={() => {
+                setUUID('slicer', '')
+                form.reset(defaultValues)
+              }}
+              variant={'outline'}
+              disabled={isTaskRunningValue}
+            >
+              重置
+            </Button>
+            <LoadingButton
+              type='submit'
+              loading={isTaskRunningValue}
+              className='w-full'
+            >
+              开始音频切割
+            </LoadingButton>
+          </div>
           <Textarea
             placeholder='输出信息'
             rows={3}

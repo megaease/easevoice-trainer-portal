@@ -6,9 +6,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import trainingAPi from '@/apis/training'
 import { toast } from 'sonner'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { getRequest } from '@/lib/utils'
+import { isTaskRunning, getRequest } from '@/lib/utils'
 import { EaseModeTask, useSession } from '@/hooks/use-session'
-import { Task } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -20,6 +19,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { LoadingButton } from '@/components/ui/loading-button'
 import ResultStatus from './ResultStatus'
 
 const formSchema = z.object({
@@ -75,6 +75,7 @@ export default function EaseModeTrainingForm() {
   }
 
   const currentSession = data?.[uuid] as EaseModeTask | null
+  const isTaskRunningValue = isTaskRunning(uuid, session.data)
 
   return (
     <>
@@ -107,12 +108,17 @@ export default function EaseModeTrainingForm() {
                 form.reset(defaultValues)
               }}
               variant={'outline'}
+              disabled={isTaskRunningValue}
             >
               重置
             </Button>
-            <Button type='submit' className='w-full'>
-              开始训练
-            </Button>
+            <LoadingButton
+              type='submit'
+              className='w-full'
+              loading={isTaskRunningValue}
+            >
+              {isTaskRunningValue ? '任务进行中' : '开始训练'}
+            </LoadingButton>
           </div>
         </form>
       </Form>

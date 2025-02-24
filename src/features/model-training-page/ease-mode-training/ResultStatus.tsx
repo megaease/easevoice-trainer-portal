@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { Clock, FileCode, Folder, Info } from 'lucide-react'
 import { EaseModeTask } from '@/hooks/use-session'
 import {
@@ -40,45 +41,47 @@ export default function ResultStatus({
         </CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
-        <div className='grid grid-cols-2 gap-4'>
+        <div className='grid grid-cols-1 gap-4'>
           <div className='flex items-center space-x-2'>
             <FileCode className='w-4 h-4 text-muted-foreground' />
             <span className='text-sm font-medium'>UUID:</span>
             <span className='text-sm text-muted-foreground'>{result.uuid}</span>
-          </div>
-          <div className='flex items-center space-x-2'>
-            <Clock className='w-4 h-4 text-muted-foreground' />
-            <span className='text-sm font-medium'>Created:</span>
-            <span className='text-sm text-muted-foreground'>
-              {result.created_at}
-            </span>
           </div>
         </div>
 
         <div className='space-y-2'>
           <div className='flex justify-between text-sm'>
             <span>进度</span>
-            <span>
-              {result.current_step} / {result.total_steps}
-            </span>
+            {result.current_step ? (
+              <span>
+                {result.current_step} / {result.total_steps}
+              </span>
+            ) : null}
           </div>
           <Progress value={result.progress} className='w-full' />
         </div>
 
-        <div className='space-y-2'>
-          <h4 className='text-sm font-medium'>Message</h4>
-          <p className='text-sm text-muted-foreground'>{result.message}</p>
-        </div>
-
-        <div className='space-y-2'>
-          <h4 className='text-sm font-medium'>模型路径</h4>
-          <div className='flex items-center space-x-2'>
-            <Folder className='w-4 h-4 text-muted-foreground' />
-            <span className='text-sm text-muted-foreground'>
-              {result.data?.model_path}
-            </span>
+        {result.message ? (
+          <div className='space-y-2'>
+            <div className='text-sm font-medium flex items-center space-x-2'>
+              <Info className='w-4 h-4 text-muted-foreground mr-2' />
+              输出信息
+            </div>
+            <p className='text-sm text-muted-foreground'>{result.message}</p>
           </div>
-        </div>
+        ) : null}
+
+        {result.data?.model_path ? (
+          <div className='space-y-2'>
+            <h4 className='text-sm font-medium'>模型路径</h4>
+            <div className='flex items-center space-x-2'>
+              <Folder className='w-4 h-4 text-muted-foreground' />
+              <span className='text-sm text-muted-foreground'>
+                {result.data?.model_path}
+              </span>
+            </div>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   )

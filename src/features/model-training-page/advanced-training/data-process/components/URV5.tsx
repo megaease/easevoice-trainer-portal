@@ -7,7 +7,7 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { getDisabledSubmit, getRequest, getSessionMessage } from '@/lib/utils'
+import { isTaskRunning, getRequest, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +27,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { LoadingButton } from '@/components/ui/loading-button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Select,
@@ -123,7 +124,8 @@ function MyForm() {
   }
 
   const message = getSessionMessage(uuid, session.data)
-  console.log('message', message)
+  const isTaskRunningValue = isTaskRunning(uuid, session.data)
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 w-full'>
@@ -250,23 +252,23 @@ function MyForm() {
           <div className='space-y-2 h-full'>
             <Button
               type='reset'
-              className='w-full '
+              className='w-full'
               onClick={() => {
                 setUUID('urv5', '')
-                form.reset()
+                form.reset(defaultValues)
               }}
               variant={'outline'}
-              disabled={getDisabledSubmit(uuid, session.data)}
+              disabled={isTaskRunningValue}
             >
               重置
             </Button>
-            <Button
+            <LoadingButton
               type='submit'
-              className='w-full '
-              disabled={getDisabledSubmit(uuid, session.data)}
+              className='w-full'
+              loading={isTaskRunningValue}
             >
-              开始提取
-            </Button>
+              {isTaskRunningValue ? '任务进行中' : '开始分离'}
+            </LoadingButton>
           </div>
 
           <Textarea
@@ -286,7 +288,7 @@ export default function URV5() {
   return (
     <Card className='w-full'>
       <CardHeader>
-        <CardTitle>1a. 主人声提取</CardTitle>
+        <CardTitle>1a. 主人声分离</CardTitle>
         <CardDescription />
       </CardHeader>
       <CardContent>

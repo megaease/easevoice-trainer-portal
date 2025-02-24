@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
@@ -32,6 +32,10 @@ const formSchema = z.object({
   output_dir: z.string().nonempty('输出文件夹路径不能为空'),
 })
 
+const defaultValues = {
+  input_dir: '',
+  output_dir: '',
+}
 function useVoiceRefinementForm() {
   const [start, setStart] = useState(false)
   const session = useSession()
@@ -39,10 +43,7 @@ function useVoiceRefinementForm() {
   const setPaths = usePathStore((state) => state.setPaths)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      input_dir: refinement.sourceDir,
-      output_dir: refinement.outputDir,
-    },
+    defaultValues,
   })
   useEffect(() => {
     const { sourceDir } = refinement
@@ -61,7 +62,6 @@ function useVoiceRefinementForm() {
     return () => subscription.unsubscribe()
   }, [form])
 
-  const query = useQueryClient()
   const startQuery = useQuery({
     queryKey: ['refinementList'],
     queryFn: async () => {
@@ -117,24 +117,36 @@ function VoiceRefinementForm() {
           )}
         />
         <div className='grid grid-cols-2 gap-4'>
-          {start ? (
+          <div className='space-y-2 h-full'>
             <Button
-              onClick={(e) => {
-                e.preventDefault()
+              type='reset'
+              className='w-full'
+              onClick={() => {
+                form.reset(defaultValues)
                 setStart(false)
-                toast.success('请点击 "2.训练模型" 进行下一步操作')
               }}
-              className='h-full'
-              type='button'
+              variant={'outline'}
             >
-              完成标注
+              重置
             </Button>
-          ) : (
-            <Button type='submit' className='h-full'>
-              开始标注
-            </Button>
-          )}
-
+            {start ? (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault()
+                  setStart(false)
+                  toast.success('请点击 "2.训练模型" 进行下一步操作')
+                }}
+                className='w-full'
+                type='button'
+              >
+                完成标注
+              </Button>
+            ) : (
+              <Button type='submit' className='w-full'>
+                开始标注
+              </Button>
+            )}
+          </div>
           <Textarea
             placeholder='输出信息'
             readOnly

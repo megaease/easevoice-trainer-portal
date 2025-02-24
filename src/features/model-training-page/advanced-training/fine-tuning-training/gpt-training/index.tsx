@@ -7,7 +7,12 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { getDisabledSubmit, getRequest, getSessionMessage } from '@/lib/utils'
+import {
+  getModelPath,
+  getRequest,
+  getSessionMessage,
+  isTaskRunning,
+} from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +32,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { LoadingButton } from '@/components/ui/loading-button'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -65,7 +71,6 @@ function MyForm() {
   const request = getRequest(uuid, session.data) as z.infer<
     typeof formSchema
   > | null
-  const [modelPath, setModelPath] = useState('')
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -92,7 +97,6 @@ function MyForm() {
       await session.refetch()
       toast.success('开始 GPT 训练')
       setUUID('gpt', data.uuid)
-      setModelPath(data.data.model_path)
     },
   })
 
@@ -100,7 +104,8 @@ function MyForm() {
     await startMutation.mutateAsync(values)
   }
   const message = getSessionMessage(uuid, session.data)
-
+  const isTaskRunningValue = isTaskRunning(uuid, session.data)
+  const modelPath = getModelPath(uuid, session.data)
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
@@ -280,13 +285,14 @@ function MyForm() {
         </div>
 
         <div className='grid gap-4 grid-cols-2'>
-          <Button
+          <LoadingButton
             type='submit'
             className='h-full'
-            disabled={getDisabledSubmit(uuid, session.data)}
+            loading={isTaskRunning(uuid, session.data)}
           >
-            开始训练
-          </Button>
+            {isTaskRunningValue ? '任务进行中' : '开始训练'}
+          </LoadingButton>
+
           <Textarea
             placeholder='输出信息'
             rows={3}
@@ -297,11 +303,11 @@ function MyForm() {
 
           {modelPath && (
             <Textarea
-              placeholder='模型路径'
+              placeholder='模型输出路径'
               rows={1}
               readOnly
               className='w-full col-span-2'
-              value={'模型路径：' + modelPath}
+              value={'模型输出路径：' + modelPath}
             />
           )}
         </div>

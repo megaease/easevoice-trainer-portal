@@ -7,7 +7,7 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { getDisabledSubmit, getRequest, getSessionMessage } from '@/lib/utils'
+import { isTaskRunning, getRequest, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { LoadingButton } from '@/components/ui/loading-button'
 import {
   Select,
   SelectContent,
@@ -43,7 +44,14 @@ const formSchema = z.object({
   language: z.string().nonempty('请选择语言'),
   precision: z.string().nonempty('请选择精度'),
 })
-
+const defaultValues = {
+  source_dir: '',
+  output_dir: '',
+  asr_model: 'funasr',
+  model_size: 'large',
+  language: 'zh',
+  precision: 'float32',
+}
 function MyForm() {
   const session = useSession()
   const uuid = useUUIDStore((state) => state.asr)
@@ -52,14 +60,7 @@ function MyForm() {
   > | null
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: request || {
-      source_dir: '',
-      output_dir: '',
-      asr_model: 'funasr',
-      model_size: 'large',
-      language: 'zh',
-      precision: 'float32',
-    },
+    defaultValues,
   })
   useEffect(() => {
     if (request) {
@@ -105,6 +106,8 @@ function MyForm() {
   }
 
   const message = getSessionMessage(uuid, session.data)
+  const isTaskRunningValue = isTaskRunning(uuid, session.data)
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
@@ -255,13 +258,27 @@ function MyForm() {
           </div>
         </div>
         <div className='grid grid-cols-2 gap-4'>
-          <Button
-            type='submit'
-            className='h-full'
-            disabled={getDisabledSubmit(uuid, session.data)}
-          >
-            开始 ASR
-          </Button>
+          <div className='space-y-2 h-full'>
+            <Button
+              type='reset'
+              className='w-full'
+              onClick={() => {
+                setUUID('asr', '')
+                form.reset(defaultValues)
+              }}
+              variant={'outline'}
+              disabled={isTaskRunningValue}
+            >
+              重置
+            </Button>
+            <LoadingButton
+              type='submit'
+              className='w-full'
+              loading={isTaskRunning(uuid, session.data)}
+            >
+              {isTaskRunningValue ? '任务进行中' : '开始 ASR'}
+            </LoadingButton>
+          </div>
           <Textarea
             placeholder='输出信息'
             rows={3}
