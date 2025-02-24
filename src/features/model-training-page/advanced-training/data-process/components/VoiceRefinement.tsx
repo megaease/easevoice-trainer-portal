@@ -44,7 +44,6 @@ function useVoiceRefinementForm() {
       output_dir: refinement.outputDir,
     },
   })
-
   useEffect(() => {
     const { sourceDir } = refinement
     if (sourceDir) {

@@ -7,7 +7,7 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { getDisabledSubmit, getSessionMessage } from '@/lib/utils'
+import { getDisabledSubmit, getRequest, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -53,9 +53,15 @@ const formSchema = z.object({
 })
 
 function MyForm() {
+  const session = useSession()
+  const uuid = useUUIDStore((state) => state.slicer)
+  const request = getRequest(uuid, session.data) as z.infer<
+    typeof formSchema
+  > | null
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: request || {
       source_dir: '',
       output_dir: '',
       threshold: -34,
@@ -68,8 +74,11 @@ function MyForm() {
       num_process: 4,
     },
   })
-  const session = useSession()
-  const uuid = useUUIDStore((state) => state.slicer)
+  useEffect(() => {
+    if (request) {
+      form.reset(request)
+    }
+  }, [request, form])
   const setUUID = useUUIDStore((state) => state.setUUID)
   const slicer = usePathStore((state) => state.slicer)
   const setPaths = usePathStore((state) => state.setPaths)
@@ -104,21 +113,6 @@ function MyForm() {
       })
     },
   })
-
-  // const stopMutation = useMutation({
-  //   mutationFn: async () => {
-  //     return toast.promise(trainingApi.stopVoiceSlicing(), {
-  //       loading: '正在停止语音切割...',
-  //       success: '已停止语音切割',
-  //       error: '停止失败，请重试',
-  //     })
-  //   },
-  //   onSuccess: () => {},
-  // })
-
-  // const onStop = async () => {
-  //   await stopMutation.mutateAsync()
-  // }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)

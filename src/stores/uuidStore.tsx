@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-interface UUIDState {
+export interface UUIDState {
   clone: string
   urv5: string
   slicer: string
@@ -9,6 +9,7 @@ interface UUIDState {
   refinement: string
   normalize: string
   sovits: string
+  ease_voice: string
   gpt: string
   setUUID: (key: keyof UUIDState, value: string) => void
 }
@@ -22,6 +23,7 @@ export const useUUIDStore = create<UUIDState>((set) => ({
   normalize: '',
   sovits: '',
   gpt: '',
+  ease_voice: '',
   setUUID: (key: keyof UUIDState, value: string) => {
     set(() => ({
       [key]: value,

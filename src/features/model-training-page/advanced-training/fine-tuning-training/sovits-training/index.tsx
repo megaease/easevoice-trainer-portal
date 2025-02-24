@@ -7,7 +7,7 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { getSessionMessage } from '@/lib/utils'
+import { getDisabledSubmit, getRequest, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -64,12 +64,20 @@ function MyForm() {
   const sovits = usePathStore((state) => state.sovits)
   const uuid = useUUIDStore((state) => state.sovits)
   const setUUID = useUUIDStore((state) => state.setUUID)
+  const request = getRequest(uuid, session.data) as z.infer<
+    typeof formSchema
+  > | null
+
   const [modelPath, setModelPath] = useState('')
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   })
-
+  useEffect(() => {
+    if (request) {
+      form.reset(request)
+    }
+  }, [request, form])
   useEffect(() => {
     const { sourceDir } = sovits
     if (sourceDir) {
@@ -296,7 +304,11 @@ function MyForm() {
         </div>
 
         <div className='grid gap-4 grid-cols-2'>
-          <Button type='submit' className='h-full'>
+          <Button
+            type='submit'
+            className='h-full'
+            disabled={getDisabledSubmit(uuid, session.data)}
+          >
             开始训练
           </Button>
 

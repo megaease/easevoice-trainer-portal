@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import dayjs from 'dayjs'
 import { twMerge } from 'tailwind-merge'
+import { UUIDState } from '@/stores/uuidStore'
 import { Tasks } from '@/hooks/use-session'
 
 export function cn(...inputs: ClassValue[]) {
@@ -42,7 +43,8 @@ export function getDisabledSubmit(
 
 export const getAudio = (uuid: string, session: Tasks | undefined) => {
   if (!uuid || !session || !session[uuid]) return ''
-  const audio = session[uuid]?.data?.audio
+  const data = session[uuid]?.data
+  const audio = typeof data === 'object' && data !== null ? data.audio : ''
   if (!audio) return ''
   const base64Url = `data:audio/wav;base64,${audio}`
   const result = {
@@ -59,14 +61,21 @@ export const isRunningVoiceClone = (session: Tasks | undefined) => {
   return Object.values(session).some((task) => task.status === 'Running')
 }
 
-export const audioProcesses: string[] = [
-  'voice_clone',
-  'train_sovits',
-  'train_gpt',
-  'ease_voice',
-  'normalize',
-  'audio_uvr5',
-  'audio_slicer',
-  'audio_denoise',
-  'audio_asr',
-]
+export const audioProcessesMap: Record<string, keyof UUIDState> = {
+  voice_clone: 'clone',
+  train_sovits: 'sovits',
+  train_gpt: 'gpt',
+  ease_voice: 'ease_voice',
+  normalize: 'normalize',
+  audio_uvr5: 'urv5',
+  audio_slicer: 'slicer',
+  audio_denoise: 'denoise',
+  audio_asr: 'asr',
+}
+
+export const getRequest = (uuid: string, data: Tasks | undefined) => {
+  const request =
+    data?.[uuid]?.status === 'Running' ? data?.[uuid]?.request : null
+
+  return request
+}

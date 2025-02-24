@@ -7,10 +7,7 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import {
-  getDisabledSubmit,
-  getSessionMessage,
-} from '@/lib/utils'
+import { getDisabledSubmit, getRequest, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -60,17 +57,26 @@ const models = [
 ]
 
 function MyForm() {
+  const session = useSession()
+  const uuid = useUUIDStore((state) => state.urv5)
+  const request = getRequest(uuid, session.data) as z.infer<
+    typeof formSchema
+  > | null
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: request || {
       model_name: 'HP5_only_main_vocal',
       source_dir: '',
       output_dir: '',
       audio_format: 'wav',
     },
   })
-  const session = useSession()
-  const uuid = useUUIDStore((state) => state.urv5)
+  useEffect(() => {
+    if (request) {
+      form.reset(request)
+    }
+  }, [request, form])
   const setUUID = useUUIDStore((state) => state.setUUID)
   const setPaths = usePathStore((state) => state.setPaths)
   const startMutation = useMutation({

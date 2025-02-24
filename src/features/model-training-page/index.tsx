@@ -1,8 +1,5 @@
-import {
-  Link,
-  Outlet,
-  useMatchRoute,
-} from '@tanstack/react-router'
+import { Link, Outlet, useMatchRoute } from '@tanstack/react-router'
+import { useCurrentSession } from '@/hooks/useCurrentSession'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -18,7 +15,10 @@ import MonitoringDashboard from '../monitor-dashboard'
 
 export default function ModelTraining() {
   const matchRoute = useMatchRoute()
-
+  const currentSession = useCurrentSession()
+  if (currentSession && currentSession.isFetching) {
+    return null
+  }
   return (
     <>
       <Tabs

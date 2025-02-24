@@ -7,6 +7,7 @@ import trainingAPi from '@/apis/training'
 import { toast } from 'sonner'
 import { useSession } from '@/hooks/use-session'
 import { Task } from '@/hooks/use-session'
+import { useCurrentSession } from '@/hooks/useCurrentSession'
 import { Button } from '@/components/ui/button'
 import {
   Form,

@@ -7,7 +7,7 @@ import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { getSessionMessage } from '@/lib/utils'
+import { getDisabledSubmit, getRequest, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -32,12 +32,20 @@ function NormalizationForm() {
   const setUUID = useUUIDStore((state) => state.setUUID)
   const normalize = usePathStore((state) => state.normalize)
   const setPaths = usePathStore((state) => state.setPaths)
+  const request = getRequest(uuid, session.data) as z.infer<
+    typeof formSchema
+  > | null
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: request || {
       output_dir: normalize.outputDir,
     },
   })
+  useEffect(() => {
+    if (request) {
+      form.reset(request)
+    }
+  }, [request, form])
 
   useEffect(() => {
     const { outputDir } = normalize
@@ -97,7 +105,11 @@ function NormalizationForm() {
             />
           </div>
           <div className='col-span-12 flex gap-4'>
-            <Button type='submit' className='w-full h-full'>
+            <Button
+              type='submit'
+              className='w-full h-full'
+              disabled={getDisabledSubmit(uuid, session.data)}
+            >
               开始归一化
             </Button>
             <Textarea
