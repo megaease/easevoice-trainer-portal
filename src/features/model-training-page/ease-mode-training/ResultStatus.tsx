@@ -59,6 +59,9 @@ export default function ResultStatus({
             ) : null}
           </div>
           <Progress value={result.progress} className='w-full' />
+          <div className='text-sm text-muted-foreground'>
+            {result.current_step_description}
+          </div>
         </div>
 
         {result.message ? (
