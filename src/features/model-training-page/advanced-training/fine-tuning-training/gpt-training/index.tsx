@@ -285,13 +285,27 @@ function MyForm() {
         </div>
 
         <div className='grid gap-4 grid-cols-2'>
-          <LoadingButton
-            type='submit'
-            className='h-full'
-            loading={isTaskRunning(uuid, session.data)}
-          >
-            {isTaskRunningValue ? '任务进行中' : '开始训练'}
-          </LoadingButton>
+          <div className='space-y-2 h-full'>
+            <Button
+              type='reset'
+              className='w-full '
+              onClick={() => {
+                setUUID('gpt', '')
+                form.reset(defaultValues)
+              }}
+              variant={'outline'}
+              disabled={isTaskRunningValue}
+            >
+              重置
+            </Button>
+            <LoadingButton
+              type='submit'
+              className='w-full'
+              loading={isTaskRunning(uuid, session.data)}
+            >
+              {isTaskRunningValue ? '任务进行中' : '开始训练'}
+            </LoadingButton>
+          </div>
 
           <Textarea
             placeholder='输出信息'

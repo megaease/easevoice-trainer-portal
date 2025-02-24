@@ -85,6 +85,10 @@ function MyForm() {
         sourceDir: form.getValues('source_dir'),
         outputDir: form.getValues('output_dir'),
       })
+      setPaths('normalize', {
+        outputDir: form.getValues('output_dir'),
+        sourceDir: form.getValues('source_dir'),
+      })
     },
   })
   useEffect(() => {
