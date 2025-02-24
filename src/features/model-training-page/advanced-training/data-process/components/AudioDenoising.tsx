@@ -45,7 +45,7 @@ function MyForm() {
   const request = getRequest(uuid, session.data) as z.infer<
     typeof formSchema
   > | null
-  console.log(request, 'audio_denoise')
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,

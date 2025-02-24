@@ -118,7 +118,8 @@ function checkIsActive(href: string, item: NavItem, mainNav = false) {
   const cleanItemUrl = item.url ? item.url.split('?')[0].split('#')[0] : ''
   return (
     cleanHref === cleanItemUrl || // endpoint
-    cleanHref.startsWith(cleanItemUrl) || // highlight for ease-mode
+    (cleanItemUrl === '/model-training' &&
+      cleanHref.startsWith('/model-training')) || // highlight for all model-training routes
     !!item?.items?.filter(
       (i) => i.url && i.url.split('?')[0].split('#')[0] === cleanHref
     ).length || // if child nav is active

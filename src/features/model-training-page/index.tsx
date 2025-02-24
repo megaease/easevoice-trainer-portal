@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link, Outlet, useMatchRoute } from '@tanstack/react-router'
 import { useCurrentSession } from '@/hooks/useCurrentSession'
 import {
@@ -16,18 +17,28 @@ import MonitoringDashboard from '../monitor-dashboard'
 export default function ModelTraining() {
   const matchRoute = useMatchRoute()
   const currentSession = useCurrentSession()
+  const [currentTab, setCurrentTab] = useState('easeMode')
+
+  useEffect(() => {
+    if (matchRoute({ to: '/model-training/ease-mode' })) {
+      setCurrentTab('easeMode')
+    } else if (
+      matchRoute({ to: '/model-training/advanced-mode', fuzzy: true })
+    ) {
+      setCurrentTab('advancedMode')
+    }
+  }, [matchRoute])
+
   if (currentSession && currentSession.isFetching) {
     return null
   }
+
   return (
     <>
       <Tabs
         className='h-full flex flex-col'
-        defaultValue={
-          matchRoute({ to: '/model-training/advanced-mode' })
-            ? 'advancedMode'
-            : 'easeMode'
-        }
+        value={currentTab}
+        onValueChange={setCurrentTab}
       >
         <Header>
           <div className='flex items-center gap-3 sm:gap-4 w-full'>
