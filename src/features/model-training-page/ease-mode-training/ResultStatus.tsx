@@ -1,10 +1,8 @@
-import dayjs from 'dayjs'
-import { Clock, FileCode, Folder, Info } from 'lucide-react'
+import { FileCode, Folder, Info } from 'lucide-react'
 import { EaseModeTask } from '@/hooks/use-session'
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'

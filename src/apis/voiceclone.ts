@@ -22,6 +22,7 @@ type VoiceCloneBodyType = {
   repetition_penalty?: number
   sovits_path?: string
   gpt_path?: string
+  output_dir?: string
 }
 
 class VoiceCloneApi {

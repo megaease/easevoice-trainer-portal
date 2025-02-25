@@ -45,11 +45,6 @@ export const getAudio = (uuid: string, session: Tasks | undefined) => {
   return result
 }
 
-export const isRunningVoiceClone = (session: Tasks | undefined) => {
-  if (!session) return false
-  return Object.values(session).some((task) => task.status === 'Running')
-}
-
 export const audioProcessesMap: Record<string, keyof UUIDState> = {
   voice_clone: 'clone',
   train_sovits: 'sovits',

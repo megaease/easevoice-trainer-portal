@@ -4,13 +4,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import voicecloneApi from '@/apis/voiceclone'
-import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { isRunningVoiceClone } from '@/lib/utils'
+import { isTaskRunning } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
@@ -21,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { LoadingButton } from '@/components/ui/loading-button'
 import {
   Select,
   SelectContent,
@@ -89,9 +88,11 @@ const defaultValues = {
   repetition_penalty: 1.3,
   sovits_path: 'default',
   gpt_path: 'default',
+  output_dir: '',
 }
 export default function VoiceCloneForm() {
   const session = useSession()
+  console.log('session', session)
   const uuid = useUUIDStore((state) => state.clone)
   const setUUID = useUUIDStore((state) => state.setUUID)
 
@@ -127,9 +128,11 @@ export default function VoiceCloneForm() {
       return
     }
     const audioPath = currentNamespace?.homePath + '/voices/' + audioState.name
+    const outputDir = currentNamespace?.homePath + '/outputs'
     const data = {
       ...values,
       ref_audio_path: audioPath,
+      output_dir: outputDir,
     }
 
     await cloneMutation.mutateAsync(data)
@@ -156,7 +159,9 @@ export default function VoiceCloneForm() {
   }
   const gptList = voiceCloneModels?.data?.gpts || []
   const sovitsList = voiceCloneModels?.data?.sovits || []
-  const isRunning = isRunningVoiceClone(session.data) || cloneMutation.isPending
+  const isTaskRunningValue =
+    isTaskRunning(uuid, session.data) || cloneMutation.isPending
+
   return (
     <>
       <Form {...form}>
@@ -480,15 +485,14 @@ export default function VoiceCloneForm() {
               </CardContent>
             </Card>
           </section>
-          <Button
+          <LoadingButton
             type='submit'
             className='w-full hover:shadow-md hover:shadow-blue-200 transition-shadow dark:hover:shadow-blue-800'
             size={'lg'}
-            disabled={isRunning}
+            loading={isTaskRunningValue}
           >
-            {isRunning ? <Loader2 className='animate-spin' /> : null}
-            {isRunning ? '正在合成声音...' : '开始合成'}
-          </Button>
+            {isTaskRunningValue ? '正在合成声音...' : '开始合成'}
+          </LoadingButton>
         </form>
       </Form>
       <CloneResult uuid={uuid} />
