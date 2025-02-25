@@ -1,9 +1,20 @@
+import { useQuery } from '@tanstack/react-query'
+import sessionApi from '@/apis/session'
 import { Cpu, HardDrive, Zap } from 'lucide-react'
 import { useSession, MonitorMetrics } from '@/hooks/use-session'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { LossMonitor } from './loss-monitor'
 
 export default function MonitoringDashboard() {
   const session = useSession()
+  const currentSession = useQuery({
+    queryKey: ['currentSession', 'loss_monitor'],
+    queryFn: async () => {
+      const res = await sessionApi.getCurrentSession()
+      return res.data
+    },
+    refetchInterval: 5000,
+  })
   if (session.isLoading) {
     return null
   }
@@ -14,7 +25,7 @@ export default function MonitoringDashboard() {
   }
 
   return (
-    <Card className='w-full bg-background shadow-none border-none'>
+    <Card className='max-w-2xl bg-background shadow-none border-none'>
       <CardHeader className='pb-2'>
         <CardTitle className='text-lg font-semibold'>监控信息</CardTitle>
       </CardHeader>
@@ -44,6 +55,13 @@ export default function MonitoringDashboard() {
             <span className='text-lg font-bold'>{data.cpu_percentage}</span>
           </div>
         </div>
+        {currentSession?.data?.losses ? (
+          <LossMonitor
+            losses={currentSession?.data?.losses}
+            taskName={currentSession?.data?.task_name}
+            status={currentSession?.data?.status}
+          />
+        ) : null}
       </CardContent>
     </Card>
   )

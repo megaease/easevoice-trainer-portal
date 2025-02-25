@@ -7,10 +7,10 @@ export interface Task {
   uuid: string
   task_name: string
   status: TaskStatus
-  error: string | null // 只有非 Running 时才有信息
-  message: string // 只有非 Running 时才有信息
-  data: Record<string, any> // 处理过程的详细数据
-  request: Record<string, any> // 请求的数据
+  error: string | null
+  message: string
+  data: Record<string, any>
+  request: Record<string, any>
 }
 export interface EaseModeTask {
   uuid: string
