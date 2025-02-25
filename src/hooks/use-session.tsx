@@ -3,7 +3,7 @@ import sessionApi from '@/apis/session'
 
 type TaskStatus = 'Completed' | 'Running' | 'Failed'
 
-export interface Task {
+interface Task {
   uuid: string
   task_name: string
   status: TaskStatus

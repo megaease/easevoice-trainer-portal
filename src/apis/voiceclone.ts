@@ -1,6 +1,6 @@
 import apiClient from '@/lib/apiClient'
 
-export type VoiceCloneBodyType = {
+type VoiceCloneBodyType = {
   text: string
   text_lang: string
   ref_audio_path: string

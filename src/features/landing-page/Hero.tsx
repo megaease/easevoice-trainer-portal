@@ -2,7 +2,7 @@ import { motion } from 'motion/react'
 import HeroImg from '@/assets/hero.avif'
 import { Button } from '@/components/ui/button'
 
-export function Hero() {
+function Hero() {
   return (
     <div
       className='relative bg-gradient-to-br from-white to-gray-50

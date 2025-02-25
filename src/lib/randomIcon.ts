@@ -18,7 +18,7 @@ import {
   LucideIcon,
 } from 'lucide-react'
 
-export const RANDOM_ICONS: LucideIcon[] = [
+const RANDOM_ICONS: LucideIcon[] = [
   Boxes,
   CircuitBoard,
   Cloud,

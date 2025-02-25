@@ -21,17 +21,6 @@ export function getSessionMessage(uuid: string, session: Tasks | undefined) {
   }
 }
 
-export function getErrorMessage(error: any) {
-  return (
-    error?.response?.data?.detail ||
-    error?.response?.data?.message ||
-    error?.response?.data?.error ||
-    error?.response?.data ||
-    error?.message ||
-    error
-  )
-}
-
 export function isTaskRunning(
   uuid: string,
   session: Tasks | undefined
