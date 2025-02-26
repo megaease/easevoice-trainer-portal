@@ -151,7 +151,7 @@ export default function VoiceCloneForm() {
     },
     onSuccess: async (data) => {
       await session.refetch()
-      toast.success('正在合成声音...')
+      toast('正在合成声音...')
       setUUID('clone', data.uuid)
     },
   })
