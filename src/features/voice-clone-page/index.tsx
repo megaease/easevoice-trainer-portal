@@ -1,4 +1,6 @@
 import React, { Suspense } from 'react'
+import { useCurrentSession } from '@/hooks/useCurrentSession'
+import { Spinner } from '@/components/ui/Spinner'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -15,6 +17,14 @@ import VoiceCloneForm from './voice-clone-form'
 const FileManager = React.lazy(() => import('@/components/file-manager'))
 
 export default function VoiceClone() {
+  const currentSession = useCurrentSession()
+  if (currentSession && currentSession.isFetching) {
+    return (
+      <div className='h-full flex justify-center items-center'>
+        <Spinner />
+      </div>
+    )
+  }
   return (
     <>
       <Header>

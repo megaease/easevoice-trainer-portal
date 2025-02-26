@@ -18,6 +18,7 @@ export const useCurrentSession = () => {
   useEffect(() => {
     if (currentSession.data) {
       const uuid = currentSession.data.uuid
+      console.log('currentSession.data', currentSession.data)
       const taskName = currentSession.data.task_name
       if (audioProcessesMap[taskName]) {
         setUUID(audioProcessesMap[taskName], uuid)

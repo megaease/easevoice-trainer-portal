@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -7,7 +7,7 @@ import voicecloneApi from '@/apis/voiceclone'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { useUUIDStore } from '@/stores/uuidStore'
-import { isTaskRunning } from '@/lib/utils'
+import { getRequest, isTaskRunning } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -92,10 +92,20 @@ const defaultValues = {
 }
 export default function VoiceCloneForm() {
   const session = useSession()
-  console.log('session', session)
   const uuid = useUUIDStore((state) => state.clone)
   const setUUID = useUUIDStore((state) => state.setUUID)
-
+  const request = getRequest(uuid, session.data) as z.infer<
+    typeof formSchema
+  > | null
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues,
+  })
+  useEffect(() => {
+    if (request) {
+      form.reset(request)
+    }
+  }, [request, form])
   const { currentNamespace } = useNamespaceStore()
 
   const { data: voiceCloneModels, isLoading } = useQuery({
@@ -112,11 +122,6 @@ export default function VoiceCloneForm() {
   const handleAudioStateChange = useCallback((audioState: AudioState) => {
     setAudioState(audioState)
   }, [])
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues,
-  })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!audioState || !audioState.url) {
@@ -300,11 +305,7 @@ export default function VoiceCloneForm() {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue
-                                  placeholder='
-              选择参考音频的语种
-              '
-                                />
+                                <SelectValue placeholder='选择参考音频的语种' />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>

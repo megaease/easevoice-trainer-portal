@@ -1,5 +1,4 @@
 import { clsx, type ClassValue } from 'clsx'
-import dayjs from 'dayjs'
 import { twMerge } from 'tailwind-merge'
 import { UUIDState } from '@/stores/uuidStore'
 import { Tasks } from '@/hooks/use-session'
@@ -30,19 +29,14 @@ export function isTaskRunning(
   return session[uuid].status === 'Running'
 }
 
-export const getAudio = (uuid: string, session: Tasks | undefined) => {
+export const getAudioPath = (uuid: string, session: Tasks | undefined) => {
   if (!uuid || !session || !session[uuid]) return ''
-  const data = session[uuid]?.data
-  const audio = typeof data === 'object' && data !== null ? data.audio : ''
-  if (!audio) return ''
-  const base64Url = `data:audio/wav;base64,${audio}`
-  const result = {
-    url: base64Url,
-    duration: '',
-    name: 'result_' + dayjs().format() + '.wav',
+  const data = session[uuid]?.data as {
+    output_path?: string
   }
-  result.name = result.name.replace(/ /g, '_')
-  return result
+  const output_path =
+    typeof data === 'object' && data !== null ? data.output_path : ''
+  return output_path
 }
 
 export const audioProcessesMap: Record<string, keyof UUIDState> = {
@@ -65,7 +59,9 @@ export const getRequest = (uuid: string, data: Tasks | undefined) => {
 
 export const getModelPath = (uuid: string, session: Tasks | undefined) => {
   if (!uuid || !session || !session[uuid]) return ''
-  const data = session[uuid]?.data
+  const data = session[uuid]?.data as {
+    model_path?: string
+  }
   const modelPath =
     typeof data === 'object' && data !== null ? data.model_path : ''
   return modelPath

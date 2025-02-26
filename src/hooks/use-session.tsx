@@ -9,7 +9,7 @@ interface Task {
   status: TaskStatus
   error: string | null
   message: string
-  data: Record<string, any>
+  data: Record<string, any> | { output_path: string }
   request: Record<string, any>
 }
 export interface EaseModeTask {
