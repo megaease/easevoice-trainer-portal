@@ -497,6 +497,7 @@ export default function VoiceCloneForm() {
                 setUUID('clone', '')
                 form.reset(defaultValues)
               }}
+              disabled={isTaskRunningValue}
             >
               重置
             </Button>
