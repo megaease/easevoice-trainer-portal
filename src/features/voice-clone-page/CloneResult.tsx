@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { Download, Bird } from 'lucide-react'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { getAudioPath, getSessionMessage } from '@/lib/utils'
+import { getAudioDuration } from '@/utils/audio'
 import { useFileDownloadMutation } from '@/hooks/use-file-download'
 import { useSession } from '@/hooks/use-session'
-import { getAudioDuration } from '@/utils/audio'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -27,13 +27,13 @@ export function CloneResult({ uuid }: { uuid: string }) {
   const audioPath = getAudioPath(uuid, session.data)
   const message = getSessionMessage(uuid, session.data)
   const audioName = audioPath?.split('/').pop() || ''
-  
+
   const [audioState, setAudioState] = useState({
     url: '',
     duration: '',
-    name: audioName
+    name: audioName,
   })
-  
+
   const fileDownloadMutation = useFileDownloadMutation()
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export function CloneResult({ uuid }: { uuid: string }) {
 
   const handleDownload = () => {
     if (!audioState.url) return
-    
+
     const link = document.createElement('a')
     link.href = audioState.url
     link.download = audioName
@@ -121,11 +121,11 @@ export function CloneResult({ uuid }: { uuid: string }) {
         <CardHeader>
           <CardTitle className='flex justify-between gap-2'>
             合成结果
-            {audioState?.url && (
+            {audioState?.url && message ? (
               <p className='text-sm text-muted-foreground font-normal'>
                 {message}
               </p>
-            )}
+            ) : null}
           </CardTitle>
           <CardDescription>合成的音频会自动保存到：{path}。</CardDescription>
         </CardHeader>
