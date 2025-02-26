@@ -4,6 +4,7 @@ import { useNamespaceStore } from '@/stores/namespaceStore'
 import { getAudioPath, getSessionMessage } from '@/lib/utils'
 import { useFileDownloadMutation } from '@/hooks/use-file-download'
 import { useSession } from '@/hooks/use-session'
+import { getAudioDuration } from '@/utils/audio'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -26,30 +27,55 @@ export function CloneResult({ uuid }: { uuid: string }) {
   const audioPath = getAudioPath(uuid, session.data)
   const message = getSessionMessage(uuid, session.data)
   const audioName = audioPath?.split('/').pop() || ''
+  
+  const [audioState, setAudioState] = useState({
+    url: '',
+    duration: '',
+    name: audioName
+  })
+  
   const fileDownloadMutation = useFileDownloadMutation()
-  const [url, setUrl] = useState('')
+
   useEffect(() => {
-    if (audioPath) {
-      fileDownloadMutation.mutateAsync(audioPath).then((url) => {
-        if (!url) return
-        setUrl(url)
-      })
+    let mounted = true
+
+    const loadAudio = async () => {
+      if (!audioPath) return
+
+      try {
+        const url = await fileDownloadMutation.mutateAsync(audioPath)
+        if (!url || !mounted) return
+
+        const duration = await getAudioDuration(url)
+        setAudioState({ url, duration, name: audioName })
+      } catch (error) {
+        console.error('Error loading audio:', error)
+      }
     }
-  }, [audioPath])
+
+    loadAudio()
+
+    return () => {
+      mounted = false
+      if (audioState.url) {
+        URL.revokeObjectURL(audioState.url)
+      }
+    }
+  }, [audioPath, audioName])
 
   const handleDownload = () => {
-    if (!audioPath) return
+    if (!audioState.url) return
+    
     const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', audioName)
+    link.href = audioState.url
+    link.download = audioName
     document.body.appendChild(link)
     link.click()
     link.remove()
-    window.URL.revokeObjectURL(url)
   }
 
   const renderContent = () => {
-    if (!audioPath || !url) {
+    if (!audioPath || !audioState.url) {
       return (
         <div className='text-center text-gray-500 flex flex-col items-center gap-4 text-sm'>
           <Bird className='inline-block w-10 h-10' />
@@ -70,7 +96,7 @@ export function CloneResult({ uuid }: { uuid: string }) {
                 onClick={handleDownload}
                 size={'icon'}
                 variant={'outline'}
-                disabled={!url}
+                disabled={!audioState.url || fileDownloadMutation.isPending}
               >
                 {fileDownloadMutation.isPending ? (
                   <span className='animate-spin'>⏳</span>
@@ -84,13 +110,7 @@ export function CloneResult({ uuid }: { uuid: string }) {
             </TooltipContent>
           </Tooltip>
         </div>
-        <AudioPlayer
-          audioState={{
-            url: url,
-            duration: '',
-            name: audioName,
-          }}
-        />
+        <AudioPlayer audioState={audioState} />
       </div>
     )
   }
@@ -101,7 +121,7 @@ export function CloneResult({ uuid }: { uuid: string }) {
         <CardHeader>
           <CardTitle className='flex justify-between gap-2'>
             合成结果
-            {url && (
+            {audioState?.url && (
               <p className='text-sm text-muted-foreground font-normal'>
                 {message}
               </p>

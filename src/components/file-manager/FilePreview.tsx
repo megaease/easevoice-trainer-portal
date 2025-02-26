@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import AudioPlayer from '../audio-player'
 import { FileItem } from './types'
+import { getAudioDuration } from '@/utils/audio'
 
 interface FilePreviewProps {
   file: FileItem | null
@@ -27,12 +28,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
 }) => {
   const filePath = `${currentPath}/${file?.fileName}`
   const [fileContent, setFileContent] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (file && file.fileName) {
-      downloadFileMutation.mutate()
-    }
-  }, [file])
+  const [audioDuration, setAudioDuration] = useState<string>('')
 
   const downloadFileMutation = useMutation({
     mutationFn: async () => {
@@ -41,51 +37,53 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
     },
     mutationKey: ['downloadFile', filePath],
     onMutate: () => {
-      toast.loading('加载中...', {
-        id: 'download-toast',
-      })
+      toast.loading('加载中...', { id: 'download-toast' })
     },
-    onSuccess: (data) => {
-      toast.success('加载成功', {
-        id: 'download-toast',
-      })
-      const handleFileContent = (data: any) => {
-        const blob = new Blob([data])
-        const extension = file?.fileName.split('.').pop()?.toLowerCase()
-        if (!extension) return
-        if (
-          [
-            'mp3',
-            'wav',
-            'flac',
-            'm4a',
-            'ogg',
-            'jpg',
-            'jpeg',
-            'png',
-            'gif',
-          ].includes(extension)
-        ) {
-          const url = URL.createObjectURL(blob)
-          setFileContent(url)
-          return
-        } else {
-          const reader = new FileReader()
-          reader.onload = () => {
-            setFileContent(reader.result as string)
-          }
-          reader.readAsText(blob)
+    onSuccess: async (data) => {
+      toast.success('加载成功', { id: 'download-toast' })
+      const blob = new Blob([data])
+      const extension = file?.fileName.split('.').pop()?.toLowerCase()
+      
+      if (!extension) return
+      
+      if (['mp3', 'wav', 'flac', 'm4a', 'ogg'].includes(extension)) {
+        const url = URL.createObjectURL(blob)
+        try {
+          const duration = await getAudioDuration(url)
+          setAudioDuration(duration)
+        } catch (error) {
+          console.error('Error getting audio duration:', error)
         }
+        setFileContent(url)
+      } else if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+        const url = URL.createObjectURL(blob)
+        setFileContent(url)
+      } else {
+        const reader = new FileReader()
+        reader.onload = () => {
+          setFileContent(reader.result as string)
+        }
+        reader.readAsText(blob)
       }
-
-      handleFileContent(data)
     },
     onError: () => {
-      toast.error('加载失败', {
-        id: 'download-toast',
-      })
+      toast.error('加载失败', { id: 'download-toast' })
     },
   })
+
+  useEffect(() => {
+    if (file?.fileName) {
+      setAudioDuration('')
+      setFileContent(null)
+      downloadFileMutation.mutate()
+    }
+    
+    return () => {
+      if (fileContent && typeof fileContent === 'string' && fileContent.startsWith('blob:')) {
+        URL.revokeObjectURL(fileContent)
+      }
+    }
+  }, [file])
 
   const getPreviewContent = () => {
     if (!file) return null
@@ -113,7 +111,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
             <AudioPlayer
               audioState={{
                 url: fileContent,
-                duration: '',
+                duration: audioDuration,
                 name: file.fileName,
               }}
             />

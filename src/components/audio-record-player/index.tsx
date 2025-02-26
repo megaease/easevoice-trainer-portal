@@ -1,6 +1,4 @@
-import React, { useState, useCallback } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import fileApi, { RequestBody } from '@/apis/files'
+import React, { useState, useCallback, useEffect } from 'react'
 import { Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
@@ -28,6 +26,32 @@ function AudioRecordPlayer({ onAudioStateChange, text }: AudioRecordPlayerProps)
   const currentAudioPath = currentNamespace?.homePath + '/voices' || '/'
   const uploadMutation = useAudioUpload(currentAudioPath)
 
+  const updateAudioState = useCallback(async (
+    tab: string,
+    newState: AudioState,
+    file?: File
+  ) => {
+    try {
+      if (file) {
+        const base64data = await fileToBase64(file)
+        await uploadMutation.mutateAsync({
+          directoryPath: currentAudioPath,
+          fileName: file.name,
+          fileContent: base64data,
+        })
+      }
+
+      setAudioState(prev => ({
+        ...prev,
+        [tab]: newState
+      }))
+      onAudioStateChange(newState)
+    } catch (error) {
+      console.error('Error updating audio state:', error)
+      toast.error('音频处理失败')
+    }
+  }, [currentAudioPath, onAudioStateChange, uploadMutation])
+
   const handleFileChange = useCallback(
     async (files: File[] | null) => {
       try {
@@ -38,27 +62,13 @@ function AudioRecordPlayer({ onAudioStateChange, text }: AudioRecordPlayerProps)
 
         const url = URL.createObjectURL(file)
         const duration = await getAudioDuration(file)
-        const newAudioState = { url, duration, name: file.name }
-        
-        setAudioState(prev => ({
-          ...prev,
-          upload: newAudioState
-        }))
-
-        const base64data = await fileToBase64(file)
-        await uploadMutation.mutateAsync({
-          directoryPath: currentAudioPath,
-          fileName: file.name,
-          fileContent: base64data,
-        })
-
-        onAudioStateChange(newAudioState)
+        await updateAudioState('upload', { url, duration, name: file.name }, file)
       } catch (error) {
         console.error('Error handling audio file:', error)
         toast.error('音频处理失败')
       }
     },
-    [currentAudioPath, onAudioStateChange, uploadMutation]
+    [updateAudioState]
   )
 
   const handleRecordingComplete = async (audioState: AudioState) => {
@@ -68,36 +78,41 @@ function AudioRecordPlayer({ onAudioStateChange, text }: AudioRecordPlayerProps)
       const response = await fetch(audioState.url)
       const blob = await response.blob()
       const file = new File([blob], audioState.name, { type: blob.type })
-      
-      // 先计算时长，避免上传过程中阻塞
       const duration = await getAudioDuration(audioState.url)
-      const newAudioState = { ...audioState, duration }
       
-      setAudioState(prev => ({
-        ...prev,
-        record: newAudioState
-      }))
-
-      const base64data = await fileToBase64(file)
-      await uploadMutation.mutateAsync({
-        directoryPath: currentAudioPath,
-        fileName: file.name,
-        fileContent: base64data,
-      })
-
-      onAudioStateChange(newAudioState)
+      await updateAudioState(
+        'record',
+        { ...audioState, duration },
+        file
+      )
     } catch (error) {
       console.error('Error handling recorded audio:', error)
       toast.error('录音处理失败')
     }
   }
 
-  const handleDeleteAudio = () => {
-    setAudioState((prev) => ({
+  const handleDeleteAudio = useCallback(() => {
+    const currentState = audioState[activeTab]
+    if (currentState?.url) {
+      URL.revokeObjectURL(currentState.url)
+    }
+    
+    setAudioState(prev => ({
       ...prev,
       [activeTab]: { url: null, duration: '0s', name: 'recording.wav' },
     }))
-  }
+  }, [activeTab, audioState])
+
+  useEffect(() => {
+    return () => {
+      // 清理所有的 URL 对象
+      Object.values(audioState).forEach(state => {
+        if (state.url) {
+          URL.revokeObjectURL(state.url)
+        }
+      })
+    }
+  }, [])
 
   const recorderAudioState = audioState['record']
   const uploadAudioState = audioState['upload']
