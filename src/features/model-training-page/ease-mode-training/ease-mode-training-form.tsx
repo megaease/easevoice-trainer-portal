@@ -23,7 +23,7 @@ import { LoadingButton } from '@/components/ui/loading-button'
 import ResultStatus from './ResultStatus'
 
 const formSchema = z.object({
-  source_dir: z.string(),
+  source_dir: z.string().nonempty('训练集音频文件目录不能为空'),
 })
 const defaultValues = {
   source_dir: '',
