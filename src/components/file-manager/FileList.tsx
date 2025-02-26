@@ -15,6 +15,8 @@ import {
   ContextMenuSeparator,
 } from '@/components/ui/context-menu'
 import { FileItem, ViewMode } from './types'
+import CopyToClipboard from 'react-copy-to-clipboard'
+import { toast } from 'sonner'
 
 interface FileListProps {
   files: FileItem[]
@@ -24,7 +26,7 @@ interface FileListProps {
   onOpen: (item: FileItem) => void
   onDelete: (item: FileItem) => void
   isLoading: boolean
-  handleCopyPath: (name: string) => void
+  handleCopyPath: (name: string) => string
 }
 
 export const FileList: React.FC<FileListProps> = ({
@@ -138,10 +140,18 @@ export const FileList: React.FC<FileListProps> = ({
             <Eye className='mr-2 h-4 w-4' />
             查看
           </ContextMenuItem>
-          <ContextMenuItem onClick={() => handleCopyPath(file.fileName)}>
-            <Copy className='mr-2 h-4 w-4' />
-            复制路径
-          </ContextMenuItem>
+          <CopyToClipboard
+            text={handleCopyPath(file.fileName)}
+            onCopy={() => {
+              toast.success('路径已复制')
+            }}
+          >
+            <ContextMenuItem >
+              <Copy className='mr-2 h-4 w-4' />
+              复制路径
+            </ContextMenuItem>
+          </CopyToClipboard>
+     
           <ContextMenuSeparator />
           <ContextMenuItem
             onClick={() => onDelete(file)}

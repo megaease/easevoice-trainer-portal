@@ -12,6 +12,8 @@ import {
   ContextMenuSeparator,
 } from '@/components/ui/context-menu'
 import { FolderItem, ViewMode } from './types'
+import CopyToClipboard from 'react-copy-to-clipboard'
+import { toast } from 'sonner'
 
 interface FolderListProps {
   folders: FolderItem[]
@@ -21,7 +23,7 @@ interface FolderListProps {
   onOpen: (item: FolderItem) => void
   onDelete: (item: FolderItem) => void
   isLoading: boolean
-  handleCopyPath: (name: string) => void
+  handleCopyPath: (name: string) => string
 }
 
 export const FolderList: React.FC<FolderListProps> = ({
@@ -37,10 +39,10 @@ export const FolderList: React.FC<FolderListProps> = ({
     return <FolderIcon className='h-6 w-6 text-yellow-500' />
   }
 
-  const FolderItem = ({ folder }: { folder: folderItem }) => {
+  const ItemFolder = ({ folder }: { folder: FolderItem }) => {
     const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-    const handleClick = (e: React.MouseEvent, folder: folderItem) => {
+    const handleClick = (e: React.MouseEvent, folder: FolderItem) => {
       if (clickTimerRef.current) {
         clearTimeout(clickTimerRef.current)
         clickTimerRef.current = null
@@ -120,10 +122,18 @@ export const FolderList: React.FC<FolderListProps> = ({
             <Eye className='mr-2 h-4 w-4' />
             打开
           </ContextMenuItem>
-          <ContextMenuItem onClick={() => handleCopyPath(folder.directoryName)}>
-            <Copy className='mr-2 h-4 w-4' />
-            复制路径
-          </ContextMenuItem>
+          <CopyToClipboard
+            text={handleCopyPath(folder.directoryName)}
+            onCopy={() => {
+              toast.success('路径已复制')
+            }}
+          >
+            <ContextMenuItem >
+              <Copy className='mr-2 h-4 w-4' />
+              复制路径
+            </ContextMenuItem>
+          </CopyToClipboard>
+
           <ContextMenuSeparator />
           <ContextMenuItem
             onClick={() => onDelete(folder)}
@@ -140,7 +150,7 @@ export const FolderList: React.FC<FolderListProps> = ({
   return (
     <>
       {folders.map((folder) => (
-        <FolderItem key={folder.directoryName} folder={folder} />
+        <ItemFolder key={folder.directoryName} folder={folder} />
       ))}
     </>
   )

@@ -141,7 +141,7 @@ function FileManager() {
   }
   const handleCopyPath = (name: string) => {
     const path = getPath(name, currentPath)
-    navigator.clipboard.writeText(path)
+    return path
   }
 
   return (
