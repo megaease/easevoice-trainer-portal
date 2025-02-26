@@ -4,6 +4,7 @@ import {
   MusicalNoteIcon,
   DocumentTextIcon, // Add this import
 } from '@heroicons/react/24/outline'
+import dayjs from 'dayjs'
 import { Eye, Copy, Trash } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
@@ -125,7 +126,7 @@ export const FileList: React.FC<FileListProps> = ({
                   </span>
                   <span>
                     {file.modifiedAt &&
-                      new Date(file.modifiedAt).toLocaleString()}
+                      dayjs(file.modifiedAt).format('YYYY-MM-DD HH:mm')}
                   </span>
                 </div>
               </div>

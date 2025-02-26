@@ -1,9 +1,8 @@
-import { useQueryClient, useMutation } from '@tanstack/react-query'
-import fileApi, { RequestBody } from '@/apis/files'
-import { Download, CloudUpload, Bird } from 'lucide-react'
-import { toast } from 'sonner'
+import { useEffect, useState } from 'react'
+import { Download, Bird } from 'lucide-react'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { getAudioPath, getSessionMessage } from '@/lib/utils'
+import { useFileDownloadMutation } from '@/hooks/use-file-download'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,8 +18,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import AudioPlayer from '@/components/audio-player'
-import AudioPlayerWithFetchData from '../model-training-page/advanced-training/data-process/components/AudioPlayerWithFetchData'
-import { useFileDownload } from '@/hooks/use-file-download'
 
 export function CloneResult({ uuid }: { uuid: string }) {
   const session = useSession()
@@ -29,16 +26,30 @@ export function CloneResult({ uuid }: { uuid: string }) {
   const audioPath = getAudioPath(uuid, session.data)
   const message = getSessionMessage(uuid, session.data)
   const audioName = audioPath?.split('/').pop() || ''
-  
-  const downloadFile = useFileDownload()
+  const fileDownloadMutation = useFileDownloadMutation()
+  const [url, setUrl] = useState('')
+  useEffect(() => {
+    if (audioPath) {
+      fileDownloadMutation.mutateAsync(audioPath).then((url) => {
+        if (!url) return
+        setUrl(url)
+      })
+    }
+  }, [audioPath])
 
   const handleDownload = () => {
     if (!audioPath) return
-    downloadFile.mutate({ filePath: audioPath, fileName: audioName })
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', audioName)
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
   }
 
   const renderContent = () => {
-    if (!audioPath) {
+    if (!audioPath || !url) {
       return (
         <div className='text-center text-gray-500 flex flex-col items-center gap-4 text-sm'>
           <Bird className='inline-block w-10 h-10' />
@@ -59,10 +70,10 @@ export function CloneResult({ uuid }: { uuid: string }) {
                 onClick={handleDownload}
                 size={'icon'}
                 variant={'outline'}
-                disabled={downloadFile.isPending}
+                disabled={!url}
               >
-                {downloadFile.isPending ? (
-                  <span className="animate-spin">⏳</span>
+                {fileDownloadMutation.isPending ? (
+                  <span className='animate-spin'>⏳</span>
                 ) : (
                   <Download />
                 )}
@@ -73,7 +84,13 @@ export function CloneResult({ uuid }: { uuid: string }) {
             </TooltipContent>
           </Tooltip>
         </div>
-        <AudioPlayerWithFetchData filePath={audioPath} name={audioName} />
+        <AudioPlayer
+          audioState={{
+            url: url,
+            duration: '',
+            name: audioName,
+          }}
+        />
       </div>
     )
   }
@@ -84,13 +101,15 @@ export function CloneResult({ uuid }: { uuid: string }) {
         <CardHeader>
           <CardTitle className='flex justify-between gap-2'>
             合成结果
-            <p className='text-sm text-muted-foreground font-normal'>{message}</p>
+            {url && (
+              <p className='text-sm text-muted-foreground font-normal'>
+                {message}
+              </p>
+            )}
           </CardTitle>
           <CardDescription>合成的音频会自动保存到：{path}。</CardDescription>
         </CardHeader>
-        <CardContent className='space-y-4'>
-          {renderContent()}
-        </CardContent>
+        <CardContent className='space-y-4'>{renderContent()}</CardContent>
       </Card>
     </section>
   )

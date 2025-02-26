@@ -9,6 +9,7 @@ import { useNamespaceStore } from '@/stores/namespaceStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import { getRequest, isTaskRunning } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
@@ -486,14 +487,28 @@ export default function VoiceCloneForm() {
               </CardContent>
             </Card>
           </section>
-          <LoadingButton
-            type='submit'
-            className='w-full hover:shadow-md hover:shadow-blue-200 transition-shadow dark:hover:shadow-blue-800'
-            size={'lg'}
-            loading={isTaskRunningValue}
-          >
-            {isTaskRunningValue ? '正在合成声音...' : '开始合成'}
-          </LoadingButton>
+          <div className='space-y-4'>
+            <Button
+              type='reset'
+              variant='outline'
+              className='w-full'
+              size={'lg'}
+              onClick={() => {
+                setUUID('clone', '')
+                form.reset(defaultValues)
+              }}
+            >
+              重置
+            </Button>
+            <LoadingButton
+              type='submit'
+              className='w-full hover:shadow-md hover:shadow-blue-200 transition-shadow dark:hover:shadow-blue-800'
+              size={'lg'}
+              loading={isTaskRunningValue}
+            >
+              {isTaskRunningValue ? '正在合成声音...' : '开始合成'}
+            </LoadingButton>
+          </div>
         </form>
       </Form>
       <CloneResult uuid={uuid} />

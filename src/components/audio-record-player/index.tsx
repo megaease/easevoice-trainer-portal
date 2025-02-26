@@ -5,10 +5,7 @@ import { Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import {
-  FileUploader,
-  FileInput,
-} from '../ui/file-uploader'
+import { FileUploader, FileInput } from '../ui/file-uploader'
 import AudioPlayback from './AudioPlayback'
 import AudioRecorder from './AudioRecorder'
 import { UploadTips } from './UploadTips'
@@ -115,7 +112,6 @@ function AudioRecordPlayer({
     },
     [onAudioStateChange]
   )
-
   const handleRecordingComplete = async (audioState: AudioState) => {
     try {
       if (!audioState.url) {
@@ -141,7 +137,10 @@ function AudioRecordPlayer({
           onAudioStateChange(audioState)
           setAudioState((prev) => ({
             ...prev,
-            record: audioState,
+            record: {
+              ...audioState,
+              duration: `${Math.round(blob.size / (16 * 1024))}s`, // Estimate duration
+            },
           }))
         } catch (error) {
           console.error('Error uploading recorded audio:', error)
