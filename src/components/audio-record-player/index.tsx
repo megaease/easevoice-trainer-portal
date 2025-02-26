@@ -78,13 +78,20 @@ function AudioRecordPlayer({ onAudioStateChange, text }: AudioRecordPlayerProps)
       const response = await fetch(audioState.url)
       const blob = await response.blob()
       const file = new File([blob], audioState.name, { type: blob.type })
-      const duration = await getAudioDuration(audioState.url)
+      
+      // 使用 AudioContext 计算精确时长
+      const arrayBuffer = await blob.arrayBuffer()
+      const audioContext = new AudioContext()
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+      const duration = `${Math.round(audioBuffer.duration)}秒`
       
       await updateAudioState(
         'record',
         { ...audioState, duration },
         file
       )
+      
+      audioContext.close()
     } catch (error) {
       console.error('Error handling recorded audio:', error)
       toast.error('录音处理失败')
