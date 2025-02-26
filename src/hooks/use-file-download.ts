@@ -1,6 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
 import fileApi from '@/apis/files'
-import { toast } from 'sonner'
 
 export function useFileDownloadMutation() {
   return useMutation({

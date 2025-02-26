@@ -10,15 +10,14 @@ import AudioPlayback from './AudioPlayback'
 import AudioRecorder from './AudioRecorder'
 import { UploadTips } from './UploadTips'
 import { AudioState } from './type'
+import { useAudioUpload } from '@/hooks/use-audio-upload'
+import { getAudioDuration, fileToBase64 } from '@/utils/audio'
 
 type AudioRecordPlayerProps = {
   onAudioStateChange: (audioState: AudioState) => void
   text: React.ReactNode
 }
-function AudioRecordPlayer({
-  onAudioStateChange,
-  text,
-}: AudioRecordPlayerProps) {
+function AudioRecordPlayer({ onAudioStateChange, text }: AudioRecordPlayerProps) {
   const { currentNamespace } = useNamespaceStore()
   const [activeTab, setActiveTab] = useState('record')
   const [audioState, setAudioState] = useState<Record<string, AudioState>>({
@@ -27,127 +26,69 @@ function AudioRecordPlayer({
   })
 
   const currentAudioPath = currentNamespace?.homePath + '/voices' || '/'
-  const queryClient = useQueryClient()
-  const uploadMutation = useMutation({
-    mutationFn: (data: RequestBody) => {
-      return fileApi.uploadFiles(data)
-    },
-    onMutate: () => {
-      return toast.loading('上传中', {
-        id: 'upload-toast',
-      })
-    },
-    onSuccess: () => {
-      toast.success('上传成功', {
-        id: 'upload-toast',
-      })
-    },
-    onError: () => {
-      toast.error('上传失败', {
-        id: 'upload-toast',
-      })
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries(
-        {
-          queryKey: ['files', currentAudioPath],
-          exact: true,
-          refetchType: 'active',
-        },
-        { throwOnError: true, cancelRefetch: true }
-      )
-    },
-  })
+  const uploadMutation = useAudioUpload(currentAudioPath)
+
   const handleFileChange = useCallback(
     async (files: File[] | null) => {
       try {
         const file = files?.[0]
-        if (!file) return
-
-        if (!file.type.startsWith('audio/')) {
-          throw new Error('Please select an audio file')
+        if (!file || !file.type.startsWith('audio/')) {
+          throw new Error('请选择音频文件')
         }
 
         const url = URL.createObjectURL(file)
-
-        const duration = await new Promise<string>((resolve, reject) => {
-          const audio = new Audio(url)
-
-          audio.addEventListener('loadedmetadata', () => {
-            resolve(`${Math.round(audio.duration)}s`)
-          })
-
-          audio.addEventListener('error', () => {
-            reject(new Error('Failed to load audio file'))
-          })
-        })
-        console.log('duration', duration)
-        setAudioState((prev) => ({
+        const duration = await getAudioDuration(file)
+        const newAudioState = { url, duration, name: file.name }
+        
+        setAudioState(prev => ({
           ...prev,
-          upload: { url, duration, name: file.name },
+          upload: newAudioState
         }))
 
-        // Convert the audio file to base64
-        const reader = new FileReader()
-        reader.readAsDataURL(file)
-        reader.onloadend = async () => {
-          let base64data = reader.result as string
-          base64data = base64data.split(',')[1] // Remove the data URL prefix
-          try {
-            const requestBody: RequestBody = {
-              directoryPath: currentAudioPath,
-              fileName: file.name,
-              fileContent: base64data,
-            }
-            await uploadMutation.mutateAsync(requestBody)
+        const base64data = await fileToBase64(file)
+        await uploadMutation.mutateAsync({
+          directoryPath: currentAudioPath,
+          fileName: file.name,
+          fileContent: base64data,
+        })
 
-            onAudioStateChange({ url, duration, name: file.name })
-          } catch (error) {
-            console.error('Error uploading audio:', error)
-          }
-        }
+        onAudioStateChange(newAudioState)
       } catch (error) {
-        console.error('Error loading audio:', error)
+        console.error('Error handling audio file:', error)
+        toast.error('音频处理失败')
       }
     },
-    [onAudioStateChange]
+    [currentAudioPath, onAudioStateChange, uploadMutation]
   )
+
   const handleRecordingComplete = async (audioState: AudioState) => {
     try {
-      if (!audioState.url) {
-        throw new Error('Audio URL is null')
-      }
+      if (!audioState.url) return
+
       const response = await fetch(audioState.url)
       const blob = await response.blob()
       const file = new File([blob], audioState.name, { type: blob.type })
+      
+      // 先计算时长，避免上传过程中阻塞
+      const duration = await getAudioDuration(audioState.url)
+      const newAudioState = { ...audioState, duration }
+      
+      setAudioState(prev => ({
+        ...prev,
+        record: newAudioState
+      }))
 
-      // Convert the recorded audio file to base64
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onloadend = async () => {
-        let base64data = reader.result as string
-        base64data = base64data.split(',')[1] // Remove the data URL prefix
-        try {
-          const requestBody: RequestBody = {
-            directoryPath: currentAudioPath,
-            fileName: file.name,
-            fileContent: base64data,
-          }
-          await uploadMutation.mutateAsync(requestBody)
-          onAudioStateChange(audioState)
-          setAudioState((prev) => ({
-            ...prev,
-            record: {
-              ...audioState,
-              duration: `${Math.round(blob.size / (16 * 1024))}s`, // Estimate duration
-            },
-          }))
-        } catch (error) {
-          console.error('Error uploading recorded audio:', error)
-        }
-      }
+      const base64data = await fileToBase64(file)
+      await uploadMutation.mutateAsync({
+        directoryPath: currentAudioPath,
+        fileName: file.name,
+        fileContent: base64data,
+      })
+
+      onAudioStateChange(newAudioState)
     } catch (error) {
-      console.error('Error uploading recorded audio:', error)
+      console.error('Error handling recorded audio:', error)
+      toast.error('录音处理失败')
     }
   }
 
