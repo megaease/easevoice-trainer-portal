@@ -490,9 +490,9 @@ export default function VoiceCloneForm() {
           <div className='space-y-4'>
             <Button
               type='reset'
+              size='lg'
               variant='outline'
               className='w-full'
-              size={'lg'}
               onClick={() => {
                 setUUID('clone', '')
                 form.reset(defaultValues)

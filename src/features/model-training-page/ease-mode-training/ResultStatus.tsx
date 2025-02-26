@@ -1,11 +1,6 @@
 import { FileCode, Folder, Info } from 'lucide-react'
 import { EaseModeTask } from '@/hooks/use-session'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 
 export default function ResultStatus({
@@ -62,13 +57,13 @@ export default function ResultStatus({
           </div>
         </div>
 
-        {result.message ? (
+        {result.error ? (
           <div className='space-y-2'>
             <div className='text-sm font-medium flex items-center space-x-2'>
               <Info className='w-4 h-4 text-muted-foreground mr-2' />
               输出信息
             </div>
-            <p className='text-sm text-muted-foreground'>{result.message}</p>
+            <p className='text-sm text-muted-foreground'>{result.error}</p>
           </div>
         ) : null}
 

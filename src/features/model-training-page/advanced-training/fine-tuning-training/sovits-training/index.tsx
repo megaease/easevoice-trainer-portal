@@ -313,6 +313,7 @@ function MyForm() {
           <div className='space-y-2 h-full'>
             <Button
               type='reset'
+              size='lg'
               className='w-full '
               onClick={() => {
                 setUUID('sovits', '')

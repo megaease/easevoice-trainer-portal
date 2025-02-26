@@ -102,6 +102,7 @@ export default function EaseModeTrainingForm() {
           <div className='grid grid-cols-2 gap-4'>
             <Button
               type='reset'
+              size='lg'
               className='w-full'
               onClick={() => {
                 setUUID('ease_voice', '')
