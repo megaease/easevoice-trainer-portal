@@ -57,16 +57,6 @@ export default function ResultStatus({
           </div>
         </div>
 
-        {result.error ? (
-          <div className='space-y-2'>
-            <div className='text-sm font-medium flex items-center space-x-2'>
-              <Info className='w-4 h-4 text-muted-foreground mr-2' />
-              输出信息
-            </div>
-            <p className='text-sm text-muted-foreground'>{result.error}</p>
-          </div>
-        ) : null}
-
         {result.data?.model_path ? (
           <div className='space-y-2'>
             <h4 className='text-sm font-medium'>模型路径</h4>
