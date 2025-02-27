@@ -34,12 +34,9 @@ export function useAudioRecorder(): AudioRecorderHook {
   }, [clearRecordingTimer])
   const startRecording = async (): Promise<void> => {
     try {
-      // 添加兼容性检查
       if (!navigator.mediaDevices?.getUserMedia) {
         throw new Error('您的浏览器不支持录音功能，请使用最新版本的 Chrome、Firefox 或 Safari')
       }
-
-      // 检查是否支持音频录制
       const devices = await navigator.mediaDevices.enumerateDevices()
       const hasAudioInput = devices.some(device => device.kind === 'audioinput')
       if (!hasAudioInput) {
