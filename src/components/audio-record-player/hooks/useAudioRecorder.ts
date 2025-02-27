@@ -34,7 +34,26 @@ export function useAudioRecorder(): AudioRecorderHook {
   }, [clearRecordingTimer])
   const startRecording = async (): Promise<void> => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      // 添加兼容性检查
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error('您的浏览器不支持录音功能，请使用最新版本的 Chrome、Firefox 或 Safari')
+      }
+
+      // 检查是否支持音频录制
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      const hasAudioInput = devices.some(device => device.kind === 'audioinput')
+      if (!hasAudioInput) {
+        throw new Error('未检测到麦克风设备')
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        } 
+      })
+      
       mediaRecorder.current = new MediaRecorder(stream)
       chunks.current = []
 
@@ -52,8 +71,8 @@ export function useAudioRecorder(): AudioRecorderHook {
         setDuration((prev) => prev + 100)
       }, 100)
     } catch (error) {
-      console.error('Error starting recording:', error)
-      throw error
+      console.error('录音初始化失败:', error)
+      throw new Error(error instanceof Error ? error.message : '录音初始化失败，请检查麦克风权限')
     }
   }
 
