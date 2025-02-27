@@ -66,6 +66,10 @@ class trainingApi {
     return await apiClient.delete(`/audio/refinement`, { data })
   }
 
+  async reloadRefinement(data: { source_dir: string; output_dir: string }) {
+    return await apiClient.post(`/audio/refinement/reload`, data)
+  }
+
   async startNormalization(data: { output_dir: string }) {
     return await apiClient.post(`/normalize/start`, data)
   }
