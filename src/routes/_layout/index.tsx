@@ -1,6 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
-import LandingPage from '@/features/landing-page'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_layout/')({
-  component: LandingPage,
+  component: RouteComponent,
 })
+
+function RouteComponent() {
+  return <Navigate to='/voice-clone' />
+}
