@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
+import { useNamespaceStore } from '@/stores/namespaceStore'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import { getRequest, getSessionMessage, isTaskRunning } from '@/lib/utils'
@@ -76,29 +77,24 @@ function MyForm() {
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues,
   })
+  const { getTrainingAudiosPath, getTrainingOutputPath } = useNamespaceStore()
+  useEffect(() => {
+    const sourcePath = getTrainingAudiosPath()
+    const outputPath = getTrainingOutputPath()
+    if (sourcePath) {
+      form.setValue('source_dir', sourcePath, { shouldValidate: true })
+    }
+    if (outputPath) {
+      form.setValue('output_dir', outputPath, { shouldValidate: true })
+    }
+  }, [form, getTrainingAudiosPath, getTrainingOutputPath])
+
   useEffect(() => {
     if (request) {
       form.reset(request)
     }
   }, [request, form])
   const setUUID = useUUIDStore((state) => state.setUUID)
-  const slicer = usePathStore((state) => state.slicer)
-  const setPaths = usePathStore((state) => state.setPaths)
-
-  useEffect(() => {
-    const { sourceDir, outputDir } = slicer
-    form.setValue('source_dir', sourceDir)
-    form.setValue('output_dir', outputDir)
-  }, [slicer, form])
-
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === 'source_dir' && value.source_dir) {
-        form.setValue('output_dir', `${value.source_dir}/output`)
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
 
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
@@ -109,10 +105,6 @@ function MyForm() {
       toast.success('已开始音频切割')
       setUUID('slicer', data.uuid)
       session.refetch()
-      setPaths('denoise', {
-        sourceDir: form.getValues('source_dir'),
-        outputDir: form.getValues('output_dir'),
-      })
     },
   })
 

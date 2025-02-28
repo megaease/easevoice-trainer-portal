@@ -53,7 +53,7 @@ export function NamespaceSwitch() {
   const createNamespaceMutation = useMutation({
     mutationFn: namespaceApi.createNamespace,
     onSuccess: () => {
-      toast.success('工作目录创建成功')
+      toast.success('项目创建成功')
     },
     onError: (error) => {
       toast.error((error as any)?.response?.data?.detail || error.message)
@@ -69,7 +69,7 @@ export function NamespaceSwitch() {
 
   const handleAddNamespace = async () => {
     if (!newNamespace.trim()) {
-      toast.error('工作目录名称不能为空')
+      toast.error('项目名称不能为空')
       return
     }
     const res = await createNamespaceMutation.mutateAsync({
@@ -82,7 +82,7 @@ export function NamespaceSwitch() {
   const deleteNamespaceMutation = useMutation({
     mutationFn: namespaceApi.deleteNamespace,
     onSuccess: async () => {
-      toast.success('工作目录删除成功')
+      toast.success('项目删除成功')
     },
     onError: (error) => {
       toast.error(error.message)
@@ -120,7 +120,7 @@ export function NamespaceSwitch() {
             sideOffset={4}
           >
             <DropdownMenuLabel className='text-xs text-muted-foreground'>
-              工作目录
+              项目
             </DropdownMenuLabel>
             {namespaces.map((namespace) => {
               const Icon = getRandomIconByName(namespace?.name || '')
@@ -140,11 +140,11 @@ export function NamespaceSwitch() {
                       onClick={(e) => {
                         e.stopPropagation()
                         if (currentNamespace?.name === namespace?.name) {
-                          toast.error('不能删除当前工作目录')
+                          toast.error('不能删除当前项目')
                           return
                         }
                         if (namespaces.length === 1) {
-                          toast.error('至少需要一个工作目录')
+                          toast.error('至少需要一个项目')
                           return
                         }
 
@@ -164,7 +164,7 @@ export function NamespaceSwitch() {
               >
                 <Plus className='size-4' />
                 <div className='font-medium text-muted-foreground'>
-                  添加工作目录
+                  创建项目
                 </div>
               </div>
             </DropdownMenuItem>
@@ -173,9 +173,9 @@ export function NamespaceSwitch() {
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>添加工作目录</DialogTitle>
+              <DialogTitle>创建项目</DialogTitle>
               <DialogDescription>
-                训练模型时，会将产生的文件保存在工作目录中
+                训练模型时，会将产生的文件保存在项目中
               </DialogDescription>
             </DialogHeader>
             <Input
@@ -199,11 +199,11 @@ export function NamespaceSwitch() {
         <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>删除工作目录</AlertDialogTitle>
+              <AlertDialogTitle>删除项目</AlertDialogTitle>
             </AlertDialogHeader>
             <AlertDialogDescription>
-              删除工作目录会删除目录中所有文件， 您确定要删除工作目录{' '}
-              {deleteNamespace} 吗？
+              删除项目会删除目录中所有文件， 您确定要删除项目 {deleteNamespace}{' '}
+              吗？
             </AlertDialogDescription>
             <AlertDialogFooter>
               <AlertDialogCancel>取消</AlertDialogCancel>

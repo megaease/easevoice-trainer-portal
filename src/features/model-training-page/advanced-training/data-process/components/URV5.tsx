@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
+import { useNamespaceStore } from '@/stores/namespaceStore'
 import { usePathStore } from '@/stores/pathStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import { isTaskRunning, getRequest, getSessionMessage } from '@/lib/utils'
@@ -62,9 +63,12 @@ const defaultValues = {
   output_dir: '',
   audio_format: 'wav',
 }
+
 function MyForm() {
   const session = useSession()
   const uuid = useUUIDStore((state) => state.urv5)
+  const setUUID = useUUIDStore((state) => state.setUUID)
+
   const request = getRequest(uuid, session.data) as z.infer<
     typeof formSchema
   > | null
@@ -73,13 +77,24 @@ function MyForm() {
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues,
   })
+  const { getTrainingAudiosPath, getTrainingOutputPath } = useNamespaceStore()
+  const sourcePath = getTrainingAudiosPath()
+  const outputPath = getTrainingOutputPath()
+  useEffect(() => {
+    if (sourcePath) {
+      form.setValue('source_dir', sourcePath, { shouldValidate: true })
+    }
+    if (outputPath) {
+      form.setValue('output_dir', outputPath, { shouldValidate: true })
+    }
+  }, [form, sourcePath, outputPath])
+
   useEffect(() => {
     if (request) {
       form.reset(request)
     }
   }, [request, form])
-  const setUUID = useUUIDStore((state) => state.setUUID)
-  const setPaths = usePathStore((state) => state.setPaths)
+
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       const res = await trainingApi.startVoiceExtraction(data)
@@ -89,21 +104,24 @@ function MyForm() {
       toast.success('已开始主人声分离')
       setUUID('urv5', data.uuid)
       session.refetch()
-      setPaths('slicer', {
-        sourceDir: form.getValues('source_dir'),
-        outputDir: form.getValues('output_dir'),
-      })
+    },
+    onError: (error) => {
+      toast.error(
+        `主人声分离失败: ${error instanceof Error ? error.message : '未知错误'}`
+      )
     },
   })
 
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === 'source_dir' && value.source_dir) {
-        form.setValue('output_dir', `${value.source_dir}/output`)
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
+  const handleReset = () => {
+    setUUID('urv5', '')
+    form.reset(defaultValues)
+    if (sourcePath) {
+      form.setValue('source_dir', sourcePath, { shouldValidate: true })
+    }
+    if (outputPath) {
+      form.setValue('output_dir', outputPath, { shouldValidate: true })
+    }
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
@@ -156,10 +174,13 @@ function MyForm() {
                     <Input
                       placeholder='音频文件夹路径'
                       type='text'
+                      disabled
                       {...field}
                     />
                   </FormControl>
-
+                  <FormDescription>
+                    请将音频文件放在此目录下，目录中的音频文件将作为输入
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -182,9 +203,6 @@ function MyForm() {
                     />
                   </FormControl>
                   <FormMessage />
-                  <FormDescription>
-                    自动填写，默认为输入文件夹路径下的 output 文件夹
-                  </FormDescription>
                 </FormItem>
               )}
             />
@@ -240,10 +258,7 @@ function MyForm() {
               type='reset'
               size='lg'
               className='w-full'
-              onClick={() => {
-                setUUID('urv5', '')
-                form.reset(defaultValues)
-              }}
+              onClick={handleReset}
               variant={'outline'}
               disabled={isTaskRunningValue}
             >
@@ -252,7 +267,7 @@ function MyForm() {
             <LoadingButton
               type='submit'
               className='w-full'
-              loading={isTaskRunningValue}
+              loading={isTaskRunningValue || startMutation.isPending}
             >
               {isTaskRunningValue ? '任务进行中' : '开始分离'}
             </LoadingButton>

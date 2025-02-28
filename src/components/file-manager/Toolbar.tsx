@@ -88,7 +88,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 <Home className='h-5 w-5' />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>工作目录</TooltipContent>
+            <TooltipContent>项目</TooltipContent>
           </Tooltip>
           <Separator orientation='vertical' className='h-6' />
 
