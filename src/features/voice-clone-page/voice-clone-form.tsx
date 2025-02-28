@@ -110,8 +110,11 @@ export default function VoiceCloneForm() {
   const { currentNamespace } = useNamespaceStore()
 
   const { data: voiceCloneModels, isLoading } = useQuery({
-    queryKey: ['voiceCloneModels'],
-    queryFn: voicecloneApi.getVoiceCloneModels,
+    queryKey: ['voiceCloneModels', currentNamespace?.homePath],
+    queryFn: () =>
+      voicecloneApi.getVoiceCloneModels({
+        project_dir: currentNamespace?.homePath || '',
+      }),
   })
 
   const [audioState, setAudioState] = useState<AudioState>({

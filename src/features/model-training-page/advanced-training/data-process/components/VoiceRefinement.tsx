@@ -5,7 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
-import { usePathStore } from '@/stores/pathStore'
+import { useNamespaceStore } from '@/stores/namespaceStore'
+import { useTrainInputDirStore } from '@/stores/trainInputDirStore'
 import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
@@ -39,28 +40,21 @@ const defaultValues = {
 function useVoiceRefinementForm() {
   const [start, setStart] = useState(false)
   const session = useSession()
-  const refinement = usePathStore((state) => state.refinement)
-  const setPaths = usePathStore((state) => state.setPaths)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   })
+  const { getTrainingAudiosPath, getTrainingOutputPath } = useNamespaceStore()
+  const sourcePath = getTrainingAudiosPath()
+  const outputPath = getTrainingOutputPath()
   useEffect(() => {
-    const { sourceDir } = refinement
-    if (sourceDir) {
-      form.setValue('input_dir', sourceDir)
-      form.setValue('output_dir', `${sourceDir}/output`)
+    if (sourcePath) {
+      form.setValue('input_dir', sourcePath)
     }
-  }, [refinement, form])
-
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === 'input_dir' && value.input_dir) {
-        form.setValue('output_dir', `${value.input_dir}/output`)
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
+    if (outputPath) {
+      form.setValue('output_dir', outputPath)
+    }
+  }, [form, sourcePath, outputPath])
 
   const startQuery = useQuery({
     queryKey: ['refinementList'],
@@ -77,10 +71,6 @@ function useVoiceRefinementForm() {
     setStart(true)
     toast.success('正在启动语音文本校对标注工具')
     session.refetch()
-    setPaths('normalize', {
-      outputDir: form.getValues('output_dir'),
-      sourceDir: form.getValues('input_dir'),
-    })
   }
 
   return {
@@ -117,37 +107,24 @@ function VoiceRefinementForm() {
           )}
         />
         <div className='grid grid-cols-2 gap-4'>
-          <div className='space-y-2 h-full'>
+          {start ? (
             <Button
-              type='reset'
-              size='lg'
-              className='w-full'
-              onClick={() => {
-                form.reset(defaultValues)
+              onClick={(e) => {
+                e.preventDefault()
                 setStart(false)
+                toast.success('请点击 "2.训练模型" 进行下一步操作')
               }}
-              variant={'outline'}
+              className='w-full h-full'
+              type='button'
             >
-              重置
+              完成标注
             </Button>
-            {start ? (
-              <Button
-                onClick={(e) => {
-                  e.preventDefault()
-                  setStart(false)
-                  toast.success('请点击 "2.训练模型" 进行下一步操作')
-                }}
-                className='w-full'
-                type='button'
-              >
-                完成标注
-              </Button>
-            ) : (
-              <Button type='submit' className='w-full'>
-                开始标注
-              </Button>
-            )}
-          </div>
+          ) : (
+            <Button type='submit' className='w-full h-full'>
+              开始标注
+            </Button>
+          )}
+
           <Textarea
             placeholder='输出信息'
             readOnly

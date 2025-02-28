@@ -7,7 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
-import { usePathStore } from '@/stores/pathStore'
+import { useNamespaceStore } from '@/stores/namespaceStore'
+import { useTrainInputDirStore } from '@/stores/trainInputDirStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import { isTaskRunning, getRequest, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
@@ -42,6 +43,8 @@ const defaultValues = {
 function MyForm() {
   const session = useSession()
   const uuid = useUUIDStore((state) => state.denoise)
+  const setUUID = useUUIDStore((state) => state.setUUID)
+
   const request = getRequest(uuid, session.data) as z.infer<
     typeof formSchema
   > | null
@@ -50,14 +53,24 @@ function MyForm() {
     resolver: zodResolver(formSchema),
     defaultValues,
   })
+  const { getTrainingAudiosPath, getTrainingOutputPath } = useNamespaceStore()
+  const sourcePath = getTrainingAudiosPath()
+  const outputPath = getTrainingOutputPath()
+
+  useEffect(() => {
+    if (sourcePath) {
+      form.setValue('source_dir', sourcePath, { shouldValidate: true })
+    }
+    if (outputPath) {
+      form.setValue('output_dir', outputPath, { shouldValidate: true })
+    }
+  }, [form, sourcePath, outputPath])
   useEffect(() => {
     if (request) {
       form.reset(request)
     }
   }, [request, form])
-  const setUUID = useUUIDStore((state) => state.setUUID)
-  const denoise = usePathStore((state) => state.denoise)
-  const setPaths = usePathStore((state) => state.setPaths)
+
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       const res = await trainingApi.startAudioDenoising(data)
@@ -67,25 +80,8 @@ function MyForm() {
       toast.success('开始语音降噪')
       setUUID('denoise', data.uuid)
       session.refetch()
-      setPaths('asr', {
-        sourceDir: form.getValues('source_dir'),
-        outputDir: form.getValues('output_dir'),
-      })
     },
   })
-  useEffect(() => {
-    const { sourceDir } = denoise
-    form.setValue('source_dir', sourceDir)
-    form.setValue('output_dir', `${sourceDir}/output`)
-  }, [denoise, form])
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === 'source_dir' && value.source_dir) {
-        form.setValue('output_dir', `${value.source_dir}/output`)
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
@@ -105,7 +101,12 @@ function MyForm() {
               <FormItem>
                 <FormLabel>降噪音频文件输入文件夹</FormLabel>
                 <FormControl>
-                  <Input placeholder='音频文件夹路径' type='text' {...field} />
+                  <Input
+                    placeholder='音频文件夹路径'
+                    type='text'
+                    readOnly
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,7 +121,12 @@ function MyForm() {
               <FormItem>
                 <FormLabel>降噪结果输出文件夹</FormLabel>
                 <FormControl>
-                  <Input placeholder='输出文件夹路径' type='text' {...field} />
+                  <Input
+                    placeholder='输出文件夹路径'
+                    type='text'
+                    readOnly
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -129,22 +135,9 @@ function MyForm() {
         </div>
         <div className='grid grid-cols-2 gap-4'>
           <div className='space-y-2 h-full'>
-            <Button
-              type='reset'
-              size='lg'
-              className='w-full'
-              onClick={() => {
-                setUUID('denoise', '')
-                form.reset(defaultValues)
-              }}
-              variant={'outline'}
-              disabled={isTaskRunningValue}
-            >
-              重置
-            </Button>
             <LoadingButton
               type='submit'
-              className='w-full'
+              className='w-full h-full'
               loading={isTaskRunningValue}
             >
               开始语音降噪

@@ -26,8 +26,10 @@ type VoiceCloneBodyType = {
 }
 
 class VoiceCloneApi {
-  async getVoiceCloneModels() {
-    return await apiClient.get('/voiceclone/models')
+  async getVoiceCloneModels(params: { project_dir: string }) {
+    return await apiClient.get('/voiceclone/models', {
+      params,
+    })
   }
 
   async cloneVoice(data: VoiceCloneBodyType) {

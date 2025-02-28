@@ -5,7 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
-import { usePathStore } from '@/stores/pathStore'
+import { useNamespaceStore } from '@/stores/namespaceStore'
+import { useTrainInputDirStore } from '@/stores/trainInputDirStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import { isTaskRunning, getRequest, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
@@ -62,6 +63,17 @@ function MyForm() {
     resolver: zodResolver(formSchema),
     defaultValues,
   })
+  const { getTrainingAudiosPath, getTrainingOutputPath } = useNamespaceStore()
+  const sourcePath = getTrainingAudiosPath()
+  const outputPath = getTrainingOutputPath()
+  useEffect(() => {
+    if (sourcePath) {
+      form.setValue('source_dir', sourcePath)
+    }
+    if (outputPath) {
+      form.setValue('output_dir', outputPath)
+    }
+  }, [form, sourcePath, outputPath])
   useEffect(() => {
     if (request) {
       form.reset(request)
@@ -69,8 +81,6 @@ function MyForm() {
   }, [request, form])
 
   const setUUID = useUUIDStore((state) => state.setUUID)
-  const asr = usePathStore((state) => state.asr)
-  const setPaths = usePathStore((state) => state.setPaths)
 
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
@@ -81,29 +91,8 @@ function MyForm() {
       toast.success('音频转文字已启动')
       setUUID('asr', data.uuid)
       session.refetch()
-      setPaths('refinement', {
-        sourceDir: form.getValues('source_dir'),
-        outputDir: form.getValues('output_dir'),
-      })
-      setPaths('normalize', {
-        outputDir: form.getValues('output_dir'),
-        sourceDir: form.getValues('source_dir'),
-      })
     },
   })
-  useEffect(() => {
-    const { sourceDir } = asr
-    form.setValue('source_dir', sourceDir)
-    form.setValue('output_dir', `${sourceDir}/output`)
-  }, [asr, form])
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === 'source_dir' && value.source_dir) {
-        form.setValue('output_dir', `${value.source_dir}/output`)
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     await startMutation.mutateAsync(values)
@@ -127,6 +116,7 @@ function MyForm() {
                     <Input
                       placeholder='输入文件夹路径'
                       type='text'
+                      readOnly
                       {...field}
                     />
                   </FormControl>
@@ -146,6 +136,7 @@ function MyForm() {
                     <Input
                       placeholder='输出文件夹路径'
                       type='text'
+                      readOnly
                       {...field}
                     />
                   </FormControl>
@@ -163,10 +154,7 @@ function MyForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>ASR 模型</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder='请选择 ASR 模型' />
@@ -189,10 +177,7 @@ function MyForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>ASR 模型尺寸</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder='请选择模型尺寸' />
@@ -215,10 +200,7 @@ function MyForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>ASR 语言设置</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder='请选择语言' />
@@ -241,10 +223,7 @@ function MyForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>数据类型精度</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder='请选择精度' />
@@ -270,6 +249,12 @@ function MyForm() {
               onClick={() => {
                 setUUID('asr', '')
                 form.reset(defaultValues)
+                if (sourcePath) {
+                  form.setValue('source_dir', sourcePath)
+                }
+                if (outputPath) {
+                  form.setValue('output_dir', outputPath)
+                }
               }}
               variant={'outline'}
               disabled={isTaskRunningValue}

@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
-import { usePathStore } from '@/stores/pathStore'
+import { useTrainInputDirStore } from '@/stores/trainInputDirStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import { isTaskRunning, getRequest, getSessionMessage } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
@@ -80,6 +80,7 @@ function MyForm() {
   const { getTrainingAudiosPath, getTrainingOutputPath } = useNamespaceStore()
   const sourcePath = getTrainingAudiosPath()
   const outputPath = getTrainingOutputPath()
+
   useEffect(() => {
     if (sourcePath) {
       form.setValue('source_dir', sourcePath, { shouldValidate: true })
@@ -116,10 +117,10 @@ function MyForm() {
     setUUID('urv5', '')
     form.reset(defaultValues)
     if (sourcePath) {
-      form.setValue('source_dir', sourcePath, { shouldValidate: true })
+      form.setValue('source_dir', sourcePath)
     }
     if (outputPath) {
-      form.setValue('output_dir', outputPath, { shouldValidate: true })
+      form.setValue('output_dir', outputPath)
     }
   }
 
@@ -141,10 +142,7 @@ function MyForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>模型</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder='请选择模型' />
@@ -174,7 +172,7 @@ function MyForm() {
                     <Input
                       placeholder='音频文件夹路径'
                       type='text'
-                      disabled
+                      readOnly
                       {...field}
                     />
                   </FormControl>
@@ -199,6 +197,7 @@ function MyForm() {
                     <Input
                       placeholder='输出文件夹路径'
                       type='text'
+                      readOnly
                       {...field}
                     />
                   </FormControl>
@@ -217,7 +216,7 @@ function MyForm() {
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                       className='flex flex-col space-y-1'
                     >
                       <FormItem className='flex items-center space-x-3 space-y-0'>

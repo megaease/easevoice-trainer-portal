@@ -5,11 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
-import { usePathStore } from '@/stores/pathStore'
+import { useNamespaceStore } from '@/stores/namespaceStore'
+import { useTrainInputDirStore } from '@/stores/trainInputDirStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import { getRequest, getSessionMessage, isTaskRunning } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Form,
@@ -31,27 +31,36 @@ function NormalizationForm() {
   const session = useSession()
   const uuid = useUUIDStore((state) => state.normalize)
   const setUUID = useUUIDStore((state) => state.setUUID)
-  const normalize = usePathStore((state) => state.normalize)
-  const setPaths = usePathStore((state) => state.setPaths)
-  const request = getRequest(uuid, session.data) as z.infer<
-    typeof formSchema
-  > | null
+  const setTrainInputDir = useTrainInputDirStore(
+    (state) => state.setTrainInputDir
+  )
+  const request = getRequest(uuid, session.data) as
+    | (z.infer<typeof formSchema> & {
+        predefined_output_path: string
+      })
+    | null
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
   })
+  const { getTrainingOutputPath } = useNamespaceStore()
+  const outputPath = getTrainingOutputPath()
+  useEffect(() => {
+    if (outputPath) {
+      form.setValue('output_dir', outputPath)
+    }
+  }, [form, outputPath])
   useEffect(() => {
     if (request) {
       form.reset(request)
+      const normalizePath =
+        request.output_dir + '/' + request.predefined_output_path
+      if (normalizePath) {
+        setTrainInputDir(normalizePath)
+      }
     }
   }, [request, form])
-
-  useEffect(() => {
-    const { outputDir } = normalize
-    if (outputDir) {
-      form.setValue('output_dir', outputDir)
-    }
-  }, [normalize, form])
 
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
@@ -63,15 +72,7 @@ function NormalizationForm() {
       setUUID('normalize', data.uuid)
       await session.refetch()
       const normalizePath = data.data.normalize_path
-      setPaths('sovits', {
-        sourceDir: normalizePath,
-        outputDir: form.getValues('output_dir'),
-      })
-      setPaths('gpt', {
-        sourceDir: normalizePath,
-        outputDir: form.getValues('output_dir'),
-      })
-      //todo sovits
+      setTrainInputDir(normalizePath)
     },
   })
 
@@ -97,6 +98,7 @@ function NormalizationForm() {
                     <Input
                       placeholder='输出文件夹路径'
                       type='text'
+                      readOnly
                       {...field}
                     />
                   </FormControl>
@@ -107,28 +109,14 @@ function NormalizationForm() {
           </div>
         </div>
         <div className='grid grid-cols-2 gap-4'>
-          <div className='space-y-2 h-full'>
-            <Button
-              type='reset'
-              size='lg'
-              className='w-full'
-              onClick={() => {
-                setUUID('normalize', '')
-                form.reset(defaultValues)
-              }}
-              variant={'outline'}
-              disabled={isTaskRunningValue}
-            >
-              重置
-            </Button>
-            <LoadingButton
-              type='submit'
-              className='w-full'
-              loading={isTaskRunning(uuid, session.data)}
-            >
-              {isTaskRunningValue ? '任务进行中' : '开始归一化'}
-            </LoadingButton>
-          </div>
+          <LoadingButton
+            type='submit'
+            className='w-full h-full'
+            loading={isTaskRunning(uuid, session.data)}
+          >
+            {isTaskRunningValue ? '任务进行中' : '开始归一化'}
+          </LoadingButton>
+
           <Textarea
             placeholder='输出信息'
             rows={3}

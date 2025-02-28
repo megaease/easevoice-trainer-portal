@@ -5,7 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
-import { usePathStore } from '@/stores/pathStore'
+import { useNamespaceStore } from '@/stores/namespaceStore'
+import { useTrainInputDirStore } from '@/stores/trainInputDirStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import {
   getModelPath,
@@ -47,6 +48,7 @@ const formSchema = z.object({
   if_save_every_weights: z.boolean(),
   gpu_ids: z.string().nonempty('GPU IDs不能为空'),
   train_input_dir: z.string().nonempty('训练输入目录不能为空'),
+  project_dir: z.string(),
 })
 
 const defaultValues = {
@@ -61,13 +63,14 @@ const defaultValues = {
   if_save_every_weights: true,
   gpu_ids: '0',
   train_input_dir: '',
+  project_dir: '',
 }
 
 function MyForm() {
   const session = useSession()
   const uuid = useUUIDStore((state) => state.gpt)
   const setUUID = useUUIDStore((state) => state.setUUID)
-  const gpt = usePathStore((state) => state.gpt)
+  const trainInputDir = useTrainInputDirStore((state) => state.trainInputDir)
   const request = getRequest(uuid, session.data) as z.infer<
     typeof formSchema
   > | null
@@ -75,18 +78,22 @@ function MyForm() {
     resolver: zodResolver(formSchema),
     defaultValues,
   })
+  const { currentNamespace } = useNamespaceStore()
+  useEffect(() => {
+    if (currentNamespace) {
+      form.setValue('project_dir', currentNamespace?.homePath || '')
+    }
+  }, [form, currentNamespace])
+  useEffect(() => {
+    if (trainInputDir) {
+      form.setValue('train_input_dir', trainInputDir)
+    }
+  }, [form, trainInputDir])
   useEffect(() => {
     if (request) {
       form.reset(request)
     }
   }, [request, form])
-  useEffect(() => {
-    const { sourceDir } = gpt
-    if (sourceDir) {
-      // normalize path
-      form.setValue('train_input_dir', sourceDir)
-    }
-  }, [gpt, form])
 
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {

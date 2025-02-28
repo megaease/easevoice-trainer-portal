@@ -4,8 +4,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
+import { Projector } from 'lucide-react'
 import { toast } from 'sonner'
-import { usePathStore } from '@/stores/pathStore'
+import { useNamespaceStore } from '@/stores/namespaceStore'
+import { useTrainInputDirStore } from '@/stores/trainInputDirStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import {
   getModelPath,
@@ -49,6 +51,7 @@ const formSchema = z.object({
   gpu_ids: z.string().nonempty('请输入GPU IDs'),
   train_input_dir: z.string().nonempty('请输入训练输入目录'),
   output_model_name: z.string(),
+  project_dir: z.string(),
 })
 
 const defaultValues = {
@@ -63,13 +66,14 @@ const defaultValues = {
   pretrained_s2D: 'pretrained/gsv-v2final-pretrained/s2D2333k.pth',
   train_input_dir: '',
   output_model_name: '',
+  project_dir: '',
 }
 
 function MyForm() {
   const session = useSession()
-  const sovits = usePathStore((state) => state.sovits)
   const uuid = useUUIDStore((state) => state.sovits)
   const setUUID = useUUIDStore((state) => state.setUUID)
+  const trainInputDir = useTrainInputDirStore((state) => state.trainInputDir)
   const request = getRequest(uuid, session.data) as z.infer<
     typeof formSchema
   > | null
@@ -78,18 +82,24 @@ function MyForm() {
     resolver: zodResolver(formSchema),
     defaultValues,
   })
+
+  const { currentNamespace } = useNamespaceStore()
+  useEffect(() => {
+    if (currentNamespace) {
+      form.setValue('project_dir', currentNamespace?.homePath || '')
+    }
+  }, [form, currentNamespace])
+  useEffect(() => {
+    if (trainInputDir) {
+      form.setValue('train_input_dir', trainInputDir)
+    }
+  }, [form, trainInputDir])
+
   useEffect(() => {
     if (request) {
       form.reset(request)
     }
   }, [request, form])
-  useEffect(() => {
-    const { sourceDir } = sovits
-    if (sourceDir) {
-      // normalize path
-      form.setValue('train_input_dir', sourceDir)
-    }
-  }, [sovits, form])
 
   const startMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
@@ -318,6 +328,9 @@ function MyForm() {
               onClick={() => {
                 setUUID('sovits', '')
                 form.reset(defaultValues)
+                if (trainInputDir) {
+                  form.setValue('train_input_dir', trainInputDir)
+                }
               }}
               variant={'outline'}
               disabled={isTaskRunningValue}

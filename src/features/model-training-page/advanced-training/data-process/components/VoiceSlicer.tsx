@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/react-query'
 import trainingApi from '@/apis/training'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
-import { usePathStore } from '@/stores/pathStore'
+import { useTrainInputDirStore } from '@/stores/trainInputDirStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import { getRequest, getSessionMessage, isTaskRunning } from '@/lib/utils'
 import { useSession } from '@/hooks/use-session'
@@ -78,16 +78,16 @@ function MyForm() {
     defaultValues: defaultValues,
   })
   const { getTrainingAudiosPath, getTrainingOutputPath } = useNamespaceStore()
+  const sourcePath = getTrainingAudiosPath()
+  const outputPath = getTrainingOutputPath()
   useEffect(() => {
-    const sourcePath = getTrainingAudiosPath()
-    const outputPath = getTrainingOutputPath()
     if (sourcePath) {
-      form.setValue('source_dir', sourcePath, { shouldValidate: true })
+      form.setValue('source_dir', sourcePath)
     }
     if (outputPath) {
-      form.setValue('output_dir', outputPath, { shouldValidate: true })
+      form.setValue('output_dir', outputPath)
     }
-  }, [form, getTrainingAudiosPath, getTrainingOutputPath])
+  }, [form, sourcePath, outputPath])
 
   useEffect(() => {
     if (request) {
@@ -125,11 +125,12 @@ function MyForm() {
               name='source_dir'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>音频自动切分输入路径，可文件可文件夹</FormLabel>
+                  <FormLabel>音频自动切分输入路径</FormLabel>
                   <FormControl>
                     <Input
                       placeholder='请输入音频文件路径'
-                      type=''
+                      type='text'
+                      readOnly
                       {...field}
                     />
                   </FormControl>
@@ -146,7 +147,8 @@ function MyForm() {
                   <FormControl>
                     <Input
                       placeholder='请输入子音频输出目录'
-                      type=''
+                      type='text'
+                      readOnly
                       {...field}
                     />
                   </FormControl>
@@ -337,6 +339,16 @@ function MyForm() {
               onClick={() => {
                 setUUID('slicer', '')
                 form.reset(defaultValues)
+                if (sourcePath) {
+                  form.setValue('source_dir', sourcePath, {
+                    shouldValidate: true,
+                  })
+                }
+                if (outputPath) {
+                  form.setValue('output_dir', outputPath, {
+                    shouldValidate: true,
+                  })
+                }
               }}
               variant={'outline'}
               disabled={isTaskRunningValue}

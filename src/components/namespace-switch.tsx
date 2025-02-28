@@ -157,11 +157,11 @@ export function NamespaceSwitch() {
               )
             })}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className='gap-2 p-2'>
-              <div
-                className='flex items-center justify-center w-full h-full gap-2'
-                onClick={() => setIsDialogOpen(true)}
-              >
+            <DropdownMenuItem
+              className='gap-2 p-2'
+              onClick={() => setIsDialogOpen(true)}
+            >
+              <div className='flex items-center justify-center w-full h-full gap-2'>
                 <Plus className='size-4' />
                 <div className='font-medium text-muted-foreground'>
                   创建项目
