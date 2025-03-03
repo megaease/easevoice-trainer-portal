@@ -117,6 +117,13 @@ export default function VoiceCloneForm() {
       }),
   })
 
+  useEffect(() => {
+    if (voiceCloneModels?.data) {
+      form.setValue('sovits_path', voiceCloneModels.data.sovits[0] || null)
+      form.setValue('gpt_path', voiceCloneModels.data.gpts[0] || null)
+    }
+  }, [voiceCloneModels])
+
   const [audioState, setAudioState] = useState<AudioState>({
     url: null,
     duration: '',

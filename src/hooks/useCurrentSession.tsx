@@ -16,7 +16,7 @@ export const useCurrentSession = () => {
   })
 
   useEffect(() => {
-    if (currentSession.data) {
+    if (currentSession.data && currentSession.data.status === 'Running') {
       const uuid = currentSession.data.uuid
       const taskName = currentSession.data.task_name
       if (audioProcessesMap[taskName]) {

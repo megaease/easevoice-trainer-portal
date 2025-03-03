@@ -134,6 +134,50 @@ function MyForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4 w-full'>
+        <div>
+          <FormField
+            control={form.control}
+            name='source_dir'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>音频输入文件夹路径</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder='音频文件夹路径'
+                    type='text'
+                    readOnly
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  请将音频文件放在此目录下，目录中的音频文件将作为输入
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div>
+          <FormField
+            control={form.control}
+            name='output_dir'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>输出文件夹路径</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder='输出文件夹路径'
+                    type='text'
+                    readOnly
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <div className='grid grid-cols-12 gap-4'>
           <div className='col-span-6'>
             <FormField
@@ -156,51 +200,6 @@ function MyForm() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className='col-span-6'>
-            <FormField
-              control={form.control}
-              name='source_dir'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>音频输入文件夹路径</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder='音频文件夹路径'
-                      type='text'
-                      readOnly
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    请将音频文件放在此目录下，目录中的音频文件将作为输入
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
-        <div className='grid grid-cols-12 gap-4'>
-          <div className='col-span-6'>
-            <FormField
-              control={form.control}
-              name='output_dir'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>输出文件夹路径</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder='输出文件夹路径'
-                      type='text'
-                      readOnly
-                      {...field}
-                    />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

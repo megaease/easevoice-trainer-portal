@@ -26,16 +26,18 @@ import ResultStatus from './ResultStatus'
 
 const formSchema = z.object({
   source_dir: z.string().nonempty('训练集音频文件目录不能为空'),
+  project_dir: z.string().nonempty('项目目录不能为空'),
 })
 const defaultValues = {
   source_dir: '',
+  project_dir: '',
 }
 export default function EaseModeTrainingForm() {
   const queryClient = useQueryClient()
   const session = useSession()
   const uuid = useUUIDStore((state) => state.ease_voice)
   const setUUID = useUUIDStore((state) => state.setUUID)
-  const { getTrainingAudiosPath } = useNamespaceStore()
+  const { getTrainingAudiosPath, currentNamespace } = useNamespaceStore()
 
   const request = getRequest(uuid, session.data) as z.infer<
     typeof formSchema
@@ -44,6 +46,11 @@ export default function EaseModeTrainingForm() {
     resolver: zodResolver(formSchema),
     defaultValues,
   })
+  useEffect(() => {
+    if (currentNamespace) {
+      form.setValue('project_dir', currentNamespace?.homePath || '')
+    }
+  }, [form, currentNamespace])
 
   useEffect(() => {
     const path = getTrainingAudiosPath()
@@ -62,6 +69,7 @@ export default function EaseModeTrainingForm() {
     try {
       const response = await trainingAPi.startTraining({
         source_dir: values.source_dir,
+        project_dir: values.project_dir,
       })
       if (response && response.status === 200) {
         toast.success('训练已经开始')

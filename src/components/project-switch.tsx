@@ -53,7 +53,7 @@ export function ProjectSwitch() {
     await currentSession.refetch()
     if (currentSession.data?.status === 'Running') {
       toast.error('当前有任务正在执行', {
-        description: '请先停止当前任务，再切换项目',
+        description: '请等待任务执行完毕后再切换项目',
       })
       return
     }
