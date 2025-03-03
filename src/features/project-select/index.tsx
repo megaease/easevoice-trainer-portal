@@ -24,12 +24,9 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ProjectSwitch } from '@/components/project-switch'
 import ProjectSelectForm from './project-select-form'
 
 export function ProjectSelect() {
-  const navigate = useNavigate()
-  const { currentNamespace } = useNamespaceStore()
   const [rootPath, setRootPath] = useState('')
   const [isRootDialogOpen, setIsRootDialogOpen] = useState(false)
 

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 // Directory constants
 const VOICES_DIR = 'voices'
@@ -23,38 +24,48 @@ type NamespaceStore = {
   getTrainingOutputPath: () => string
 }
 
-export const useNamespaceStore = create<NamespaceStore>()((set, get) => ({
-  currentNamespace: null,
-  setCurrentNamespace: (newNamespace: Namespace | null) =>
-    set({ currentNamespace: newNamespace }),
-  getVoicesPath: () => {
-    const currentNamespace = get().currentNamespace
-    return currentNamespace
-      ? `${currentNamespace.homePath}/${VOICES_DIR}`
-      : ''
-  },
-  getOutputsPath: () => {
-    const currentNamespace = get().currentNamespace
-    return currentNamespace
-      ? `${currentNamespace.homePath}/${OUTPUTS_DIR}`
-      : ''
-  },
-  getTrainingAudiosPath: () => {
-    const currentNamespace = get().currentNamespace
-    return currentNamespace
-      ? `${currentNamespace.homePath}/${TRAINING_AUDIOS_DIR}`
-      : ''
-  },
-  getTrainingOutputPath: () => {
-    const currentNamespace = get().currentNamespace
-    return currentNamespace
-      ? `${currentNamespace.homePath}/${TRAINING_OUTPUT_DIR}`
-      : ''
-  },
-  getModelsPath: () => {
-    const currentNamespace = get().currentNamespace
-    return currentNamespace
-      ? `${currentNamespace.homePath}/${MODELS_DIR}`
-      : ''
-  },
-}))
+export const useNamespaceStore = create<NamespaceStore>()(
+  persist(
+    (set, get) => ({
+      currentNamespace: null,
+      setCurrentNamespace: (newNamespace: Namespace | null) =>
+        set({ currentNamespace: newNamespace }),
+      getVoicesPath: () => {
+        const currentNamespace = get().currentNamespace
+        return currentNamespace
+          ? `${currentNamespace.homePath}/${VOICES_DIR}`
+          : ''
+      },
+      getOutputsPath: () => {
+        const currentNamespace = get().currentNamespace
+        return currentNamespace
+          ? `${currentNamespace.homePath}/${OUTPUTS_DIR}`
+          : ''
+      },
+      getTrainingAudiosPath: () => {
+        const currentNamespace = get().currentNamespace
+        return currentNamespace
+          ? `${currentNamespace.homePath}/${TRAINING_AUDIOS_DIR}`
+          : ''
+      },
+      getTrainingOutputPath: () => {
+        const currentNamespace = get().currentNamespace
+        return currentNamespace
+          ? `${currentNamespace.homePath}/${TRAINING_OUTPUT_DIR}`
+          : ''
+      },
+      getModelsPath: () => {
+        const currentNamespace = get().currentNamespace
+        return currentNamespace
+          ? `${currentNamespace.homePath}/${MODELS_DIR}`
+          : ''
+      },
+    }),
+    {
+      name: 'namespace-storage',
+      storage: createJSONStorage(() => localStorage),
+      // Handle SSR cases
+      skipHydration: typeof window === 'undefined',
+    }
+  )
+)
