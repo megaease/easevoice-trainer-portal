@@ -43,7 +43,6 @@ import {
 
 export function ProjectSwitch() {
   const { currentNamespace, setCurrentNamespace } = useNamespaceStore()
-  console.log(currentNamespace, 'currentNamespace')
   const { namespaces = [], refetch } = useNamespaceList()
   const currentSession = useCurrentSessionAutoRefresh()
   const [deleteNamespace, setDeleteNamespace] = React.useState<string | null>(
