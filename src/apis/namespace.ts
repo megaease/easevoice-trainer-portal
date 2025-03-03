@@ -1,5 +1,14 @@
 import apiClient from '@/lib/apiClient'
 
+interface NamespaceRoot {
+  'namespaces-root': string;
+  setOnce: boolean;
+}
+
+interface UpdateNamespaceRoot {
+  'namespaces-root': string;
+}
+
 class NamespaceApi {
   async getNamespaces() {
     return await apiClient.get('/namespaces')
@@ -19,6 +28,14 @@ class NamespaceApi {
 
   async deleteNamespace(name: string) {
     return await apiClient.delete(`/namespaces/${name}`)
+  }
+
+
+  async getNamespaceRoot() {
+    return await apiClient.get<NamespaceRoot>('/namespaces-root')
+  }
+  async updateNamespaceRoot(data: UpdateNamespaceRoot) {
+    return await apiClient.post('/namespaces-root', data)
   }
 }
 

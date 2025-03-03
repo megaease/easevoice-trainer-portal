@@ -1,10 +1,17 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
+import { useNamespaceStore } from '@/stores/namespaceStore'
 
 export const Route = createFileRoute('/_layout')({
   component: RouteComponent,
+  beforeLoad: () => {
+    const currentNamespace = useNamespaceStore.getState().currentNamespace
+    if (!currentNamespace) {
+      throw redirect({ to: '/' })
+    }
+  }
 })
 
 function RouteComponent() {

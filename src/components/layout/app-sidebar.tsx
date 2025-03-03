@@ -14,7 +14,7 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from '@/components/ui/sidebar'
-import { NamespaceSwitch } from '../namespace-switch'
+import { ProjectSwitch } from '../project-switch'
 import { NavLink, NavItem } from './types'
 
 // Menu items.
@@ -70,7 +70,7 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
 function Logo() {
   const { state } = useSidebar()
   return (
-    <Link to='/'>
+    <Link to='/voice-clone'>
       <div className='flex gap-1 items-center py-1'>
         <div
           className='flex aspect-square size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground
@@ -108,7 +108,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NamespaceSwitch />
+        <ProjectSwitch />
       </SidebarFooter>
     </Sidebar>
   )

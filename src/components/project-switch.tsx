@@ -29,7 +29,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from '@/components/ui/sidebar'
 import {
   AlertDialog,
@@ -41,10 +40,9 @@ import {
   AlertDialogTitle,
 } from './ui/alert-dialog'
 
-export function NamespaceSwitch() {
-  const { isMobile } = useSidebar()
+export function ProjectSwitch() {
   const { currentNamespace, setCurrentNamespace } = useNamespaceStore()
-
+  console.log(currentNamespace,'currentNamespace')
   const { namespaces = [], refetch } = useNamespaceList()
   const [deleteNamespace, setDeleteNamespace] = React.useState<string | null>(
     null
@@ -116,7 +114,6 @@ export function NamespaceSwitch() {
           <DropdownMenuContent
             className='w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg'
             align='start'
-            side={isMobile ? 'bottom' : 'right'}
             sideOffset={4}
           >
             <DropdownMenuLabel className='text-xs text-muted-foreground'>
@@ -175,7 +172,7 @@ export function NamespaceSwitch() {
             <DialogHeader>
               <DialogTitle>创建项目</DialogTitle>
               <DialogDescription>
-                训练模型时，会将产生的文件保存在项目中
+              克隆和训练模型产生的文件都会保存在项目中
               </DialogDescription>
             </DialogHeader>
             <Input

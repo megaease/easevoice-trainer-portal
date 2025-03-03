@@ -14,7 +14,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout/route'
-import { Route as LayoutIndexImport } from './routes/_layout/index'
+import { Route as IndexImport } from './routes/index'
 import { Route as LayoutDashboardIndexImport } from './routes/_layout/dashboard/index'
 
 // Create Virtual Routes
@@ -52,10 +52,10 @@ const LayoutRouteRoute = LayoutRouteImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutIndexRoute = LayoutIndexImport.update({
+const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => LayoutRouteRoute,
+  getParentRoute: () => rootRoute,
 } as any)
 
 const LayoutModelTrainingRouteLazyRoute =
@@ -157,6 +157,13 @@ const LayoutModelTrainingAdvancedModeStep1LazyRoute =
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
     '/_layout': {
       id: '/_layout'
       path: ''
@@ -169,13 +176,6 @@ declare module '@tanstack/react-router' {
       path: '/model-training'
       fullPath: '/model-training'
       preLoaderRoute: typeof LayoutModelTrainingRouteLazyImport
-      parentRoute: typeof LayoutRouteImport
-    }
-    '/_layout/': {
-      id: '/_layout/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof LayoutIndexImport
       parentRoute: typeof LayoutRouteImport
     }
     '/_layout/model-training/advanced-mode': {
@@ -288,7 +288,6 @@ const LayoutModelTrainingRouteLazyRouteWithChildren =
 
 interface LayoutRouteRouteChildren {
   LayoutModelTrainingRouteLazyRoute: typeof LayoutModelTrainingRouteLazyRouteWithChildren
-  LayoutIndexRoute: typeof LayoutIndexRoute
   LayoutDashboardIndexRoute: typeof LayoutDashboardIndexRoute
   LayoutAboutIndexLazyRoute: typeof LayoutAboutIndexLazyRoute
   LayoutVoiceCloneIndexLazyRoute: typeof LayoutVoiceCloneIndexLazyRoute
@@ -297,7 +296,6 @@ interface LayoutRouteRouteChildren {
 const LayoutRouteRouteChildren: LayoutRouteRouteChildren = {
   LayoutModelTrainingRouteLazyRoute:
     LayoutModelTrainingRouteLazyRouteWithChildren,
-  LayoutIndexRoute: LayoutIndexRoute,
   LayoutDashboardIndexRoute: LayoutDashboardIndexRoute,
   LayoutAboutIndexLazyRoute: LayoutAboutIndexLazyRoute,
   LayoutVoiceCloneIndexLazyRoute: LayoutVoiceCloneIndexLazyRoute,
@@ -308,9 +306,9 @@ const LayoutRouteRouteWithChildren = LayoutRouteRoute._addFileChildren(
 )
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '': typeof LayoutRouteRouteWithChildren
   '/model-training': typeof LayoutModelTrainingRouteLazyRouteWithChildren
-  '/': typeof LayoutIndexRoute
   '/model-training/advanced-mode': typeof LayoutModelTrainingAdvancedModeRouteLazyRouteWithChildren
   '/model-training/ease-mode': typeof LayoutModelTrainingEaseModeLazyRoute
   '/dashboard': typeof LayoutDashboardIndexRoute
@@ -323,7 +321,8 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
-  '/': typeof LayoutIndexRoute
+  '/': typeof IndexRoute
+  '': typeof LayoutRouteRouteWithChildren
   '/model-training/ease-mode': typeof LayoutModelTrainingEaseModeLazyRoute
   '/dashboard': typeof LayoutDashboardIndexRoute
   '/about': typeof LayoutAboutIndexLazyRoute
@@ -336,9 +335,9 @@ export interface FileRoutesByTo {
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
+  '/': typeof IndexRoute
   '/_layout': typeof LayoutRouteRouteWithChildren
   '/_layout/model-training': typeof LayoutModelTrainingRouteLazyRouteWithChildren
-  '/_layout/': typeof LayoutIndexRoute
   '/_layout/model-training/advanced-mode': typeof LayoutModelTrainingAdvancedModeRouteLazyRouteWithChildren
   '/_layout/model-training/ease-mode': typeof LayoutModelTrainingEaseModeLazyRoute
   '/_layout/dashboard/': typeof LayoutDashboardIndexRoute
@@ -353,9 +352,9 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | ''
     | '/model-training'
-    | '/'
     | '/model-training/advanced-mode'
     | '/model-training/ease-mode'
     | '/dashboard'
@@ -368,6 +367,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | ''
     | '/model-training/ease-mode'
     | '/dashboard'
     | '/about'
@@ -378,9 +378,9 @@ export interface FileRouteTypes {
     | '/model-training/advanced-mode'
   id:
     | '__root__'
+    | '/'
     | '/_layout'
     | '/_layout/model-training'
-    | '/_layout/'
     | '/_layout/model-training/advanced-mode'
     | '/_layout/model-training/ease-mode'
     | '/_layout/dashboard/'
@@ -394,10 +394,12 @@ export interface FileRouteTypes {
 }
 
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   LayoutRouteRoute: typeof LayoutRouteRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   LayoutRouteRoute: LayoutRouteRouteWithChildren,
 }
 
@@ -411,14 +413,17 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
+        "/",
         "/_layout"
       ]
+    },
+    "/": {
+      "filePath": "index.tsx"
     },
     "/_layout": {
       "filePath": "_layout/route.tsx",
       "children": [
         "/_layout/model-training",
-        "/_layout/",
         "/_layout/dashboard/",
         "/_layout/about/",
         "/_layout/voice-clone/"
@@ -432,10 +437,6 @@ export const routeTree = rootRoute
         "/_layout/model-training/ease-mode",
         "/_layout/model-training/"
       ]
-    },
-    "/_layout/": {
-      "filePath": "_layout/index.tsx",
-      "parent": "/_layout"
     },
     "/_layout/model-training/advanced-mode": {
       "filePath": "_layout/model-training/advanced-mode/route.lazy.tsx",

@@ -141,6 +141,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
       case 'less':
       case 'xml':
         return (
+          // @ts-ignore 
           <SyntaxHighlighter
             language={extension}
             style={materialLight}

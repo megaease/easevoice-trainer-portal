@@ -1,9 +1,9 @@
 import { createFileRoute, Navigate } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/_layout/')({
+import { ProjectSelect } from '@/features/project-select'
+export const Route = createFileRoute('/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return <Navigate to='/voice-clone' />
+  return <ProjectSelect />
 }
