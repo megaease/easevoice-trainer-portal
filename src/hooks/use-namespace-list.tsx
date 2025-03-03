@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import namespaceApi from '@/apis/namespace'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 
-type Namespace = {
+export type Namespace = {
   name: string
   homePath: string
   createdAt: string

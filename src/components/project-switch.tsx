@@ -5,7 +5,8 @@ import { ChevronsUpDown, Plus, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { getRandomIconByName } from '@/lib/randomIcon'
-import { useNamespaceList } from '@/hooks/use-namespace-list'
+import { useCurrentSessionAutoRefresh } from '@/hooks/use-current-session-autorefresh'
+import { Namespace, useNamespaceList } from '@/hooks/use-namespace-list'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -42,12 +43,23 @@ import {
 
 export function ProjectSwitch() {
   const { currentNamespace, setCurrentNamespace } = useNamespaceStore()
-  console.log(currentNamespace,'currentNamespace')
+  console.log(currentNamespace, 'currentNamespace')
   const { namespaces = [], refetch } = useNamespaceList()
+  const currentSession = useCurrentSessionAutoRefresh()
   const [deleteNamespace, setDeleteNamespace] = React.useState<string | null>(
     null
   )
   const [isAlertOpen, setIsAlertOpen] = React.useState(false)
+  const handleChangeNamespace = async (namespace: Namespace) => {
+    await currentSession.refetch()
+    if (currentSession.data?.status === 'Running') {
+      toast.error('当前有任务正在执行', {
+        description: '请先停止当前任务，再切换项目',
+      })
+      return
+    }
+    setCurrentNamespace(namespace)
+  }
   const createNamespaceMutation = useMutation({
     mutationFn: namespaceApi.createNamespace,
     onSuccess: () => {
@@ -124,7 +136,9 @@ export function ProjectSwitch() {
               return (
                 <DropdownMenuItem
                   key={namespace?.name}
-                  onClick={() => setCurrentNamespace(namespace)}
+                  onClick={() => {
+                    handleChangeNamespace(namespace)
+                  }}
                   className='gap-2 p-2 truncate'
                 >
                   <div className='flex size-6 items-center justify-center rounded-sm border'>
@@ -172,7 +186,7 @@ export function ProjectSwitch() {
             <DialogHeader>
               <DialogTitle>创建项目</DialogTitle>
               <DialogDescription>
-              克隆和训练模型产生的文件都会保存在项目中
+                克隆和训练模型产生的文件都会保存在项目中
               </DialogDescription>
             </DialogHeader>
             <Input

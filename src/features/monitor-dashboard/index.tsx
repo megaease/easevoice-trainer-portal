@@ -1,20 +1,12 @@
-import { useQuery } from '@tanstack/react-query'
-import sessionApi from '@/apis/session'
 import { Cpu, HardDrive, Zap } from 'lucide-react'
+import { useCurrentSessionAutoRefresh } from '@/hooks/use-current-session-autorefresh'
 import { useSession, MonitorMetrics } from '@/hooks/use-session'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LossMonitor } from './loss-monitor'
 
 export default function MonitoringDashboard() {
   const session = useSession()
-  const currentSession = useQuery({
-    queryKey: ['currentSession', 'loss_monitor'],
-    queryFn: async () => {
-      const res = await sessionApi.getCurrentSession()
-      return res.data
-    },
-    refetchInterval: 5000,
-  })
+  const currentSession = useCurrentSessionAutoRefresh()
   if (session.isLoading) {
     return null
   }
