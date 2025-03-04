@@ -12,7 +12,7 @@ interface Task {
   data: Record<string, any> | { output_path: string }
   request: Record<string, any>
 }
-export interface EaseModeTask {
+export interface EasyModeTask {
   uuid: string
   task_name: string
   request: {
@@ -34,7 +34,7 @@ export interface MonitorMetrics {
   [uuid: string]: string
 }
 export interface Tasks {
-  [uuid: string]: Task | MonitorMetrics | EaseModeTask
+  [uuid: string]: Task | MonitorMetrics | EasyModeTask
 }
 export function useSession() {
   const query = useQuery<Tasks>({

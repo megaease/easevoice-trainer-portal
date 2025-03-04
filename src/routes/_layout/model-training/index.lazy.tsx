@@ -5,5 +5,5 @@ export const Route = createLazyFileRoute('/_layout/model-training/')({
 })
 
 function RouteComponent() {
-  return <Navigate to='/model-training/ease-mode' />
+  return <Navigate to='/model-training/easy-mode' />
 }

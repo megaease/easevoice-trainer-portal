@@ -20,13 +20,10 @@ The EaseVoice Trainer Portal is the front-end interface for EaseVoice Trainer an
 
 <div align="center">
   <img src="./docs/images/voice-clone.jpg" alt="voice-clone" width="800"/>
-  <p>Voice Clone</p>
   
-  <img src="./docs/images/ease-mode.jpg" alt="easy-mode" width="800"/>
-  <p>Easy Mode</p>
+  <img src="./docs/images/easy-mode.jpg" alt="easy-mode" width="800"/>
   
   <img src="./docs/images/advanced-mode.jpg" alt="advanced-mode" width="800"/>
-  <p>Advanced Mode</p>
 </div>
 
 ## 🛠️ Tech Stack

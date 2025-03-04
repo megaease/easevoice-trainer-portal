@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import EaseModeTrainingForm from './ease-mode-training-form'
+import EasyModeTrainingForm from './easy-mode-training-form'
 
-export default function EaseModeTraining() {
+export default function EasyModeTraining() {
   return (
     <div className='p-4 h-full'>
       <ScrollArea className='h-full w-full'>
@@ -11,7 +11,7 @@ export default function EaseModeTraining() {
             <CardTitle>基础模式</CardTitle>
           </CardHeader>
           <CardContent>
-            <EaseModeTrainingForm />
+            <EasyModeTrainingForm />
           </CardContent>
         </Card>
       </ScrollArea>

@@ -29,8 +29,8 @@ const LayoutModelTrainingIndexLazyImport = createFileRoute(
   '/_layout/model-training/',
 )()
 const LayoutAboutIndexLazyImport = createFileRoute('/_layout/about/')()
-const LayoutModelTrainingEaseModeLazyImport = createFileRoute(
-  '/_layout/model-training/ease-mode',
+const LayoutModelTrainingEasyModeLazyImport = createFileRoute(
+  '/_layout/model-training/easy-mode',
 )()
 const LayoutModelTrainingAdvancedModeRouteLazyImport = createFileRoute(
   '/_layout/model-training/advanced-mode',
@@ -98,13 +98,13 @@ const LayoutDashboardIndexRoute = LayoutDashboardIndexImport.update({
   getParentRoute: () => LayoutRouteRoute,
 } as any)
 
-const LayoutModelTrainingEaseModeLazyRoute =
-  LayoutModelTrainingEaseModeLazyImport.update({
-    id: '/ease-mode',
-    path: '/ease-mode',
+const LayoutModelTrainingEasyModeLazyRoute =
+  LayoutModelTrainingEasyModeLazyImport.update({
+    id: '/easy-mode',
+    path: '/easy-mode',
     getParentRoute: () => LayoutModelTrainingRouteLazyRoute,
   } as any).lazy(() =>
-    import('./routes/_layout/model-training/ease-mode.lazy').then(
+    import('./routes/_layout/model-training/easy-mode.lazy').then(
       (d) => d.Route,
     ),
   )
@@ -185,11 +185,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutModelTrainingAdvancedModeRouteLazyImport
       parentRoute: typeof LayoutModelTrainingRouteLazyImport
     }
-    '/_layout/model-training/ease-mode': {
-      id: '/_layout/model-training/ease-mode'
-      path: '/ease-mode'
-      fullPath: '/model-training/ease-mode'
-      preLoaderRoute: typeof LayoutModelTrainingEaseModeLazyImport
+    '/_layout/model-training/easy-mode': {
+      id: '/_layout/model-training/easy-mode'
+      path: '/easy-mode'
+      fullPath: '/model-training/easy-mode'
+      preLoaderRoute: typeof LayoutModelTrainingEasyModeLazyImport
       parentRoute: typeof LayoutModelTrainingRouteLazyImport
     }
     '/_layout/dashboard/': {
@@ -269,7 +269,7 @@ const LayoutModelTrainingAdvancedModeRouteLazyRouteWithChildren =
 
 interface LayoutModelTrainingRouteLazyRouteChildren {
   LayoutModelTrainingAdvancedModeRouteLazyRoute: typeof LayoutModelTrainingAdvancedModeRouteLazyRouteWithChildren
-  LayoutModelTrainingEaseModeLazyRoute: typeof LayoutModelTrainingEaseModeLazyRoute
+  LayoutModelTrainingEasyModeLazyRoute: typeof LayoutModelTrainingEasyModeLazyRoute
   LayoutModelTrainingIndexLazyRoute: typeof LayoutModelTrainingIndexLazyRoute
 }
 
@@ -277,7 +277,7 @@ const LayoutModelTrainingRouteLazyRouteChildren: LayoutModelTrainingRouteLazyRou
   {
     LayoutModelTrainingAdvancedModeRouteLazyRoute:
       LayoutModelTrainingAdvancedModeRouteLazyRouteWithChildren,
-    LayoutModelTrainingEaseModeLazyRoute: LayoutModelTrainingEaseModeLazyRoute,
+    LayoutModelTrainingEasyModeLazyRoute: LayoutModelTrainingEasyModeLazyRoute,
     LayoutModelTrainingIndexLazyRoute: LayoutModelTrainingIndexLazyRoute,
   }
 
@@ -310,7 +310,7 @@ export interface FileRoutesByFullPath {
   '': typeof LayoutRouteRouteWithChildren
   '/model-training': typeof LayoutModelTrainingRouteLazyRouteWithChildren
   '/model-training/advanced-mode': typeof LayoutModelTrainingAdvancedModeRouteLazyRouteWithChildren
-  '/model-training/ease-mode': typeof LayoutModelTrainingEaseModeLazyRoute
+  '/model-training/easy-mode': typeof LayoutModelTrainingEasyModeLazyRoute
   '/dashboard': typeof LayoutDashboardIndexRoute
   '/about': typeof LayoutAboutIndexLazyRoute
   '/model-training/': typeof LayoutModelTrainingIndexLazyRoute
@@ -323,7 +323,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof LayoutRouteRouteWithChildren
-  '/model-training/ease-mode': typeof LayoutModelTrainingEaseModeLazyRoute
+  '/model-training/easy-mode': typeof LayoutModelTrainingEasyModeLazyRoute
   '/dashboard': typeof LayoutDashboardIndexRoute
   '/about': typeof LayoutAboutIndexLazyRoute
   '/model-training': typeof LayoutModelTrainingIndexLazyRoute
@@ -339,7 +339,7 @@ export interface FileRoutesById {
   '/_layout': typeof LayoutRouteRouteWithChildren
   '/_layout/model-training': typeof LayoutModelTrainingRouteLazyRouteWithChildren
   '/_layout/model-training/advanced-mode': typeof LayoutModelTrainingAdvancedModeRouteLazyRouteWithChildren
-  '/_layout/model-training/ease-mode': typeof LayoutModelTrainingEaseModeLazyRoute
+  '/_layout/model-training/easy-mode': typeof LayoutModelTrainingEasyModeLazyRoute
   '/_layout/dashboard/': typeof LayoutDashboardIndexRoute
   '/_layout/about/': typeof LayoutAboutIndexLazyRoute
   '/_layout/model-training/': typeof LayoutModelTrainingIndexLazyRoute
@@ -356,7 +356,7 @@ export interface FileRouteTypes {
     | ''
     | '/model-training'
     | '/model-training/advanced-mode'
-    | '/model-training/ease-mode'
+    | '/model-training/easy-mode'
     | '/dashboard'
     | '/about'
     | '/model-training/'
@@ -368,7 +368,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | ''
-    | '/model-training/ease-mode'
+    | '/model-training/easy-mode'
     | '/dashboard'
     | '/about'
     | '/model-training'
@@ -382,7 +382,7 @@ export interface FileRouteTypes {
     | '/_layout'
     | '/_layout/model-training'
     | '/_layout/model-training/advanced-mode'
-    | '/_layout/model-training/ease-mode'
+    | '/_layout/model-training/easy-mode'
     | '/_layout/dashboard/'
     | '/_layout/about/'
     | '/_layout/model-training/'
@@ -434,7 +434,7 @@ export const routeTree = rootRoute
       "parent": "/_layout",
       "children": [
         "/_layout/model-training/advanced-mode",
-        "/_layout/model-training/ease-mode",
+        "/_layout/model-training/easy-mode",
         "/_layout/model-training/"
       ]
     },
@@ -447,8 +447,8 @@ export const routeTree = rootRoute
         "/_layout/model-training/advanced-mode/"
       ]
     },
-    "/_layout/model-training/ease-mode": {
-      "filePath": "_layout/model-training/ease-mode.lazy.tsx",
+    "/_layout/model-training/easy-mode": {
+      "filePath": "_layout/model-training/easy-mode.lazy.tsx",
       "parent": "/_layout/model-training"
     },
     "/_layout/dashboard/": {

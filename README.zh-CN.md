@@ -21,13 +21,10 @@ EaseVoice Trainer Portal 是 EaseVoice Trainer 的前端界面，旨在为声音
 
 <div align="center">
   <img src="./docs/images/voice-clone.jpg" alt="声音克隆" width="800"/>
-  <p>声音克隆</p>
   
-  <img src="./docs/images/ease-mode.jpg" alt="声音训练简单模式" width="800"/>
-  <p>简单模式</p>
-  
+  <img src="./docs/images/easy-mode.jpg" alt="声音训练简单模式" width="800"/>
+
   <img src="./docs/images/advanced-mode.jpg" alt="声音训练高级模式" width="800"/>
-  <p>高级模式</p>
 </div>
 
 ## 🛠️ 技术栈

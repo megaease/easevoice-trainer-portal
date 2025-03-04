@@ -8,7 +8,7 @@ const TRAINING_AUDIOS_DIR = 'training-audios'
 const MODELS_DIR = 'models'
 const TRAINING_OUTPUT_DIR = 'training-audios/output'
 
-type Namespace = {
+export type Namespace = {
   name: string
   homePath: string
   createdAt: string

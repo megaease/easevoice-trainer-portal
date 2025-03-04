@@ -1,12 +1,12 @@
 import { FileCode, Folder, Info } from 'lucide-react'
-import { EaseModeTask } from '@/hooks/use-session'
+import { EasyModeTask } from '@/hooks/use-session'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 
 export default function ResultStatus({
   result,
 }: {
-  result?: EaseModeTask | null
+  result?: EasyModeTask | null
 }) {
   if (!result) {
     return (

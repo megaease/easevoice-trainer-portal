@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { useUUIDStore } from '@/stores/uuidStore'
 import { isTaskRunning, getRequest } from '@/lib/utils'
-import { EaseModeTask, useSession } from '@/hooks/use-session'
+import { EasyModeTask, useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -32,7 +32,7 @@ const defaultValues = {
   source_dir: '',
   project_dir: '',
 }
-export default function EaseModeTrainingForm() {
+export default function EasyModeTrainingForm() {
   const queryClient = useQueryClient()
   const session = useSession()
   const uuid = useUUIDStore((state) => state.ease_voice)
@@ -92,7 +92,7 @@ export default function EaseModeTrainingForm() {
     }
   }
 
-  const currentSession = data?.[uuid] as EaseModeTask | null
+  const currentSession = data?.[uuid] as EasyModeTask | null
   const isTaskRunningValue = isTaskRunning(uuid, session.data)
 
   return (

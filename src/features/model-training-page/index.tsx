@@ -20,11 +20,11 @@ const FileManager = React.lazy(() => import('@/components/file-manager'))
 export default function ModelTraining() {
   const matchRoute = useMatchRoute()
   const currentSession = useCurrentSession()
-  const [currentTab, setCurrentTab] = useState('easeMode')
+  const [currentTab, setCurrentTab] = useState('easyMode')
 
   useEffect(() => {
-    if (matchRoute({ to: '/model-training/ease-mode' })) {
-      setCurrentTab('easeMode')
+    if (matchRoute({ to: '/model-training/easy-mode' })) {
+      setCurrentTab('easyMode')
     } else if (
       matchRoute({ to: '/model-training/advanced-mode', fuzzy: true })
     ) {
@@ -51,8 +51,8 @@ export default function ModelTraining() {
           <div className='flex items-center gap-3 sm:gap-4 w-full'>
             <div className='flex-1'>
               <TabsList>
-                <Link to='/model-training/ease-mode'>
-                  <TabsTrigger value='easeMode'>基础模式</TabsTrigger>
+                <Link to='/model-training/easy-mode'>
+                  <TabsTrigger value='easyMode'>基础模式</TabsTrigger>
                 </Link>
                 <Link to='/model-training/advanced-mode'>
                   <TabsTrigger value='advancedMode'>高级模式</TabsTrigger>
