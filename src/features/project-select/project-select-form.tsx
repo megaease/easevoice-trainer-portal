@@ -2,12 +2,13 @@ import { useEffect } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import namespaceApi from '@/apis/namespace'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
+import { useNamespaceList } from '@/hooks/use-namespace-list'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -41,16 +42,10 @@ export default function ProjectSelectForm() {
   })
 
   const {
-    data: namespacesData,
+    namespaces,
     isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ['namespaces'],
-    queryFn: async () => {
-      const res = await namespaceApi.getNamespaces()
-      return res.data
-    },
-  })
+    refetch: refetchNamespaces,
+  } = useNamespaceList()
 
   const createDefaultNamespace = useMutation({
     mutationFn: async () => {
@@ -59,10 +54,9 @@ export default function ProjectSelectForm() {
         description: '默认项目',
       })
     },
-    onSuccess: (data) => {
+    onSuccess: async () => {
       toast.success('已创建默认项目')
-      refetch()
-      //
+      await refetchNamespaces()
     },
     onError: (error) => {
       toast.error(
@@ -72,19 +66,15 @@ export default function ProjectSelectForm() {
   })
 
   useEffect(() => {
-    if (
-      namespacesData &&
-      namespacesData.namespaces &&
-      namespacesData.namespaces.length === 0
-    ) {
+    if (namespaces && namespaces.length === 0) {
       createDefaultNamespace.mutate()
     }
-  }, [namespacesData])
+  }, [namespaces])
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const selectedNamespace = namespacesData?.namespaces.find(
-        (ns: any) => ns.name === values.namespace
+      const selectedNamespace = namespaces?.find(
+        (ns) => ns.name === values.namespace
       )
 
       if (selectedNamespace) {
@@ -125,7 +115,7 @@ export default function ProjectSelectForm() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {namespacesData?.namespaces?.map((namespace: any) => (
+                    {namespaces?.map((namespace) => (
                       <SelectItem key={namespace.name} value={namespace.name}>
                         {namespace.name}
                       </SelectItem>

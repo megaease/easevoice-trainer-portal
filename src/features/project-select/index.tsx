@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
 import namespaceApi from '@/apis/namespace'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -29,7 +28,7 @@ import ProjectSelectForm from './project-select-form'
 export function ProjectSelect() {
   const [rootPath, setRootPath] = useState('')
   const [isRootDialogOpen, setIsRootDialogOpen] = useState(false)
-
+  const { setCurrentNamespace } = useNamespaceStore()
   const rootQuery = useQuery({
     queryKey: ['namespaceRoot'],
     queryFn: async () => {
@@ -38,6 +37,8 @@ export function ProjectSelect() {
     },
   })
 
+  const { refetch: refetchNamespaces, isLoading: isNamespacesLoading } =
+    useNamespaceList()
   const updateRootMutation = useMutation({
     mutationFn: async (path: string) => {
       return await namespaceApi.updateNamespaceRoot({ 'namespaces-root': path })
@@ -46,6 +47,8 @@ export function ProjectSelect() {
       toast.success('项目根目录已更新')
       setIsRootDialogOpen(false)
       rootQuery.refetch()
+      // Add this line to refresh the namespace list after root is updated
+      refetchNamespaces()
     },
     onError: (error) => {
       toast.error(
@@ -54,12 +57,11 @@ export function ProjectSelect() {
     },
   })
 
-  const { isLoading: isNamespacesLoading } = useNamespaceList()
-
   useEffect(() => {
     if (rootQuery.data && !rootQuery.data.setOnce) {
       setRootPath(rootQuery.data['namespaces-root'])
       setIsRootDialogOpen(true)
+      setCurrentNamespace(null)
     }
   }, [rootQuery.data])
 

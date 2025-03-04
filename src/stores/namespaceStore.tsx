@@ -16,7 +16,7 @@ export type Namespace = {
 
 type NamespaceStore = {
   currentNamespace: Namespace | null
-  setCurrentNamespace: (newNamespace: Namespace) => void
+  setCurrentNamespace: (newNamespace: Namespace | null) => void
   getVoicesPath: () => string
   getOutputsPath: () => string
   getTrainingAudiosPath: () => string
