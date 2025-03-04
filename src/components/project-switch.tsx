@@ -1,12 +1,14 @@
 import * as React from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useIsMutating, useMutation } from '@tanstack/react-query'
 import namespaceApi from '@/apis/namespace'
 import { ChevronsUpDown, Plus, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
+import { useUUIDStore } from '@/stores/uuidStore'
 import { getRandomIconByName } from '@/lib/randomIcon'
-import { useCurrentSessionAutoRefresh } from '@/hooks/use-current-session-autorefresh'
+import { cn, isTaskRunning } from '@/lib/utils'
 import { Namespace, useNamespaceList } from '@/hooks/use-namespace-list'
+import { useSession } from '@/hooks/use-session'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -42,64 +44,120 @@ import {
 } from './ui/alert-dialog'
 
 export function ProjectSwitch() {
+  // State and hooks
+  const isMutating = useIsMutating()
+  const session = useSession()
+  const uuid = useUUIDStore((state) => state.current)
   const { currentNamespace, setCurrentNamespace } = useNamespaceStore()
   const { namespaces = [], refetch } = useNamespaceList()
-  const currentSession = useCurrentSessionAutoRefresh()
   const [deleteNamespace, setDeleteNamespace] = React.useState<string | null>(
     null
   )
   const [isAlertOpen, setIsAlertOpen] = React.useState(false)
-  const handleChangeNamespace = async (namespace: Namespace) => {
-    await currentSession.refetch()
-    if (currentSession.data?.status === 'Running') {
+  const [newNamespace, setNewNamespace] = React.useState('')
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+
+  // Get an icon for the current namespace
+  const Icon = React.useMemo(
+    () => getRandomIconByName(currentNamespace?.name || ''),
+    [currentNamespace?.name]
+  )
+
+  // Check if switching projects is allowed
+  const isTaskRunningValue = isTaskRunning(uuid, session.data)
+  const isSystemBusy = isMutating > 0
+  const canSwitchProject = React.useCallback(() => {
+    if (isTaskRunningValue) {
       toast.error('当前有任务正在执行', {
         description: '请等待任务执行完毕后再切换项目',
       })
-      return
+      return false
     }
-    setCurrentNamespace(namespace)
+
+    if (isSystemBusy) {
+      toast.error('系统正在处理中', {
+        description: '请等待操作完成后再切换项目',
+      })
+      return false
+    }
+
+    return true
+  }, [isMutating, session.data, uuid])
+
+  // Handle project switching
+  const handleChangeNamespace = async (namespace: Namespace) => {
+    await session.refetch()
+    if (canSwitchProject()) {
+      setCurrentNamespace(namespace)
+    }
   }
+
+  // Create namespace mutation
   const createNamespaceMutation = useMutation({
     mutationFn: namespaceApi.createNamespace,
-    onSuccess: () => {
+    onSuccess: (res) => {
       toast.success('项目创建成功')
+      setCurrentNamespace(res?.data || '')
+      setIsDialogOpen(false)
+      setNewNamespace('')
     },
     onError: (error) => {
-      toast.error((error as any)?.response?.data?.detail || error.message)
+      toast.error((error as any)?.response?.data?.detail || '创建项目失败', {
+        description: '请检查项目名称是否合法或是否已存在',
+      })
     },
     onSettled: () => {
       refetch()
     },
   })
 
-  const Icon = getRandomIconByName(currentNamespace?.name || '')
-  const [newNamespace, setNewNamespace] = React.useState('')
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
-
-  const handleAddNamespace = async () => {
-    if (!newNamespace.trim()) {
-      toast.error('项目名称不能为空')
-      return
-    }
-    const res = await createNamespaceMutation.mutateAsync({
-      name: newNamespace,
-    })
-    setCurrentNamespace(res?.data || '')
-    setIsDialogOpen(false)
-  }
-
+  // Delete namespace mutation
   const deleteNamespaceMutation = useMutation({
     mutationFn: namespaceApi.deleteNamespace,
     onSuccess: async () => {
       toast.success('项目删除成功')
+      setDeleteNamespace(null)
+      setIsAlertOpen(false)
     },
     onError: (error) => {
-      toast.error(error.message)
+      toast.error('删除项目失败', {
+        description: (error as any)?.response?.data?.detail || error.message,
+      })
     },
     onSettled: async () => {
       refetch()
     },
   })
+
+  // Handle adding a new namespace
+  const handleAddNamespace = async () => {
+    if (!newNamespace.trim()) {
+      toast.error('项目名称不能为空')
+      return
+    }
+
+    await createNamespaceMutation.mutateAsync({
+      name: newNamespace,
+    })
+  }
+
+  // Handle namespace deletion check
+  const handleDeleteCheck = (e: React.MouseEvent, namespace: Namespace) => {
+    e.stopPropagation()
+
+    if (currentNamespace?.name === namespace?.name) {
+      toast.error('不能删除当前项目')
+      return
+    }
+
+    if (namespaces.length <= 1) {
+      toast.error('至少需要一个项目')
+      return
+    }
+
+    setDeleteNamespace(namespace?.name)
+    setIsAlertOpen(true)
+  }
 
   return (
     <SidebarMenu>
@@ -116,7 +174,7 @@ export function ProjectSwitch() {
 
               <div className='grid flex-1 text-left text-sm leading-tight'>
                 <span className='truncate font-semibold'>
-                  {currentNamespace?.name || null}
+                  {currentNamespace?.name || '未选择项目'}
                 </span>
               </div>
               <ChevronsUpDown className='ml-auto' />
@@ -135,10 +193,9 @@ export function ProjectSwitch() {
               return (
                 <DropdownMenuItem
                   key={namespace?.name}
-                  onClick={() => {
-                    handleChangeNamespace(namespace)
-                  }}
+                  onClick={() => handleChangeNamespace(namespace)}
                   className='gap-2 p-2 truncate'
+                  disabled={isTaskRunningValue || isSystemBusy}
                 >
                   <div className='flex size-6 items-center justify-center rounded-sm border'>
                     <Icon className='size-4' />
@@ -147,20 +204,7 @@ export function ProjectSwitch() {
                   <DropdownMenuShortcut>
                     <X
                       className='size-4'
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        if (currentNamespace?.name === namespace?.name) {
-                          toast.error('不能删除当前项目')
-                          return
-                        }
-                        if (namespaces.length === 1) {
-                          toast.error('至少需要一个项目')
-                          return
-                        }
-
-                        setDeleteNamespace(namespace?.name)
-                        setIsAlertOpen(true)
-                      }}
+                      onClick={(e) => handleDeleteCheck(e, namespace)}
                     />
                   </DropdownMenuShortcut>
                 </DropdownMenuItem>
@@ -170,6 +214,7 @@ export function ProjectSwitch() {
             <DropdownMenuItem
               className='gap-2 p-2'
               onClick={() => setIsDialogOpen(true)}
+              disabled={isTaskRunningValue || isSystemBusy}
             >
               <div className='flex items-center justify-center w-full h-full gap-2'>
                 <Plus className='size-4' />
@@ -180,6 +225,8 @@ export function ProjectSwitch() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* Create project dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent>
             <DialogHeader>
@@ -192,20 +239,29 @@ export function ProjectSwitch() {
               value={newNamespace}
               onChange={(e) => setNewNamespace(e.target.value)}
               placeholder='建议使用英文名称'
+              disabled={createNamespaceMutation.isPending}
             />
             <DialogFooter>
               <Button
                 onClick={() => setIsDialogOpen(false)}
                 variant={'outline'}
+                disabled={createNamespaceMutation.isPending}
               >
                 取消
               </Button>
-              <Button onClick={handleAddNamespace}>
+              <Button
+                onClick={handleAddNamespace}
+                disabled={
+                  createNamespaceMutation.isPending || !newNamespace.trim()
+                }
+              >
                 {createNamespaceMutation.isPending ? '创建中...' : '创建'}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Delete project confirmation */}
         <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -216,18 +272,17 @@ export function ProjectSwitch() {
               吗？
             </AlertDialogDescription>
             <AlertDialogFooter>
-              <AlertDialogCancel>取消</AlertDialogCancel>
+              <AlertDialogCancel disabled={deleteNamespaceMutation.isPending}>
+                取消
+              </AlertDialogCancel>
               <Button
                 onClick={async (e) => {
                   e.stopPropagation()
-
-                  if (!deleteNamespace) {
-                    return
+                  if (deleteNamespace) {
+                    await deleteNamespaceMutation.mutateAsync(deleteNamespace)
                   }
-                  await deleteNamespaceMutation.mutateAsync(deleteNamespace)
-                  setDeleteNamespace(null)
-                  setIsAlertOpen(false)
                 }}
+                disabled={deleteNamespaceMutation.isPending || !deleteNamespace}
               >
                 {deleteNamespaceMutation.isPending ? '删除中...' : '删除'}
               </Button>

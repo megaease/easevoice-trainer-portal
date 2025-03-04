@@ -11,6 +11,7 @@ export interface UUIDState {
   sovits: string
   ease_voice: string
   gpt: string
+  current: string
   setUUID: (key: keyof UUIDState, value: string) => void
 }
 export const useUUIDStore = create<UUIDState>((set) => ({
@@ -24,9 +25,11 @@ export const useUUIDStore = create<UUIDState>((set) => ({
   sovits: '',
   gpt: '',
   ease_voice: '',
+  current: '',
   setUUID: (key: keyof UUIDState, value: string) => {
     set(() => ({
       [key]: value,
+      current: value,
     }))
   },
 }))
