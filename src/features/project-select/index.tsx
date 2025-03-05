@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import namespaceApi from '@/apis/namespace'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNamespaceStore } from '@/stores/namespaceStore'
 import { useNamespaceList } from '@/hooks/use-namespace-list'
+import { useNamespaceRoot } from '@/hooks/useNamespaceRoot'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -29,13 +30,7 @@ export function ProjectSelect() {
   const [rootPath, setRootPath] = useState('')
   const [isRootDialogOpen, setIsRootDialogOpen] = useState(false)
   const { setCurrentNamespace } = useNamespaceStore()
-  const rootQuery = useQuery({
-    queryKey: ['namespaceRoot'],
-    queryFn: async () => {
-      const res = await namespaceApi.getNamespaceRoot()
-      return res.data
-    },
-  })
+  const rootQuery = useNamespaceRoot()
 
   const { refetch: refetchNamespaces, isLoading: isNamespacesLoading } =
     useNamespaceList()

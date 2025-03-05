@@ -1,17 +1,20 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import namespaceApi from '@/apis/namespace'
+import { useNamespaceStore } from '@/stores/namespaceStore'
 import { cn } from '@/lib/utils'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
-import { useNamespaceStore } from '@/stores/namespaceStore'
 
 export const Route = createFileRoute('/_layout')({
   component: RouteComponent,
-  beforeLoad: () => {
+  beforeLoad: async () => {
     const currentNamespace = useNamespaceStore.getState().currentNamespace
-    if (!currentNamespace) {
+    const res = await namespaceApi.getNamespaceRoot()
+    const namespaceRoot = res?.data
+    if (!currentNamespace || (namespaceRoot && !namespaceRoot.setOnce)) {
       throw redirect({ to: '/' })
     }
-  }
+  },
 })
 
 function RouteComponent() {
