@@ -108,9 +108,9 @@ export default function EasyModeTrainingForm() {
 
                 <FormControl>
                   <Input
-                    disabled
                     placeholder='请输入训练集音频文件目录'
-                    type=''
+                    type='text'
+                    readOnly
                     {...field}
                   />
                 </FormControl>
