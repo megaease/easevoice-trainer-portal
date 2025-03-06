@@ -42,6 +42,7 @@ export function handleServerError(error: unknown) {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      refetchOnWindowFocus: false,
       retry: (failureCount, error) => {
         if (error instanceof AxiosError) {
           if ([404, 500].includes(error.response?.status ?? 0)) {
@@ -63,7 +64,6 @@ const queryClient = new QueryClient({
           [401, 403].includes(error.response?.status ?? 0)
         )
       },
-      refetchOnWindowFocus: import.meta.env.PROD,
       staleTime: 10 * 1000, // 10s
     },
     mutations: {
