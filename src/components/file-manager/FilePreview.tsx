@@ -4,6 +4,7 @@ import fileApi from '@/apis/files'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { toast } from 'sonner'
+import { getAudioDuration } from '@/utils/audio'
 import {
   Dialog,
   DialogContent,
@@ -13,7 +14,6 @@ import {
 } from '@/components/ui/dialog'
 import AudioPlayer from '../audio-player'
 import { FileItem } from './types'
-import { getAudioDuration } from '@/utils/audio'
 
 interface FilePreviewProps {
   file: FileItem | null
@@ -43,18 +43,25 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
       toast.success('加载成功', { id: 'download-toast' })
       const blob = new Blob([data])
       const extension = file?.fileName.split('.').pop()?.toLowerCase()
-      
+
       if (!extension) return
-      
+
       if (['mp3', 'wav', 'flac', 'm4a', 'ogg'].includes(extension)) {
+        // Create URL and set it first to ensure audio can play regardless of duration calculation
         const url = URL.createObjectURL(blob)
+        setFileContent(url)
+
+        // Then try to get duration, but don't block playback if it fails
         try {
           const duration = await getAudioDuration(url)
           setAudioDuration(duration)
         } catch (error) {
-          console.error('Error getting audio duration:', error)
+          console.error(
+            `Error getting duration for file: ${file?.fileName}`,
+            error
+          )
+          setAudioDuration('--:--')
         }
-        setFileContent(url)
       } else if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
         const url = URL.createObjectURL(blob)
         setFileContent(url)
@@ -77,9 +84,13 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
       setFileContent(null)
       downloadFileMutation.mutate()
     }
-    
+
     return () => {
-      if (fileContent && typeof fileContent === 'string' && fileContent.startsWith('blob:')) {
+      if (
+        fileContent &&
+        typeof fileContent === 'string' &&
+        fileContent.startsWith('blob:')
+      ) {
         URL.revokeObjectURL(fileContent)
       }
     }
@@ -141,7 +152,7 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
       case 'less':
       case 'xml':
         return (
-          // @ts-ignore 
+          // @ts-ignore
           <SyntaxHighlighter
             language={extension}
             style={materialLight}
