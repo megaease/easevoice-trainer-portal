@@ -57,6 +57,8 @@ const formSchema = z.object({
   repetition_penalty: z.number().optional(),
   sovits_path: z.string().optional(),
   gpt_path: z.string().optional(),
+  output_dir: z.string(),
+  project_dir: z.string(),
 })
 const languages = ['auto', 'zh', 'en', 'ja', 'yue', 'ko']
 const splitMethods = [
@@ -90,6 +92,7 @@ const defaultValues = {
   sovits_path: 'default',
   gpt_path: 'default',
   output_dir: '',
+  project_dir: '',
 }
 export default function VoiceCloneForm() {
   const session = useSession()
@@ -143,12 +146,14 @@ export default function VoiceCloneForm() {
       toast.error('请输入要合成的文本')
       return
     }
-    const audioPath = currentNamespace?.homePath + '/voices/' + audioState.name
-    const outputDir = currentNamespace?.homePath + '/outputs'
+    const projectDir = currentNamespace?.homePath || ''
+    const audioPath = projectDir + '/voices/' + audioState.name
+    const outputDir = projectDir + '/outputs'
     const data = {
       ...values,
       ref_audio_path: audioPath,
       output_dir: outputDir,
+      project_dir: projectDir,
     }
 
     await cloneMutation.mutateAsync(data)

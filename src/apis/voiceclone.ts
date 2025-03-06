@@ -23,6 +23,7 @@ type VoiceCloneBodyType = {
   sovits_path?: string
   gpt_path?: string
   output_dir?: string
+  project_dir: string
 }
 
 class VoiceCloneApi {
