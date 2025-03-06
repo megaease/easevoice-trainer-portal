@@ -1,37 +1,14 @@
-export async function getAudioDuration(audioSource: File | string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const audio = new Audio()
-    
-    const cleanup = () => {
-      if (typeof audioSource !== 'string') {
-        URL.revokeObjectURL(audio.src)
-      }
-      audio.remove()
-    }
-
-    audio.addEventListener('loadedmetadata', () => {
-      const seconds = Math.round(audio.duration)
-      const minutes = Math.floor(seconds / 60)
-      const remainingSeconds = seconds % 60
-      
-      cleanup()
-      
-      if (minutes > 0) {
-        resolve(`${minutes}分${remainingSeconds}秒`)
-      } else {
-        resolve(`${seconds}秒`)
-      }
-    })
-    
-    audio.addEventListener('error', () => {
-      cleanup()
-      reject(new Error('音频加载失败'))
-    })
-
-    audio.src = typeof audioSource === 'string' 
-      ? audioSource 
-      : URL.createObjectURL(audioSource)
-  })
+export const getAudioDuration = async (file: File): Promise<string> => {
+  try {
+    const audioContext = new AudioContext()
+    const arrayBuffer = await file.arrayBuffer()
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+    const durationInSeconds = audioBuffer.duration
+    return `${Math.floor(durationInSeconds)}s`
+  } catch (error) {
+    console.error('Error getting audio duration:', error)
+    return '0s'
+  }
 }
 
 export async function fileToBase64(file: File): Promise<string> {

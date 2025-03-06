@@ -47,21 +47,12 @@ export const FilePreview: React.FC<FilePreviewProps> = ({
       if (!extension) return
 
       if (['mp3', 'wav', 'flac', 'm4a', 'ogg'].includes(extension)) {
-        // Create URL and set it first to ensure audio can play regardless of duration calculation
+        const duration = await getAudioDuration(
+          new File([blob], file?.fileName || '')
+        )
+        setAudioDuration(duration)
         const url = URL.createObjectURL(blob)
         setFileContent(url)
-
-        // Then try to get duration, but don't block playback if it fails
-        try {
-          const duration = await getAudioDuration(url)
-          setAudioDuration(duration)
-        } catch (error) {
-          console.error(
-            `Error getting duration for file: ${file?.fileName}`,
-            error
-          )
-          setAudioDuration('--:--')
-        }
       } else if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
         const url = URL.createObjectURL(blob)
         setFileContent(url)
