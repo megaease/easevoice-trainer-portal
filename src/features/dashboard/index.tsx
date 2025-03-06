@@ -5,8 +5,8 @@ import { Main } from '@/components/layout/main'
 import { ModeToggle } from '@/components/mode-toggle'
 
 function getPath() {
-  const path = '/tensorboard'
-  const prodPath = '/apis/v1/tensorboard'
+  const path = '/tensorboard/'
+  const prodPath = '/apis/v1/tensorboard/'
   const isDev = import.meta.env.MODE === 'development'
   if (isDev) {
     return `${import.meta.env.VITE_API_BASE_URL}${path}`
