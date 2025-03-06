@@ -43,10 +43,11 @@ export function CloneResult({ uuid }: { uuid: string }) {
       if (!audioPath) return
 
       try {
-        const url = await fileDownloadMutation.mutateAsync(audioPath)
-        if (!url || !mounted) return
-
-        const duration = await getAudioDuration(url)
+        const blob = await fileDownloadMutation.mutateAsync(audioPath)
+        if (!blob || !mounted) return
+        const url = URL.createObjectURL(blob)
+        const file = new File([blob], audioName)
+        const duration = await getAudioDuration(file)
         setAudioState({ url, duration, name: audioName })
       } catch (error) {
         console.error('Error loading audio:', error)

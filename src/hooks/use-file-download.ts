@@ -6,8 +6,7 @@ export function useFileDownloadMutation() {
     mutationFn: async (filePath: string) => {
       const response = await fileApi.downloadFile(filePath)
       const blob = await response.data
-      const url = window.URL.createObjectURL(blob)
-      return url
+      return blob
     },
     onError: () => {},
   })
