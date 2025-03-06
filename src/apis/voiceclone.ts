@@ -1,30 +1,5 @@
+import { VoiceCloneFormData } from '@/types/voiceclone'
 import apiClient from '@/lib/apiClient'
-
-type VoiceCloneBodyType = {
-  text: string
-  text_lang: string
-  ref_audio_path: string
-  prompt_text: string
-  prompt_lang: string
-  text_split_method: string
-  aux_ref_audio_paths?: string[]
-  seed?: number
-  top_k?: number
-  top_p?: number
-  temperature?: number
-  batch_size?: number
-  speed_factor?: number
-  ref_text_free?: boolean
-  split_bucket?: boolean
-  fragment_interval?: number
-  keep_random?: boolean
-  parallel_infer?: boolean
-  repetition_penalty?: number
-  sovits_path?: string
-  gpt_path?: string
-  output_dir?: string
-  project_dir: string
-}
 
 class VoiceCloneApi {
   async getVoiceCloneModels(params: { project_dir: string }) {
@@ -33,7 +8,7 @@ class VoiceCloneApi {
     })
   }
 
-  async cloneVoice(data: VoiceCloneBodyType) {
+  async cloneVoice(data: VoiceCloneFormData) {
     return await apiClient.post('/voiceclone/clone', data)
   }
 }
