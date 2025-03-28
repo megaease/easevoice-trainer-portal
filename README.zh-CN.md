@@ -4,6 +4,8 @@
 [![许可证](https://img.shields.io/badge/许可证-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![English](https://img.shields.io/badge/docs-English-blue.svg)](./README.md)
 
+[![EaseVoice Logo](./docs/images/logo.svg)](https://github.com/megaease/easevoice-trainer)
+
 EaseVoice Trainer Portal 是 EaseVoice Trainer 的前端界面，旨在为声音合成和转换提供直观、易用的用户界面。这个前端项目与 [EaseVoice Trainer](https://github.com/megaease/easevoice-trainer) 后端协同工作，使先进的声音克隆技术对各种技术水平的用户都能轻松上手。
 
 > 🔗 **后端项目地址：** [EaseVoice Trainer 后端](https://github.com/megaease/easevoice-trainer)
@@ -19,13 +21,11 @@ EaseVoice Trainer Portal 是 EaseVoice Trainer 的前端界面，旨在为声音
 
 ## 📸 界面预览
 
-<div align="center">
-  <img src="./docs/images/voice-clone.jpg" alt="声音克隆" width="800"/>
+  ![声音克隆](./docs/images/voice-clone.jpg)
   
-  <img src="./docs/images/easy-mode.jpg" alt="声音训练简单模式" width="800"/>
+  ![声音训练简单模式](./docs/images/easy-mode.jpg)
 
-  <img src="./docs/images/advanced-mode.jpg" alt="声音训练高级模式" width="800"/>
-</div>
+  ![声音训练高级模式](./docs/images/advanced-mode.jpg)
 
 ## 🛠️ 技术栈
 
@@ -40,21 +40,25 @@ EaseVoice Trainer Portal 是 EaseVoice Trainer 的前端界面，旨在为声音
 ## 🚀 快速开始
 
 1. 安装依赖：
+
 ```bash
 pnpm install
 ```
 
 2. 创建开发环境配置文件：
+
 ```bash
 echo "VITE_API_BASE_URL=http://localhost:8000/apis/v1" > .env.development
 ```
 
 3. 启动开发服务器：
+
 ```bash
 pnpm dev
 ```
 
 4. 构建生产版本：
+
 ```bash
 pnpm build
 ```

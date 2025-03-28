@@ -3,6 +3,8 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![中文文档](https://img.shields.io/badge/docs-中文版-red.svg)](./README.zh-CN.md)
 
+[![EaseVoice Logo](./docs/images/logo.svg)](https://github.com/megaease/easevoice-trainer)
+
 The EaseVoice Trainer Portal is the front-end interface for EaseVoice Trainer and is designed to provide an intuitive and easy-to-use user interface for sound synthesis and conversion. This front-end project works in conjunction with the back-end of [EaseVoice Trainer](https://github.com/megaease/easevoice-trainer) to make advanced sound cloning technology easy to users of all technology levels.
 
 > 🔗 **Backend Repository:** [EaseVoice Trainer Backend](https://github.com/megaease/easevoice-trainer)
@@ -18,13 +20,11 @@ The EaseVoice Trainer Portal is the front-end interface for EaseVoice Trainer an
 
 ## 📸 Screenshots
 
-<div align="center">
-  <img src="./docs/images/voice-clone.jpg" alt="voice-clone" width="800"/>
+  ![声音克隆](./docs/images/voice-clone.jpg)
   
-  <img src="./docs/images/easy-mode.jpg" alt="easy-mode" width="800"/>
-  
-  <img src="./docs/images/advanced-mode.jpg" alt="advanced-mode" width="800"/>
-</div>
+  ![声音训练简单模式](./docs/images/easy-mode.jpg)
+
+  ![声音训练高级模式](./docs/images/advanced-mode.jpg)
 
 ## 🛠️ Tech Stack
 
