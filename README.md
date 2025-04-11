@@ -26,6 +26,15 @@ The EaseVoice Trainer Portal is the front-end interface for EaseVoice Trainer an
 
   ![声音训练高级模式](./docs/images/advanced-mode.jpg)
 
+## 🎥 Demo Video
+
+Click the image or link below to watch the demo video of the project:
+
+  [![YouTube](https://img.youtube.com/vi/Rfv7hXFct00/0.jpg)](https://www.youtube.com/watch?v=Rfv7hXFct00)
+  
+- [YouTube](https://www.youtube.com/watch?v=Rfv7hXFct00)
+- [Bilibili](https://www.bilibili.com/video/BV1uaoDYVEbc/)
+
 ## 🛠️ Tech Stack
 
 - [React 18](https://react.dev/) - A JavaScript library for building user interfaces

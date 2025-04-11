@@ -27,6 +27,15 @@ EaseVoice Trainer Portal 是 EaseVoice Trainer 的前端界面，旨在为声音
 
   ![声音训练高级模式](./docs/images/advanced-mode.jpg)
 
+## 🎥 演示视频
+
+点击下方图片或链接观看项目演示视频：
+
+  [![YouTube 演示视频](https://img.youtube.com/vi/Rfv7hXFct00/0.jpg)](https://www.youtube.com/watch?v=Rfv7hXFct00)
+  
+- [YouTube](https://www.youtube.com/watch?v=Rfv7hXFct00)
+- [Bilibili](https://www.bilibili.com/video/BV1uaoDYVEbc/)
+
 ## 🛠️ 技术栈
 
 - [React 18](https://react.dev/) - 用于构建用户界面的 JavaScript 库
