@@ -44,19 +44,13 @@ The EaseVoice Trainer Portal is the front-end interface for EaseVoice Trainer an
 pnpm install
 ```
 
-2. Create a development environment configuration file:
-
-```bash
-echo "VITE_API_BASE_URL=http://localhost:8000/apis/v1" > .env.development
-```
-
-3. Start the development server:
+2. Start the development server:
 
 ```bash
 pnpm dev
 ```
 
-4. Build for production:
+3. Build for production:
 
 ```bash
 pnpm build

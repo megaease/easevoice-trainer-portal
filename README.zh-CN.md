@@ -45,19 +45,13 @@ EaseVoice Trainer Portal 是 EaseVoice Trainer 的前端界面，旨在为声音
 pnpm install
 ```
 
-2. 创建开发环境配置文件：
-
-```bash
-echo "VITE_API_BASE_URL=http://localhost:8000/apis/v1" > .env.development
-```
-
-3. 启动开发服务器：
+2. 启动开发服务器：
 
 ```bash
 pnpm dev
 ```
 
-4. 构建生产版本：
+3. 构建生产版本：
 
 ```bash
 pnpm build
