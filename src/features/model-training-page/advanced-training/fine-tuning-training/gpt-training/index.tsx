@@ -46,7 +46,7 @@ const formSchema = z.object({
   if_dpo: z.boolean(),
   if_save_latest: z.boolean(),
   if_save_every_weights: z.boolean(),
-  gpu_ids: z.string().nonempty('GPU IDs不能为空'),
+  gpu_ids: z.string().nonempty('GPU IDs 不能为空'),
   train_input_dir: z.string().nonempty('训练输入目录不能为空'),
   project_dir: z.string(),
 })
@@ -55,7 +55,7 @@ const defaultValues = {
   output_model_name: '',
   model_path:
     'pretrained/gsv-v2final-pretrained/s1bert25hz-5kh-longer-epoch=12-step=369668.ckpt',
-  batch_size: 8,
+  batch_size: 12,
   total_epochs: 15,
   save_every_epoch: 5,
   if_dpo: false,
@@ -155,20 +155,20 @@ function MyForm() {
                 </FormControl>
                 <FormMessage />
                 <FormDescription>
-                  可选, 不填则会按照时间戳生成模型名称
+                  可选，不填则会按照时间戳生成模型名称
                 </FormDescription>
               </FormItem>
             )}
           />
         </div>
         <div className='grid grid-cols-2 gap-4'>
-          {/* <FormField
+          <FormField
             control={form.control}
             name='batch_size'
             render={({ field: { value, onChange } }) => (
               <FormItem className='flex flex-col gap-4'>
                 <FormLabel className='flex justify-between'>
-                  每张显卡的batch_size
+                  每张显卡的 batch_size
                   <span>{value}</span>
                 </FormLabel>
                 <FormControl>
@@ -185,14 +185,14 @@ function MyForm() {
                 <FormMessage />
               </FormItem>
             )}
-          /> */}
+          />
           <FormField
             control={form.control}
             name='total_epochs'
             render={({ field: { value, onChange } }) => (
               <FormItem className='flex flex-col gap-4'>
                 <FormLabel className='flex justify-between'>
-                  总训练轮数total_epoch
+                  总训练轮数 total_epoch
                   <span>{value}</span>
                 </FormLabel>
                 <FormControl>
@@ -216,7 +216,7 @@ function MyForm() {
             render={({ field: { value, onChange } }) => (
               <FormItem className='flex flex-col gap-4'>
                 <FormLabel className='flex justify-between'>
-                  保存频率save_every_epoch
+                  保存频率 save_every_epoch
                   <span>{value}</span>
                 </FormLabel>
                 <FormControl>
@@ -248,7 +248,7 @@ function MyForm() {
                   />
                 </FormControl>
                 <div className='space-y-1 leading-none'>
-                  <FormLabel>是否开启dpo训练选项(实验性)</FormLabel>
+                  <FormLabel>是否开启 dpo 训练选项 (实验性)</FormLabel>
                 </div>
               </FormItem>
             )}
@@ -265,7 +265,7 @@ function MyForm() {
                   />
                 </FormControl>
                 <div className='space-y-1 leading-none'>
-                  <FormLabel>是否仅保存最新的ckpt文件以节省硬盘空间</FormLabel>
+                  <FormLabel>是否仅保存最新的 ckpt 文件以节省硬盘空间</FormLabel>
                 </div>
               </FormItem>
             )}
@@ -283,7 +283,7 @@ function MyForm() {
                 </FormControl>
                 <div className='space-y-1 leading-none'>
                   <FormLabel>
-                    是否在每次保存时间点将最终小模型保存至weights文件夹
+                    是否在每次保存时间点将最终小模型保存至 weights 文件夹
                   </FormLabel>
                 </div>
               </FormItem>
